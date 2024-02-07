@@ -1,0 +1,24 @@
+from pydantic_settings import SettingsConfigDict, BaseSettings
+
+
+class Settings(BaseSettings):
+    DB_URL: str
+    BOT_TOKEN: str
+    DEBUG: bool
+    ECHO: bool = False
+
+    @property
+    def db_url(self) -> str:
+        if self.DEBUG:
+            return "sqlite+aiosqlite:///./db.sqlite3"
+        else:
+            return f"{self.DB_URL}"
+
+    @property
+    def bot_token(self) -> str:
+        return f"{self.BOT_TOKEN}"
+
+    model_config = SettingsConfigDict(env_file=".env")
+
+
+settings = Settings()

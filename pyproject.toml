@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "sales-bot"
+version = "0.1.0"
+description = ""
+authors = ["Krushovice <Kickstar69@yandex.ru>"]
+readme = "README.md"
+packages = [{include = "sales_bot"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+aiogram = "^3.3.0"
+pydantic-settings = "^2.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
