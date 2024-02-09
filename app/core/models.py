@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, List
 from .base import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import BigInteger, Numeric, ForeignKey
@@ -12,11 +12,12 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[intpk]
-    tg_id: Mapped[BigInteger] = mapped_column(unique=True)
+    tg_id: Mapped[int] = mapped_column(unique=True)
     username: Mapped[str] = mapped_column(unique=True)
     subscription: Mapped[bool] = False
-    balance: Mapped[Numeric] = mapped_column(precision=10, scale=2)
-    referals: Mapped[list["Referral"]] = relationship(
+    cost: Mapped[Numeric] = mapped_column(Numeric(precision=10, scale=2))
+    balance: Mapped[Numeric] = mapped_column(Numeric(precision=10, scale=2))
+    referals: Mapped[List["Referral"]] = relationship(
         back_populates="user",
     )
 
@@ -30,7 +31,7 @@ class User(Base):
 class Referral(Base):
     __tablename__ = 'referrals'
     id: Mapped[intpk]
-    tg_id: Mapped[BigInteger] = mapped_column(unique=True)
+    tg_id: Mapped[int] = mapped_column(unique=True)
     username: Mapped[str] = mapped_column(unique=True)
 
     user_id: Mapped[int] = mapped_column(

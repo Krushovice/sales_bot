@@ -5,7 +5,7 @@ from aiogram import Router
 from app.markups import get_on_start_kb
 from app.utils.lexicon import LEXICON_RU
 
-# from bot.core import AsyncOrm
+from app.core import AsyncOrm
 
 
 router = Router(name=__name__)
@@ -32,11 +32,13 @@ async def command_start_handler(message: Message):
 #     await message.answer(text=LEXICON_RU["/help"])
 
 
+@router.message(Command("account", prefix="!/"))
+async def show_profile_handler(message: Message):
+    user = await AsyncOrm.get_user(tg_id=message.from_user.id,
+                                   username=message.from_user.username)
+    print(user.username)
+    await message.answer(text=f"Привет, {message.from_user.username}")  #reply_markup=get_profile_kb())
 
-# @router.message(Command("account", prefix="!/"))
-# async def show_profile_handler(message: Message):
-#     await message.answer(text=LEXICON_RU["/profile"],
-#                          reply_markup=get_profile_kb())
 
 # @router.message(Command("payment", prefix="!/"))
 # async def show_profile_handler(message: Message):

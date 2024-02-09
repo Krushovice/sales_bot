@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     DB_URL: str
     BOT_TOKEN: str
     DEBUG: bool = False
-    ECHO: bool = False
+    ECHO: bool = True
 
     @property
     def db_url(self) -> str:

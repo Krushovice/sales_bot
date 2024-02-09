@@ -11,10 +11,10 @@ LEXICON_RU: dict[str, str] = {
 
 
 
-    "account": "",
+    "/account": "",
 
 
-    "payment": "",
+    "/payment": "",
 
 
 

@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app.config import settings
+from .base import Base
 
 
 class DataBaseHelper:
@@ -24,3 +25,8 @@ db_helper = DataBaseHelper(
     url=settings.db_url,
     echo=settings.ECHO,
 )
+
+
+async def create_tables():
+    async with db_helper.engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
