@@ -4,7 +4,7 @@ from pydantic_settings import SettingsConfigDict, BaseSettings
 class Settings(BaseSettings):
     DB_URL: str
     BOT_TOKEN: str
-    DEBUG: bool
+    DEBUG: bool = False
     ECHO: bool = False
 
     @property
