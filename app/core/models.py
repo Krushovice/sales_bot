@@ -22,9 +22,9 @@ class User(Base):
     )
 
     def __str__(self):
-        return f"{self.__class__.__name__}(username={self.username!r})"
+        return f"User(id={self.id!r}, name={self.name!r}, username={self.username!r})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
 
@@ -43,7 +43,7 @@ class Referral(Base):
         )
 
     def __str__(self):
-        return f"{self.__class__.__name__}(username={self.username!r})"
+        return f"User(id={self.id!r}, name={self.name!r}, username={self.username!r})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
