@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 from .base import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import BigInteger, Numeric, ForeignKey
@@ -17,7 +17,7 @@ class User(Base):
     subscription: Mapped[bool] = False
     cost: Mapped[Numeric] = mapped_column(Numeric(precision=10, scale=2))
     balance: Mapped[Numeric] = mapped_column(Numeric(precision=10, scale=2))
-    referals: Mapped[List["Referral"]] = relationship(
+    referals: Mapped[list["Referral"]] = relationship(
         back_populates="user",
     )
 
