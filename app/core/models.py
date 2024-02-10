@@ -19,6 +19,7 @@ class User(Base):
     balance: Mapped[Numeric] = mapped_column(Numeric(precision=10, scale=2))
     referals: Mapped[list["Referral"]] = relationship(
         back_populates="user",
+        cascade="all, delete-orphan",
     )
 
     def __str__(self):
