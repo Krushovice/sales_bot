@@ -6,6 +6,6 @@ __all__ = (
     "create_tables",
 )
 
-from ..api_v1.crud2 import AsyncOrm
+from .crud import AsyncOrm
 from .db_helper import db_helper, create_tables
 from .models import User, Referral
