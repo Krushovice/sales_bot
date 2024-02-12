@@ -14,13 +14,14 @@ class User(Base):
     tg_id: Mapped[int] = mapped_column(unique=True)
     username: Mapped[str] = mapped_column(String(30), unique=True)
     subscription: Mapped[bool] = mapped_column(default=False)
-    cost: Mapped[Numeric] = mapped_column(Numeric(precision=10,
-                                                  scale=2),
-                                          nullable=True,
-                                          )
-    balance: Mapped[Numeric] = mapped_column(Numeric(precision=10,
-                                                     scale=2),
-                                             nullable=True)
+    cost: Mapped[Numeric] = mapped_column(
+        Numeric(precision=10, scale=2),
+        default=0,
+    )
+    balance: Mapped[Numeric] = mapped_column(
+        Numeric(precision=10, scale=2),
+        default=0,
+    )
     referrals: Mapped[list["Referral"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
@@ -34,7 +35,7 @@ class User(Base):
 
 
 class Referral(Base):
-    __tablename__ = 'referrals'
+    __tablename__ = "referrals"
     id: Mapped[intpk]
     tg_id: Mapped[int] = mapped_column(unique=True)
     username: Mapped[str] = mapped_column(String(30), unique=True)
@@ -43,9 +44,7 @@ class Referral(Base):
         ForeignKey("users.id", ondelete="CASCADE"),
     )
     # Добавляем отношение многие к одному с моделью User
-    user: Mapped['User'] = relationship(
-        back_populates="referrals"
-        )
+    user: Mapped["User"] = relationship(back_populates="referrals")
 
     def __str__(self):
         return f"User(id={self.id!r}, username={self.username!r})"

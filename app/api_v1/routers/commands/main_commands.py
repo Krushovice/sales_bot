@@ -2,8 +2,12 @@ from aiogram.filters import Command, CommandStart
 from aiogram.utils import markdown
 from aiogram.types import Message
 from aiogram import Router
-from app.api_v1.markups import get_on_start_kb, get_profile_kb
-from app.api_v1.utils.lexicon import LEXICON_RU
+from app.api_v1.markups import (
+    build_main_kb,
+    build_payment_kb,
+    build_account_kb,
+)
+
 
 from app.api_v1.core.crud import AsyncOrm
 
@@ -19,14 +23,19 @@ async def command_start_handler(message: Message):
     )
 
     await message.answer(
-        text=markdown.bold(LEXICON_RU["/start"]),
-        reply_markup=get_on_start_kb(),
+        text=markdown.hbold(
+            "🚀  Подключение в 1 клик, без ограничений скорости\n\n"
+            "🛡  Отсутствие рекламы и полная конфиденциальность\n\n"
+            "🔥  Твой личный VPN по самой низкой цене\n\n"
+            "💰  Цена: 1̶9̶9̶руб 💥129 руб/мес",
+        ),
+        reply_markup=build_main_kb(),
     )
 
 
 @router.message(Command("help", prefix="!/"))
 async def command_help_handler(message: Message):
-    await message.answer(text=LEXICON_RU["/help"])
+    await message.answer()
 
 
 @router.message(Command("account", prefix="!/"))
@@ -43,7 +52,7 @@ async def show_profile_handler(message: Message):
             f"<i>Для оплаты и продления VPN используется баланс.\n</i>"
             f"<i>Для его пополнения используйте клавиши ниже</i>"
         ),
-        reply_markup=get_profile_kb(),
+        reply_markup=build_account_kb(),
     )
 
 
@@ -65,6 +74,9 @@ async def refill_user_balance(message: Message):
         subscription=True,
     )
     if updated_user.subscription:
-        await message.answer("Подписка оформлена!")
+        await message.answer(
+            text="Подписка оформлена!",
+            reply_markup=build_payment_kb(),
+        )
     else:
         await message.answer("Что-то пошло не так")
