@@ -27,3 +27,14 @@ def build_account_kb() -> InlineKeyboardMarkup:
     builder.adjust(1)
 
     return builder.as_markup()
+
+
+def root_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Назад 🔙",
+        callback_data=AccountCbData(action=ProfileActions.back).pack(),
+    )
+    builder.adjust(1)
+
+    return builder.as_markup()

@@ -17,11 +17,14 @@ router = Router(name=__name__)
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message):
-    await AsyncOrm.create_user(
+    # await AsyncOrm.create_user(
+    #     tg_id=message.from_user.id,
+    #     username=message.from_user.username,
+    # )
+    await AsyncOrm.get_user(
         tg_id=message.from_user.id,
         username=message.from_user.username,
     )
-
     await message.answer(
         text=markdown.hbold(
             "🚀  Подключение в 1 клик, без ограничений скорости\n\n"

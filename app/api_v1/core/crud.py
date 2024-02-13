@@ -15,20 +15,23 @@ class AsyncOrm:
             return user
 
     @staticmethod
-    async def get_user(tg_id: int) -> User:
+    async def get_user(tg_id: int, username: str) -> User:
         async with db_helper.session_factory() as session:
-            user = await session.scalar(select(User).where(User.tg_id == tg_id))
+            user = await session.scalar(
+                select(User).where(User.tg_id == tg_id),
+            )
 
-            # if not user:
-            #     session.add(User(tg_id=tg_id, username=username))
-            #     await session.commit()
+            if not user:
+                session.add(User(tg_id=tg_id, username=username))
+                await session.commit()
             return user
-            print(type(user))
 
     @staticmethod
     async def update_user(tg_id: int, **kwargs):
         async with db_helper.session_factory() as session:
-            user = await session.scalar(select(User).where(User.tg_id == tg_id))
+            user = await session.scalar(
+                select(User).where(User.tg_id == tg_id),
+            )
             for key, value in kwargs.items():
                 setattr(user, key, value)
             session.add(user)

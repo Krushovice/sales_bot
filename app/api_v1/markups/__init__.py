@@ -5,11 +5,27 @@ __all__ = (
     "MenuCbData",
     "PayActions",
     "PaymentCbData",
+    "ProductActions",
+    "ProductCbData",
     "build_main_kb",
     "build_payment_kb",
     "build_account_kb",
+    "product_details_kb",
+    "root_kb",
 )
 
-from .account_kb import build_account_kb, AccountCbData, ProfileActions
+from .account_kb import (
+    build_account_kb,
+    AccountCbData,
+    ProfileActions,
+    root_kb,
+)
 from .main_kb import build_main_kb, MenuActions, MenuCbData
-from .payment_kb import build_payment_kb, PayActions, PaymentCbData
+from .payment_kb import (
+    build_payment_kb,
+    PayActions,
+    PaymentCbData,
+    product_details_kb,
+    ProductActions,
+    ProductCbData,
+)

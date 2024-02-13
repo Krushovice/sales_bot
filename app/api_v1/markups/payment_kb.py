@@ -6,29 +6,38 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
 class PayActions(IntEnum):
-    details = auto()
     pay = auto()
     back = auto()
 
 
+class ProductActions(IntEnum):
+    details = auto()
+
+
 class PaymentCbData(CallbackData, prefix="pay"):
     action: PayActions
+
+
+class ProductCbData(CallbackData, prefix="product"):
+    action: ProductActions
     name: str
+    price: int
 
 
 def build_payment_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
-    for name in [
-        "400р - 3мес🔸",
-        "130р - 1мес🔹",
-        "800р - 6мес🔻",
+    for name, price in [
+        ("150р - 1мес🔹", 150),
+        ("400р - 3мес🔸", 400),
+        ("800р - 6мес🔻", 800),
     ]:
         builder.button(
             text=name,
-            callback_data=PaymentCbData(
-                action=PayActions.details,
+            callback_data=ProductCbData(
+                action=ProductActions.details,
                 name=name,
+                price=price,
             ),
         )
 
@@ -51,7 +60,7 @@ def product_details_kb(
         text="Оплатить",
         callback_data=PaymentCbData(
             action=PayActions.pay,
-            **payment_cb_data.model_dump(include={"name"}),
+            **payment_cb_data.model_dump(include={"price"}),
         ),
     )
 
