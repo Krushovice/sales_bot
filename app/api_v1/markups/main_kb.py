@@ -4,6 +4,8 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from .payment_kb import PayActions, PaymentCbData
+
 
 class MenuActions(IntEnum):
     pay = auto()
@@ -20,7 +22,7 @@ def build_main_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(
         text="Купить VPN 💰",
-        callback_data=MenuCbData(action=MenuActions.pay).pack(),
+        callback_data=PaymentCbData(action=PayActions.pay).pack(),
     )
     builder.button(
         text="Помощь ⚒",
