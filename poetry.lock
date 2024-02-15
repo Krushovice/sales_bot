@@ -756,6 +756,20 @@ files = [
 ]
 
 [[package]]
+name = "outline-vpn-api"
+version = "6.1.0"
+description = "Python API wrapper for Outline VPN"
+optional = false
+python-versions = "*"
+files = [
+    {file = "outline-vpn-api-6.1.0.tar.gz", hash = "sha256:ceb1140aa606a147561ea5eac4655fe7710697e1e85299f993d20da58476d2cf"},
+    {file = "outline_vpn_api-6.1.0-py3-none-any.whl", hash = "sha256:67aa12f0db3bc301bdcdee7d1c0eaf4e80fbfad14d135cb60f79817528c290a4"},
+]
+
+[package.dependencies]
+requests = "*"
+
+[[package]]
 name = "pydantic"
 version = "2.5.3"
 description = "Data validation using Python type hints"
@@ -1178,4 +1192,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "b2dd1814892145d579a56c3759c36d957b7e69166fa8fb3da41c8b952504c763"
+content-hash = "d990ecbac8e1eadd52daedcf933c091a6a0a49a6aec6a4fb113f8ab621e04bed"
