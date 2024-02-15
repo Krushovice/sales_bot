@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     YOOKASSA_APP_ID: str
     YOOKASSA_ACCESS_TOKEN: str
     YOOKASSA_CLIENT_SECRET: str
+    OUTLINE_API_URL: str
+    OUTLINE_SHA_CERT: str
 
     @property
     def db_url(self) -> str:
@@ -37,6 +39,14 @@ class Settings(BaseSettings):
     @property
     def get_pay_secret(self) -> str:
         return f"{self.YOOKASSA_CLIENT_SECRET}"
+
+    @property
+    def get_outline_url(self) -> str:
+        return f"{self.OUTLINE_API_URL}"
+
+    @property
+    def get_outline_certificate(self) -> str:
+        return f"{self.OUTLINE_SHA_CERT}"
 
     model_config = SettingsConfigDict(env_file=".env")
 

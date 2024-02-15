@@ -1,3 +1,4 @@
+import datetime
 from aiogram.filters import Command, CommandStart
 from aiogram.utils import markdown
 from aiogram.types import Message
@@ -22,10 +23,19 @@ async def command_start_handler(message: Message):
     #     tg_id=message.from_user.id,
     #     username=message.from_user.username,
     # )
-    await AsyncOrm.get_user(
+    user = await AsyncOrm.get_user(
         tg_id=message.from_user.id,
         username=message.from_user.username,
     )
+    current_date = datetime.datetime.today()
+    delta = current_date - user.subscribe_date
+    if 0 < delta <= 2:
+        await message.answer(
+            text="Ваша подписка заканчивается. Пожалуйста, пополните баланс",
+            reply_markup=build_payment_kb(
+                tg_id=message.from_user.id,
+            ),
+        )
     await message.answer(
         text=markdown.hbold(
             "🚀  Подключение в 1 клик, без ограничений скорости\n\n"
@@ -60,27 +70,27 @@ async def show_profile_handler(message: Message):
     )
 
 
-@router.message(Command("payment", prefix="!/"))
-async def refill_user_balance(message: Message):
-    user = await AsyncOrm.update_user(
-        tg_id=message.from_user.id,
-        cost=129,
-        balance=200,
-    )
+# @router.message(Command("payment", prefix="!/"))
+# async def refill_user_balance(message: Message):
+#     user = await AsyncOrm.update_user(
+#         tg_id=message.from_user.id,
+#         cost=129,
+#         balance=200,
+#     )
 
-    await message.answer(
-        text=f"""Оплата прошла успешно!
-Стоимость услуги: {user.cost},
-Ваш баланс: {user.balance}"""
-    )
-    updated_user = await AsyncOrm.update_user(
-        tg_id=message.from_user.id,
-        subscription=True,
-    )
-    if updated_user.subscription:
-        await message.answer(
-            text="Подписка оформлена!",
-            reply_markup=build_payment_kb(),
-        )
-    else:
-        await message.answer("Что-то пошло не так")
+#     await message.answer(
+#         text=f"""Оплата прошла успешно!
+# Стоимость услуги: {user.cost},
+# Ваш баланс: {user.balance}"""
+#     )
+#     updated_user = await AsyncOrm.update_user(
+#         tg_id=message.from_user.id,
+#         subscription=True,
+#     )
+#     if updated_user.subscription:
+#         await message.answer(
+#             text="Подписка оформлена!",
+#             reply_markup=build_payment_kb(),
+#         )
+#     else:
+#         await message.answer("Что-то пошло не так")

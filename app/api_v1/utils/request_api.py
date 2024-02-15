@@ -1,49 +1,39 @@
-from aiohttp import ClientSession
-from loguru import logger
+from outline_vpn.outline_vpn import OutlineVPN
 
-from bot.analytics.types import AbstractAnalyticsLogger, BaseEvent
-
-GOOGLE_ANALYTICS_ENDPOINT = "https://www.google-analytics.com"
+from app.api_v1.config import settings
 
 
-class GoogleAnalyticsTelegramLogger(AbstractAnalyticsLogger):
-    def __init__(self, api_secret: str, measurement_id: str, base_url: str = GOOGLE_ANALYTICS_ENDPOINT) -> None:
-        self._api_secret: str = api_secret
-        self._measurement_id: str = measurement_id
-        self._base_url: str = base_url
-        self._headers = {"Content-Type": "application/json", "Accept": "*/*"}
+class OutlineHelper:
+    # Setup the access with the API URL (Use the one provided to you after the server setup)
+    def __init__(self):
+        self.client = OutlineVPN(
+            api_url=settings.OUTLINE_API_URL,
+            cert_sha256=settings.OUTLINE_SHA_CERT,
+        )
 
-    async def _send_request(
-        self,
-        event: BaseEvent,
-    ) -> dict:
-        url = f"{self._base_url}/mp/collect?measurement_id={self._measurement_id}&api_secret={self._api_secret}"
-        params = dict(event)
+    def create_new_key(self, name):
+        # Create a new key
+        new_key = self.client.create_key(name=name)
+        return new_key
 
-        async with ClientSession() as session, session.post(url, headers=self._headers, json=params) as response:
-            json_response = await response.json(content_type="application/json")
+    def get_key(self, key_id: int):
+        return self.client.get_key(key_id)
 
-        logger.info("Send record to Google Analytics")
-        logger.info(f"{json_response=}")
+    # Rename it
+    def set_key_name(self, key, name):
+        self.client.rename_key(key.key_id, name)
 
-        return self._validate_response(json_response)
+    # Delete it
+    def delete_key(self, key):
+        self.client.delete_key(key.key_id)
 
-    @staticmethod
-    def _validate_response(response: dict) -> dict:
-        """Validate response."""
-        if not response.get("ok"):
-            name = response["error"]["name"]
-            code = response["error"]["code"]
+    # Set a monthly data limit for a key (20MB)
+    def set_key_limit(self, key):
+        self.client.add_data_limit(key.key_id, 1000 * 1000 * 20)
 
-            logger.error(f"get error from cryptopay api | name: {name} | code: {code}")
-            msg = f"Error in CryptoPay API call | name: {name} | code: {code}"
-            raise ValueError(msg)
+    # Remove the data limit
+    def remove_key_limit(self, key):
+        self.client.delete_data_limit(key.key_id)
 
-        logger.info(f"got response | ok: {response['ok']} | result: {response['result']}")
-        return response
 
-    async def log_event(
-        self,
-        event: BaseEvent,
-    ) -> None:
-        """Use this method to sends event to Goo
+outline_helper = OutlineHelper()

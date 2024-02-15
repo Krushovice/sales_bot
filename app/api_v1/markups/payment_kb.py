@@ -54,12 +54,13 @@ def build_payment_kb() -> InlineKeyboardMarkup:
 
 def product_details_kb(
     payment_cb_data: PaymentCbData,
+    tg_id: int,
 ) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
     builder.button(
         text="Оплатить",
-        url=f"{get_quickpay_url(pay_in=payment_cb_data.price)}",
+        url=f"{get_quickpay_url(pay_in=payment_cb_data.price, tg_id=tg_id,)}",
         # callback_data=PaymentCbData(
         #     action=PayActions.pay,
         #     **payment_cb_data.model_dump(include={"price"}),
@@ -74,10 +75,10 @@ def product_details_kb(
     return builder.as_markup()
 
 
-def build_pay_button() -> InlineKeyboardMarkup:
+def build_pay_button(tg_id: int) -> InlineKeyboardMarkup:
     pay_btn = InlineKeyboardButton(
         text="Оплатить",
-        url=f"{get_quickpay_url(pay_in=150)}",
+        url=f"{get_quickpay_url(pay_in=150, tg_id=tg_id,)}",
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[pay_btn]])
     return keyboard

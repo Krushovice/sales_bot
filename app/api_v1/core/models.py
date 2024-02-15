@@ -22,6 +22,9 @@ class User(Base):
         Numeric(precision=10, scale=2),
         default=0,
     )
+    subscribe_date: Mapped[str] = mapped_column(
+        nullable=True,
+    )
     referrals: Mapped[list["Referral"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
@@ -38,7 +41,6 @@ class Referral(Base):
     __tablename__ = "referrals"
     id: Mapped[intpk]
     tg_id: Mapped[int] = mapped_column(unique=True)
-    username: Mapped[str] = mapped_column(String(30), unique=True)
 
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"),
@@ -47,7 +49,7 @@ class Referral(Base):
     user: Mapped["User"] = relationship(back_populates="referrals")
 
     def __str__(self):
-        return f"User(id={self.id!r}, username={self.username!r})"
+        return f"User(id={self.id!r})"
 
     def __repr__(self) -> str:
         return str(self)

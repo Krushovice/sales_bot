@@ -59,7 +59,9 @@ async def handle_pay_button(call: CallbackQuery):
 
     await call.message.edit_text(
         text="Для оплаты VPN перейдите по ссылке:",
-        reply_markup=build_pay_button(),
+        reply_markup=build_pay_button(
+            tg_id=call.from_user.id,
+        ),
     )
 
 
