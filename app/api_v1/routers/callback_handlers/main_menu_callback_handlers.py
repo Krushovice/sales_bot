@@ -8,8 +8,15 @@ from app.api_v1.markups import (
     MenuCbData,
     ProfileActions,
     AccountCbData,
+    PayActions,
+    PaymentCbData,
 )
-from app.api_v1.markups import build_account_kb, root_kb, build_main_kb
+from app.api_v1.markups import (
+    build_account_kb,
+    root_kb,
+    build_main_kb,
+    build_pay_button,
+)
 from app.api_v1.utils.lexicon import LEXICON_RU
 
 
@@ -46,9 +53,14 @@ async def handle_support_button(call: CallbackQuery):
     )
 
 
-@router.callback_query(MenuCbData.filter(F.action == MenuActions.pay))
+@router.callback_query(PaymentCbData.filter(F.action == PayActions.pay))
 async def handle_pay_button(call: CallbackQuery):
-    pass
+    await call.answer()
+
+    await call.message.edit_text(
+        text="Для оплаты VPN перейдите по ссылке:",
+        reply_markup=build_pay_button(),
+    )
 
 
 @router.callback_query(MenuCbData.filter(F.action == MenuActions.advantage))

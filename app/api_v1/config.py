@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     PAY_TOKEN: str
     DEBUG: bool = False
     ECHO: bool = True
+    YOOKASSA_APP_ID: str
+    YOOKASSA_ACCESS_TOKEN: str
+    YOOKASSA_CLIENT_SECRET: str
 
     @property
     def db_url(self) -> str:
@@ -22,6 +25,18 @@ class Settings(BaseSettings):
     @property
     def pay_token(self) -> str:
         return f"{self.PAY_TOKEN}"
+
+    @property
+    def get_app_id(self) -> str:
+        return f"{self.YOOKASSA_APP_ID}"
+
+    @property
+    def get_yookassa_token(self) -> str:
+        return f"{self.YOOKASSA_ACCESS_TOKEN}"
+
+    @property
+    def get_pay_secret(self) -> str:
+        return f"{self.YOOKASSA_CLIENT_SECRET}"
 
     model_config = SettingsConfigDict(env_file=".env")
 

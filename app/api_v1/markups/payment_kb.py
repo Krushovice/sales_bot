@@ -1,8 +1,9 @@
 from enum import IntEnum, auto
 
 from aiogram.filters.callback_data import CallbackData
-from aiogram.types import InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from app.api_v1.utils.pay_helper import get_quickpay_url
 
 
 class PayActions(IntEnum):
@@ -58,11 +59,11 @@ def product_details_kb(
 
     builder.button(
         text="Оплатить",
-        callback_data=PaymentCbData(
-            action=PayActions.pay,
-            **payment_cb_data.model_dump(include={"price"}),
-        ),
-    )
+        url=f"{get_quickpay_url(pay_in=payment_cb_data.price)}",
+        # callback_data=PaymentCbData(
+        #     action=PayActions.pay,
+        #     **payment_cb_data.model_dump(include={"price"}),
+    ),
 
     builder.button(
         text="Назад🔙",
@@ -71,3 +72,12 @@ def product_details_kb(
     builder.adjust(1)
 
     return builder.as_markup()
+
+
+def build_pay_button() -> InlineKeyboardMarkup:
+    pay_btn = InlineKeyboardButton(
+        text="Оплатить",
+        url=f"{get_quickpay_url(pay_in=150)}",
+    )
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[pay_btn]])
+    return keyboard
