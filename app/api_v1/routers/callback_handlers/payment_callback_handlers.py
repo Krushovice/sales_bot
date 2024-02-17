@@ -33,19 +33,23 @@ router = Router(name=__name__)
 @router.callback_query(AccountCbData.filter(F.action == ProfileActions.refill))
 async def handle_payment_button(call: CallbackQuery):
     await call.answer()
-    await call.message.edit_text(
-        text="💰 Укажите сумму пополнения баланса",
+    await call.message.edit_caption(
+        caption="💰 Укажите сумму пополнения баланса",
         reply_markup=build_payment_kb(),
     )
 
 
-@router.callback_query(PaymentCbData.filter(F.action == PayActions.back_to_account))
+@router.callback_query(
+    PaymentCbData.filter(
+        F.action == PayActions.back_to_account,
+    )
+)
 async def handle_back_button(call: CallbackQuery):
     await call.answer()
     user = await AsyncOrm.get_user(
         tg_id=call.from_user.id,
     )
-    await call.message.edit_text(
+    await call.message.edit_caption(
         (
             f"<b>Личный кабинет</b>\n\n"
             f"🆔 {user.tg_id} \n"
@@ -67,8 +71,8 @@ async def handle_show_key_button(call: CallbackQuery):
         tg_id=call.from_user.id,
     )
     await call.answer()
-    await call.message.edit_text(
-        text=f"Ваш ключ: {user_key}",
+    await call.message.edit_caption(
+        caption=f"Ваш ключ: {user_key}",
         reply_markup=build_payment_kb(),
     )
 
@@ -83,11 +87,11 @@ async def handle_product_actions__button(
     await call.answer()
     msg_text = markdown.text(
         markdown.hbold(f"Сумма: {callback_data.price} руб"),
-        markdown.hbold("Для оплаты перейдите по ссылке ниже"),
+        markdown.hitalic("Для оплаты перейдите по ссылке ниже"),
         sep="\n\n",
     )
-    await call.message.edit_text(
-        text=msg_text,
+    await call.message.edit_caption(
+        caption=msg_text,
         reply_markup=product_details_kb(
             tg_id=call.from_user.id,
             payment_cb_data=callback_data,
@@ -102,8 +106,8 @@ async def handle_back_to_choice_button(
     call: CallbackQuery,
 ):
     await call.answer()
-    await call.message.edit_text(
-        text="💰 Укажите сумму пополнения баланса",
+    await call.message.edit_caption(
+        caption="💰 Укажите сумму пополнения баланса",
         reply_markup=build_payment_kb(),
     )
 

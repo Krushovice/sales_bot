@@ -30,8 +30,8 @@ async def handle_account_button(call: CallbackQuery):
         tg_id=call.from_user.id,
     )
 
-    await call.message.edit_text(
-        text=(
+    await call.message.edit_caption(
+        caption=(
             f"<b>Личный кабинет</b>\n\n"
             f"🆔 {user.tg_id} \n"
             f"💰 Баланс: {user.balance}руб\n\n"
@@ -46,8 +46,8 @@ async def handle_account_button(call: CallbackQuery):
 async def handle_support_button(call: CallbackQuery):
     await call.answer()
 
-    await call.message.edit_text(
-        text=LEXICON_RU["help_info"],
+    await call.message.edit_caption(
+        caption=LEXICON_RU["help_info"],
         reply_markup=root_kb(),
     )
 
@@ -56,8 +56,8 @@ async def handle_support_button(call: CallbackQuery):
 async def handle_pay_button(call: CallbackQuery):
     await call.answer()
 
-    await call.message.edit_text(
-        text="Для оплаты VPN перейдите по ссылке:",
+    await call.message.edit_caption(
+        caption="Для оплаты VPN перейдите по ссылке:",
         reply_markup=build_pay_button(
             tg_id=call.from_user.id,
         ),
@@ -68,8 +68,8 @@ async def handle_pay_button(call: CallbackQuery):
 async def handle_advantage_button(call: CallbackQuery):
     await call.answer()
 
-    await call.message.edit_text(
-        text="Почему мы?",
+    await call.message.edit_caption(
+        caption="Почему мы?",
         reply_markup=root_kb(),
     )
 
@@ -78,8 +78,8 @@ async def handle_advantage_button(call: CallbackQuery):
 async def handle_root_button(call: CallbackQuery):
     await call.answer()
 
-    await call.message.edit_text(
-        text=markdown.hbold(
+    await call.message.edit_caption(
+        caption=markdown.hbold(
             "🚀  Подключение в 1 клик, без ограничений скорости\n\n"
             "🛡  Отсутствие рекламы и полная конфиденциальность\n\n"
             "🔥  Твой личный VPN по самой низкой цене\n\n"

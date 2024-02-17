@@ -20,6 +20,7 @@ class MenuCbData(CallbackData, prefix="main"):
 
 def build_main_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
+
     builder.button(
         text="Купить VPN 💰",
         callback_data=PaymentCbData(action=PayActions.pay).pack(),

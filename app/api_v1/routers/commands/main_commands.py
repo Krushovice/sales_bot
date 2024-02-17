@@ -1,7 +1,7 @@
 import datetime
 from aiogram.filters import Command, CommandStart
 from aiogram.utils import markdown
-from aiogram.types import Message
+from aiogram.types import Message, FSInputFile
 from aiogram import Router
 from app.api_v1.markups import (
     build_main_kb,
@@ -17,6 +17,8 @@ from app.api_v1.utils.chek_user import check_user_expiration
 
 router = Router(name=__name__)
 
+file_path = "app/api_v1/utils/images/image1.jpg"
+
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message):
@@ -26,8 +28,11 @@ async def command_start_handler(message: Message):
     )
     if user:
         if await check_user_expiration(tg_id=user.tg_id):
-            await message.answer(
-                text=markdown.hbold(
+            await message.answer_photo(
+                photo=FSInputFile(
+                    path=file_path,
+                ),
+                caption=markdown.hbold(
                     f"C возвращением, {message.from_user.first_name}!\n"
                     "Ваша подписка заканчивается. Пожалуйста, пополните баланс"
                 ),
@@ -43,8 +48,11 @@ async def command_start_handler(message: Message):
             username=message.from_user.username,
         )
 
-    await message.answer(
-        text=markdown.hbold(
+    await message.answer_photo(
+        photo=FSInputFile(
+            path=file_path,
+        ),
+        caption=markdown.hbold(
             "🚀  Подключение в 1 клик, без ограничений скорости\n\n"
             "🛡  Отсутствие рекламы и полная конфиденциальность\n\n"
             "🔥  Твой личный VPN по самой низкой цене\n\n"
@@ -87,7 +95,11 @@ async def show_profile_handler(message: Message):
 
 @router.message(Command("payment", prefix="!/"))
 async def refill_user_balance(message: Message):
-    await message.answer(
-        text="💰 Укажите сумму пополнения баланса",
+
+    await message.answer_photo(
+        photo=FSInputFile(
+            path=file_path,
+        ),
+        caption=markdown.hbold("💰 Укажите сумму пополнения баланса"),
         reply_markup=build_payment_kb(),
     )
