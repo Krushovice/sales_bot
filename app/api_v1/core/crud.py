@@ -26,6 +26,17 @@ class AsyncOrm:
             return user
 
     @staticmethod
+    async def get_user_key(tg_id: int) -> User:
+        async with db_helper.session_factory() as session:
+            user = await session.scalar(
+                select(User).where(User.tg_id == tg_id),
+            )
+
+            if not user:
+                return None
+            return user.key.value
+
+    @staticmethod
     async def update_user(tg_id: int, **kwargs):
         async with db_helper.session_factory() as session:
             user = await session.scalar(

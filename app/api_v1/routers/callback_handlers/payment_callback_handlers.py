@@ -63,12 +63,12 @@ async def handle_back_button(call: CallbackQuery):
     )
 )
 async def handle_show_key_button(call: CallbackQuery):
-    user = await AsyncOrm.get_user(
+    user_key = await AsyncOrm.get_user_key(
         tg_id=call.from_user.id,
     )
-    await call.message.answer()
+    await call.answer()
     await call.message.edit_text(
-        text=f"{user.key}",
+        text=f"Ваш ключ: {user_key}",
         reply_markup=build_payment_kb(),
     )
 

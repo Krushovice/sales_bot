@@ -12,7 +12,7 @@ from app.api_v1.markups import (
 
 from app.api_v1.core.crud import AsyncOrm
 
-# from app.api_v1.markups import PaymentCbData
+from app.api_v1.utils.chek_user import check_user_expiration
 
 
 router = Router(name=__name__)
@@ -25,19 +25,17 @@ async def command_start_handler(message: Message):
         tg_id=message.from_user.id,
     )
     if user:
-        if user.subscription:
-            current_date = datetime.datetime.today()
-            delta = current_date - user.expiration_date
-            if 0 < delta <= 3:
-                await message.answer(
-                    text=markdown.hbold(
-                        f"C возвращением, {message.from_user.first_name}!"
-                        "Ваша подписка заканчивается. Пожалуйста, пополните баланс"
-                    ),
-                    reply_markup=build_account_kb(
-                        tg_id=message.from_user.id,
-                    ),
-                )
+        if await check_user_expiration(tg_id=user.tg_id):
+            await message.answer(
+                text=markdown.hbold(
+                    f"C возвращением, {message.from_user.first_name}!\n"
+                    "Ваша подписка заканчивается. Пожалуйста, пополните баланс"
+                ),
+                reply_markup=build_account_kb(
+                    user=user,
+                ),
+            )
+            return
 
     else:
         await AsyncOrm.create_user(
@@ -66,16 +64,25 @@ async def show_profile_handler(message: Message):
     user = await AsyncOrm.get_user(
         tg_id=message.from_user.id,
     )
-    await message.answer(
-        text=(
-            f"<b>Личный кабинет</b>\n\n"
-            f"🆔 {user.tg_id} \n"
-            f"💰 Баланс: {user.balance}руб\n\n"
-            f"<i>Для оплаты и продления VPN используется баланс.\n</i>"
-            f"<i>Для его пополнения используйте клавиши ниже</i>"
-        ),
-        reply_markup=build_account_kb(),
+
+    text = (
+        f"<b>Личный кабинет</b>\n\n"
+        f"🆔 {user.tg_id} \n"
+        f"💰 Баланс: {user.balance}руб\n\n"
+        f"<i>Для оплаты и продления VPN используется баланс.\n</i>"
+        f"<i>Для его пополнения используйте клавиши ниже</i>"
     )
+    if await check_user_expiration(tg_id=user.tg_id):
+        await message.answer(
+            text=text,
+            reply_markup=build_account_kb(user=user),
+        )
+
+    else:
+        await message.answer(
+            text=text,
+            reply_markup=build_account_kb(),
+        )
 
 
 @router.message(Command("payment", prefix="!/"))
