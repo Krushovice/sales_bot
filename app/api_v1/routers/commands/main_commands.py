@@ -11,7 +11,8 @@ from app.api_v1.markups import (
 
 
 from app.api_v1.core.crud import AsyncOrm
-from app.api_v1.markups import PaymentCbData
+
+# from app.api_v1.markups import PaymentCbData
 
 
 router = Router(name=__name__)
@@ -19,23 +20,31 @@ router = Router(name=__name__)
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message):
-    # await AsyncOrm.create_user(
-    #     tg_id=message.from_user.id,
-    #     username=message.from_user.username,
-    # )
+    """Checking user if he is in the database"""
     user = await AsyncOrm.get_user(
         tg_id=message.from_user.id,
-        username=message.from_user.username,
     )
-    current_date = datetime.datetime.today()
-    delta = current_date - user.subscribe_date
-    if 0 < delta <= 2:
-        await message.answer(
-            text="Ваша подписка заканчивается. Пожалуйста, пополните баланс",
-            reply_markup=build_payment_kb(
-                tg_id=message.from_user.id,
-            ),
+    if user:
+        if user.subscription:
+            current_date = datetime.datetime.today()
+            delta = current_date - user.expiration_date
+            if 0 < delta <= 3:
+                await message.answer(
+                    text=markdown.hbold(
+                        f"C возвращением, {message.from_user.first_name}!"
+                        "Ваша подписка заканчивается. Пожалуйста, пополните баланс"
+                    ),
+                    reply_markup=build_account_kb(
+                        tg_id=message.from_user.id,
+                    ),
+                )
+
+    else:
+        await AsyncOrm.create_user(
+            tg_id=message.from_user.id,
+            username=message.from_user.username,
         )
+
     await message.answer(
         text=markdown.hbold(
             "🚀  Подключение в 1 клик, без ограничений скорости\n\n"
@@ -47,16 +56,15 @@ async def command_start_handler(message: Message):
     )
 
 
-@router.message(Command("help", prefix="!/"))
+@router.message(Command("partners", prefix="!/"))
 async def command_help_handler(message: Message):
-    await message.answer()
+    await message.answer("В разработке!")
 
 
 @router.message(Command("account", prefix="!/"))
 async def show_profile_handler(message: Message):
     user = await AsyncOrm.get_user(
         tg_id=message.from_user.id,
-        username=message.from_user.username,
     )
     await message.answer(
         text=(
@@ -70,27 +78,9 @@ async def show_profile_handler(message: Message):
     )
 
 
-# @router.message(Command("payment", prefix="!/"))
-# async def refill_user_balance(message: Message):
-#     user = await AsyncOrm.update_user(
-#         tg_id=message.from_user.id,
-#         cost=129,
-#         balance=200,
-#     )
-
-#     await message.answer(
-#         text=f"""Оплата прошла успешно!
-# Стоимость услуги: {user.cost},
-# Ваш баланс: {user.balance}"""
-#     )
-#     updated_user = await AsyncOrm.update_user(
-#         tg_id=message.from_user.id,
-#         subscription=True,
-#     )
-#     if updated_user.subscription:
-#         await message.answer(
-#             text="Подписка оформлена!",
-#             reply_markup=build_payment_kb(),
-#         )
-#     else:
-#         await message.answer("Что-то пошло не так")
+@router.message(Command("payment", prefix="!/"))
+async def refill_user_balance(message: Message):
+    await message.answer(
+        text="💰 Укажите сумму пополнения баланса",
+        reply_markup=build_payment_kb(),
+    )

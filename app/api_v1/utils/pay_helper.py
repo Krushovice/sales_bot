@@ -2,7 +2,7 @@ from yoomoney import Client, Quickpay
 from aiogram import Bot
 
 from app.api_v1.config import settings
-from app.api_v1.markups import build_main_kb
+
 from .request_api import outline_helper
 
 
@@ -36,5 +36,4 @@ async def get_payment(tg_id: int, bot: Bot):
     await bot.send_message(
         tg_id,
         text=(f"Подписка оплачена, вот ваш ключ: {key.access_url}"),
-        reply_markup=build_main_kb(),
     )

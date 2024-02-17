@@ -39,12 +39,11 @@ async def handle_payment_button(call: CallbackQuery):
     )
 
 
-@router.callback_query(PaymentCbData.filter(F.action == PayActions.back))
+@router.callback_query(PaymentCbData.filter(F.action == PayActions.back_to_account))
 async def handle_back_button(call: CallbackQuery):
     await call.answer()
     user = await AsyncOrm.get_user(
         tg_id=call.from_user.id,
-        username=call.from_user.username,
     )
     await call.message.edit_text(
         (
@@ -59,10 +58,27 @@ async def handle_back_button(call: CallbackQuery):
 
 
 @router.callback_query(
+    AccountCbData.filter(
+        F.action == ProfileActions.show_key,
+    )
+)
+async def handle_show_key_button(call: CallbackQuery):
+    user = await AsyncOrm.get_user(
+        tg_id=call.from_user.id,
+    )
+    await call.message.answer()
+    await call.message.edit_text(
+        text=f"{user.key}",
+        reply_markup=build_payment_kb(),
+    )
+
+
+@router.callback_query(
     ProductCbData.filter(F.action == ProductActions.details),
 )
 async def handle_product_actions__button(
-    call: CallbackQuery, callback_data: ProductCbData
+    call: CallbackQuery,
+    callback_data: ProductCbData,
 ):
     await call.answer()
     msg_text = markdown.text(
@@ -72,7 +88,23 @@ async def handle_product_actions__button(
     )
     await call.message.edit_text(
         text=msg_text,
-        reply_markup=product_details_kb(callback_data),
+        reply_markup=product_details_kb(
+            tg_id=call.from_user.id,
+            payment_cb_data=callback_data,
+        ),
+    )
+
+
+@router.callback_query(
+    ProductCbData.filter(F.action == ProductActions.back_to_choice),
+)
+async def handle_back_to_choice_button(
+    call: CallbackQuery,
+):
+    await call.answer()
+    await call.message.edit_text(
+        text="💰 Укажите сумму пополнения баланса",
+        reply_markup=build_payment_kb(),
     )
 
 

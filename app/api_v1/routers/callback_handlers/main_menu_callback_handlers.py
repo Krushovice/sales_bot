@@ -28,7 +28,6 @@ async def handle_account_button(call: CallbackQuery):
     await call.answer()
     user = await AsyncOrm.get_user(
         tg_id=call.from_user.id,
-        username=call.from_user.username,
     )
 
     await call.message.edit_text(

@@ -15,15 +15,14 @@ class AsyncOrm:
             return user
 
     @staticmethod
-    async def get_user(tg_id: int, username: str) -> User:
+    async def get_user(tg_id: int) -> User:
         async with db_helper.session_factory() as session:
             user = await session.scalar(
                 select(User).where(User.tg_id == tg_id),
             )
 
             if not user:
-                session.add(User(tg_id=tg_id, username=username))
-                await session.commit()
+                return None
             return user
 
     @staticmethod

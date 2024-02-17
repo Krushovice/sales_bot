@@ -8,11 +8,12 @@ from app.api_v1.utils.pay_helper import get_quickpay_url
 
 class PayActions(IntEnum):
     pay = auto()
-    back = auto()
+    back_to_account = auto()
 
 
 class ProductActions(IntEnum):
     details = auto()
+    back_to_choice = auto()
 
 
 class PaymentCbData(CallbackData, prefix="pay"):
@@ -21,8 +22,8 @@ class PaymentCbData(CallbackData, prefix="pay"):
 
 class ProductCbData(CallbackData, prefix="product"):
     action: ProductActions
-    name: str
-    price: int
+    name: str | None = None
+    price: int | None = None
 
 
 def build_payment_kb() -> InlineKeyboardMarkup:
@@ -44,7 +45,7 @@ def build_payment_kb() -> InlineKeyboardMarkup:
 
     builder.button(
         text="Назад🔙",
-        callback_data=PaymentCbData(action=PayActions.back).pack(),
+        callback_data=PaymentCbData(action=PayActions.back_to_account).pack(),
     )
 
     builder.adjust(1)
@@ -68,7 +69,9 @@ def product_details_kb(
 
     builder.button(
         text="Назад🔙",
-        callback_data=PaymentCbData(action=PayActions.back).pack(),
+        callback_data=ProductCbData(
+            action=ProductActions.back_to_choice,
+        ).pack(),
     )
     builder.adjust(1)
 
