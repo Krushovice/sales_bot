@@ -1,12 +1,12 @@
 import asyncio
 import logging
 
-from app.api_v1.config import settings
+from app.api_v1 import settings
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from app.api_v1.routers import router as main_router
-from app.api_v1.core.db_helper import create_tables
+from app.api_v1 import router as main_router
+from app.api_v1 import create_tables
 
 logger = logging.getLogger(__name__)
 

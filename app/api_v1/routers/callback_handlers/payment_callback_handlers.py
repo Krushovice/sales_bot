@@ -10,9 +10,9 @@ from aiogram.types import (
 from aiogram.utils import markdown
 
 
-from app.api_v1.config import settings
+from app.api_v1 import settings
 
-from app.api_v1.core.crud import AsyncOrm
+from app.api_v1 import AsyncOrm
 
 
 from app.api_v1.markups import (

@@ -1,7 +1,7 @@
 from yoomoney import Client, Quickpay
 from aiogram import Bot
 
-from app.api_v1.config import settings
+from app.api_v1 import settings
 
 from .request_api import outline_helper
 

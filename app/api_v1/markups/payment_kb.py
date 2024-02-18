@@ -3,7 +3,8 @@ from enum import IntEnum, auto
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from app.api_v1.utils.pay_helper import get_quickpay_url
+
+from app.api_v1 import get_quickpay_url
 
 
 class PayActions(IntEnum):

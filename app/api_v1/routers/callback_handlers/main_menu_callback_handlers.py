@@ -3,21 +3,19 @@ from aiogram.utils import markdown
 from aiogram.types import CallbackQuery
 from app.api_v1.core.crud import AsyncOrm
 
-from app.api_v1.markups import (
+from app.api_v1 import (
     MenuActions,
     MenuCbData,
     ProfileActions,
     AccountCbData,
     PayActions,
     PaymentCbData,
-)
-from app.api_v1.markups import (
     build_account_kb,
     root_kb,
     build_main_kb,
     build_pay_button,
+    lexicon,
 )
-from app.api_v1.utils.lexicon import LEXICON_RU
 
 
 router = Router(name=__name__)
@@ -47,7 +45,7 @@ async def handle_support_button(call: CallbackQuery):
     await call.answer()
 
     await call.message.edit_caption(
-        caption=LEXICON_RU["help_info"],
+        caption=lexicon.LEXICON_RU["help_info"],
         reply_markup=root_kb(),
     )
 

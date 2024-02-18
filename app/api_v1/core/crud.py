@@ -1,7 +1,7 @@
+from sqlalchemy import select
+
 from .models import User
 from .db_helper import db_helper
-
-from sqlalchemy import select
 
 
 class AsyncOrm:

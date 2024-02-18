@@ -1,6 +1,6 @@
 from outline_vpn.outline_vpn import OutlineVPN
 
-from app.api_v1.config import settings
+from app.api_v1 import settings
 
 
 class OutlineHelper:
