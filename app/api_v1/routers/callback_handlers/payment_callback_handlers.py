@@ -24,6 +24,7 @@ from app.api_v1.markups import (
     build_payment_kb,
     product_details_kb,
     build_account_kb,
+    get_success_pay_button,
 )
 from app.api_v1.utils.request_api import outline_helper
 from app.api_v1.utils.pay_helper import get_payment
@@ -63,32 +64,51 @@ async def handle_back_button(call: CallbackQuery):
 
 
 @router.callback_query(
-    PaymentCbData.filter(F.action == PayActions.success),
+    ProductCbData.filter(F.action == PayActions.success),
 )
 async def handle_success_button(
     call: CallbackQuery,
+    callback_data: ProductCbData,
 ):
     await call.answer()
     tg_id = call.from_user.id
-    if get_payment(tg_id=tg_id):
+    payment = get_payment(tg_id=tg_id)
+    if payment:
+        if payment.balance == callback_data.price:
+            key = outline_helper.create_new_key(name=tg_id)
+            user = await AsyncOrm.get_user(tg_id=tg_id)
+            await AsyncOrm.update_user(
+                id=user.id,
+                balance=payment.balance,
+                subscribe_date=payment.operation_date,
+                expiration_date=payment.expiration_date,
+                key=Key(
+                    name=key.name,
+                    user_id=user.id,
+                    value=key.access_url,
+                ),
+            )
 
-        key = outline_helper.create_new_key(name=tg_id)
-        await AsyncOrm.update_user(
-            tg_id=tg_id,
-            key=Key(
-                name=key.name,
-                value=key.access_url,
-            ),
-        )
-
-        await call.message.answer(
-            text=f"Подписка оплачена, вот ваш ключ: {key.access_url}",
-            reply_markup=product_details_kb(
-                tg_id=tg_id,
-                payment_cb_data=PaymentCbData,
-                success=True,
-            ),
-        )
+            await call.message.answer(
+                text=f"Подписка оплачена, вот ваш ключ: {key.access_url}",
+                reply_markup=product_details_kb(
+                    tg_id=tg_id,
+                    payment_cb_data=PaymentCbData,
+                ),
+            )
+        else:
+            user = await AsyncOrm.get_user(tg_id=tg_id)
+            await AsyncOrm.update_user(
+                id=user.id,
+                balance=payment.balance,
+            )
+            await call.message.answer(
+                text="Недостаточно средств для оплаты подписки 😢",
+                reply_markup=product_details_kb(
+                    tg_id=tg_id,
+                    payment_cb_data=PaymentCbData,
+                ),
+            )
     else:
         await call.message.answer(
             text="Ваша оплата не прошла, попробуйте немного позже",
@@ -128,24 +148,18 @@ async def handle_product_actions__button(
         markdown.hitalic("Для оплаты перейдите по ссылке ниже"),
         sep="\n\n",
     )
-    if get_payment(tg_id=call.from_user.id):
-        await call.message.edit_caption(
-            caption=msg_text,
-            reply_markup=product_details_kb(
-                tg_id=call.from_user.id,
-                payment_cb_data=callback_data,
-                success=True,
-            ),
-        )
 
-    else:
-        await call.message.edit_caption(
-            caption=msg_text,
-            reply_markup=product_details_kb(
-                tg_id=call.from_user.id,
-                payment_cb_data=callback_data,
-            ),
-        )
+    await call.message.edit_caption(
+        caption=msg_text,
+        reply_markup=product_details_kb(
+            tg_id=call.from_user.id,
+            payment_cb_data=callback_data,
+        ),
+    )
+    await call.message.answer(
+        text="Оптатил? Жми кнопку ✅",
+        reply_markup=get_success_pay_button(product_data=callback_data),
+    )
 
 
 @router.callback_query(

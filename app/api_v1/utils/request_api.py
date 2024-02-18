@@ -13,7 +13,7 @@ class OutlineHelper:
 
     def create_new_key(self, name):
         # Create a new key
-        new_key = self.client.create_key(name=name)
+        new_key = self.client.create_key(name=str(name))
         return new_key
 
     def get_key(self, key_id: int):
@@ -21,7 +21,7 @@ class OutlineHelper:
 
     # Rename it
     def set_key_name(self, key, name):
-        self.client.rename_key(key.key_id, name)
+        self.client.rename_key(key.key_id, str(name))
 
     # Delete it
     def delete_key(self, key):

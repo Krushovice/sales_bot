@@ -58,36 +58,22 @@ def build_payment_kb() -> InlineKeyboardMarkup:
 def product_details_kb(
     payment_cb_data: PaymentCbData,
     tg_id: int,
-    success: bool = False,
 ) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    if success:
-        builder.button(
-            text="Я оплатил",
-            callback_data=PaymentCbData(action=PayActions.success).pack(),
-        )
 
-        builder.button(
-            text="Назад🔙",
-            callback_data=ProductCbData(
-                action=ProductActions.back_to_choice,
-            ).pack(),
-        )
-        builder.adjust(1)
+    builder.button(
+        text="Оплатить",
+        url=f"{get_quickpay_url(pay_in=payment_cb_data.price, tg_id=tg_id,)}",
+    ),
 
-    else:
-        builder.button(
-            text="Оплатить",
-            url=f"{get_quickpay_url(pay_in=2, tg_id=tg_id,)}",
-        ),
+    builder.button(
+        text="Назад🔙",
+        callback_data=ProductCbData(
+            action=ProductActions.back_to_choice,
+        ).pack(),
+    )
+    builder.adjust(1)
 
-        builder.button(
-            text="Назад🔙",
-            callback_data=ProductCbData(
-                action=ProductActions.back_to_choice,
-            ).pack(),
-        )
-        builder.adjust(1)
     return builder.as_markup()
 
 
@@ -97,4 +83,15 @@ def build_pay_button(tg_id: int) -> InlineKeyboardMarkup:
         url=f"{get_quickpay_url(pay_in=150, tg_id=tg_id,)}",
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[pay_btn]])
+    return keyboard
+
+
+def get_success_pay_button(
+    product_data: ProductCbData,
+) -> InlineKeyboardMarkup:
+    success_btn = InlineKeyboardButton(
+        text="Я оплатил",
+        callback_data=ProductCbData(action=PayActions.success).pack(),
+    )
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[success_btn]])
     return keyboard
