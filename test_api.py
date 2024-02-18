@@ -1,12 +1,4 @@
-from app.api_v1.utils.request_api import OutlineHelper
+from app.api_v1.utils.pay_helper import check_balance_info
 
 
-outline_client = OutlineHelper()
-
-
-key = outline_client.get_key(key_id=26)
-
-outline_client.set_key_limit(key)
-
-
-outline_client.remove_key_limit(key)
+print(check_balance_info())

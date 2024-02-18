@@ -1,6 +1,6 @@
 import datetime
 
-from app.api_v1 import AsyncOrm
+from app.api_v1.core import AsyncOrm
 
 
 async def check_user_expiration(tg_id: int):

@@ -1,9 +1,9 @@
+import datetime
+
 from yoomoney import Client, Quickpay
-from aiogram import Bot
 
-from app.api_v1 import settings
 
-from .request_api import outline_helper
+from app.api_v1.config import settings
 
 
 def check_balance_info():
@@ -24,16 +24,17 @@ def get_quickpay_url(pay_in: int, tg_id: int):
         paymentType="SB",
         sum=pay_in,
         label=new,
-        successURL="https://t.me/Real_vpnBot",
+        successURL="https://t.me/Real_vpnBot?id={tg_id}",
     )
     return quickpay.base_url
 
 
-async def get_payment(tg_id: int, bot: Bot):
-
-    key = outline_helper.create_new_key(name=tg_id)
-
-    await bot.send_message(
-        tg_id,
-        text=(f"Подписка оплачена, вот ваш ключ: {key.access_url}"),
-    )
+def get_payment(tg_id: int):
+    client = Client(settings.get_yookassa_token)
+    history = client.operation_history()
+    today = datetime.datetime.today()
+    for operation in history.operations:
+        if operation.label == str(tg_id):
+            if operation.status == "success" and operation.datetime == today:
+                return True
+            return False

@@ -4,12 +4,13 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from app.api_v1 import get_quickpay_url
+from app.api_v1.utils.pay_helper import get_quickpay_url, get_payment
 
 
 class PayActions(IntEnum):
     pay = auto()
     back_to_account = auto()
+    success = auto()
 
 
 class ProductActions(IntEnum):
@@ -57,25 +58,36 @@ def build_payment_kb() -> InlineKeyboardMarkup:
 def product_details_kb(
     payment_cb_data: PaymentCbData,
     tg_id: int,
+    success: bool = False,
 ) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
+    if success:
+        builder.button(
+            text="Я оплатил",
+            callback_data=PaymentCbData(action=PayActions.success).pack(),
+        )
 
-    builder.button(
-        text="Оплатить",
-        url=f"{get_quickpay_url(pay_in=payment_cb_data.price, tg_id=tg_id,)}",
-        # callback_data=PaymentCbData(
-        #     action=PayActions.pay,
-        #     **payment_cb_data.model_dump(include={"price"}),
-    ),
+        builder.button(
+            text="Назад🔙",
+            callback_data=ProductCbData(
+                action=ProductActions.back_to_choice,
+            ).pack(),
+        )
+        builder.adjust(1)
 
-    builder.button(
-        text="Назад🔙",
-        callback_data=ProductCbData(
-            action=ProductActions.back_to_choice,
-        ).pack(),
-    )
-    builder.adjust(1)
+    else:
+        builder.button(
+            text="Оплатить",
+            url=f"{get_quickpay_url(pay_in=2, tg_id=tg_id,)}",
+        ),
 
+        builder.button(
+            text="Назад🔙",
+            callback_data=ProductCbData(
+                action=ProductActions.back_to_choice,
+            ).pack(),
+        )
+        builder.adjust(1)
     return builder.as_markup()
 
 

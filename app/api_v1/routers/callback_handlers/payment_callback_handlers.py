@@ -1,7 +1,6 @@
 from aiogram import Router, F, Bot
 from aiogram.enums.content_type import ContentType
 from aiogram.types import (
-    Message,
     CallbackQuery,
     LabeledPrice,
     PreCheckoutQuery,
@@ -10,9 +9,9 @@ from aiogram.types import (
 from aiogram.utils import markdown
 
 
-from app.api_v1 import settings
+from app.api_v1.config import settings
 
-from app.api_v1 import AsyncOrm
+from app.api_v1.core import AsyncOrm, Key
 
 
 from app.api_v1.markups import (
@@ -26,6 +25,8 @@ from app.api_v1.markups import (
     product_details_kb,
     build_account_kb,
 )
+from app.api_v1.utils.request_api import outline_helper
+from app.api_v1.utils.pay_helper import get_payment
 
 router = Router(name=__name__)
 
@@ -62,6 +63,43 @@ async def handle_back_button(call: CallbackQuery):
 
 
 @router.callback_query(
+    PaymentCbData.filter(F.action == PayActions.success),
+)
+async def handle_success_button(
+    call: CallbackQuery,
+):
+    await call.answer()
+    tg_id = call.from_user.id
+    if get_payment(tg_id=tg_id):
+
+        key = outline_helper.create_new_key(name=tg_id)
+        await AsyncOrm.update_user(
+            tg_id=tg_id,
+            key=Key(
+                name=key.name,
+                value=key.access_url,
+            ),
+        )
+
+        await call.message.answer(
+            text=f"Подписка оплачена, вот ваш ключ: {key.access_url}",
+            reply_markup=product_details_kb(
+                tg_id=tg_id,
+                payment_cb_data=PaymentCbData,
+                success=True,
+            ),
+        )
+    else:
+        await call.message.answer(
+            text="Ваша оплата не прошла, попробуйте немного позже",
+            reply_markup=product_details_kb(
+                tg_id=tg_id,
+                payment_cb_data=PaymentCbData,
+            ),
+        )
+
+
+@router.callback_query(
     AccountCbData.filter(
         F.action == ProfileActions.show_key,
     )
@@ -90,13 +128,24 @@ async def handle_product_actions__button(
         markdown.hitalic("Для оплаты перейдите по ссылке ниже"),
         sep="\n\n",
     )
-    await call.message.edit_caption(
-        caption=msg_text,
-        reply_markup=product_details_kb(
-            tg_id=call.from_user.id,
-            payment_cb_data=callback_data,
-        ),
-    )
+    if get_payment(tg_id=call.from_user.id):
+        await call.message.edit_caption(
+            caption=msg_text,
+            reply_markup=product_details_kb(
+                tg_id=call.from_user.id,
+                payment_cb_data=callback_data,
+                success=True,
+            ),
+        )
+
+    else:
+        await call.message.edit_caption(
+            caption=msg_text,
+            reply_markup=product_details_kb(
+                tg_id=call.from_user.id,
+                payment_cb_data=callback_data,
+            ),
+        )
 
 
 @router.callback_query(

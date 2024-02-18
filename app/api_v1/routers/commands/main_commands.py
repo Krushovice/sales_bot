@@ -3,7 +3,7 @@ from aiogram.utils import markdown
 from aiogram.types import Message, FSInputFile
 from aiogram import Router
 
-from app.api_v1 import (
+from app.api_v1.markups import (
     build_main_kb,
     build_payment_kb,
     build_account_kb,
