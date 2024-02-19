@@ -34,7 +34,7 @@ class AsyncOrm:
 
             if not user:
                 return None
-            return user.key.value
+            return user.key
 
     @staticmethod
     async def update_user(tg_id: int, **kwargs):

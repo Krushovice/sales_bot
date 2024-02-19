@@ -4,16 +4,15 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-# from app.api_v1.utils.chek_user import check_user
-
 
 class ProfileActions(IntEnum):
     refill = auto()
     back = auto()
     show_key = auto()
+    tutorial = auto()
 
 
-class AccountCbData(CallbackData, prefix="account"):
+class ProfileCbData(CallbackData, prefix="account"):
     action: ProfileActions
 
 
@@ -22,16 +21,16 @@ def build_account_kb(user=None) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(
         text="Пополнить баланс 💰",
-        callback_data=AccountCbData(action=ProfileActions.refill).pack(),
+        callback_data=ProfileCbData(action=ProfileActions.refill).pack(),
     )
     if user:
         builder.button(
             text=f"VPN | {user.expiration_date} | Outline",
-            callback_data=AccountCbData(action=ProfileActions.show_key).pack(),
+            callback_data=ProfileCbData(action=ProfileActions.show_key).pack(),
         )
     builder.button(
         text="Назад 🔙",
-        callback_data=AccountCbData(action=ProfileActions.back).pack(),
+        callback_data=ProfileCbData(action=ProfileActions.back).pack(),
     )
     builder.adjust(1)
 
@@ -42,7 +41,24 @@ def root_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(
         text="Назад 🔙",
-        callback_data=AccountCbData(action=ProfileActions.back).pack(),
+        callback_data=ProfileCbData(action=ProfileActions.back).pack(),
+    )
+    builder.adjust(1)
+
+    return builder.as_markup()
+
+
+def help_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text="Как установить 👋",
+        callback_data=ProfileCbData(action=ProfileActions.tutorial).pack(),
+    )
+
+    builder.button(
+        text="Назад 🔙",
+        callback_data=ProfileCbData(action=ProfileActions.back).pack(),
     )
     builder.adjust(1)
 

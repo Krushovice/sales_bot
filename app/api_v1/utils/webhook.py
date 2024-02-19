@@ -3,7 +3,7 @@ import urllib.parse
 import flask
 
 from flask import Flask, request
-from .pay_helper import get_payment
+from .yoomoney_pay_helper import get_payment
 
 
 app = Flask(__name__)

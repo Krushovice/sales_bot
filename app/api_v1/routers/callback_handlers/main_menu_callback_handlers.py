@@ -8,13 +8,13 @@ from app.api_v1.markups import (
     MenuActions,
     MenuCbData,
     ProfileActions,
-    AccountCbData,
+    ProfileCbData,
     PayActions,
     PaymentCbData,
     build_account_kb,
     root_kb,
     build_main_kb,
-    build_pay_button,
+    product_details_kb,
 )
 
 from app.api_v1.utils.lexicon import LEXICON_RU
@@ -37,7 +37,7 @@ async def handle_account_button(call: CallbackQuery):
             f"<i>Для оплаты и продления VPN используется баланс.\n</i>"
             f"<i>Для его пополнения используйте клавиши ниже</i>"
         ),
-        reply_markup=build_account_kb(),
+        reply_markup=build_account_kb(user=user),
     )
 
 
@@ -57,8 +57,9 @@ async def handle_pay_button(call: CallbackQuery):
 
     await call.message.edit_caption(
         caption="Для оплаты VPN перейдите по ссылке:",
-        reply_markup=build_pay_button(
+        reply_markup=product_details_kb(
             tg_id=call.from_user.id,
+            pay_in=150,
         ),
     )
 
@@ -73,7 +74,7 @@ async def handle_advantage_button(call: CallbackQuery):
     )
 
 
-@router.callback_query(AccountCbData.filter(F.action == ProfileActions.back))
+@router.callback_query(ProfileCbData.filter(F.action == ProfileActions.back))
 async def handle_root_button(call: CallbackQuery):
     await call.answer()
 

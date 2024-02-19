@@ -4,18 +4,18 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from app.api_v1.utils.pay_helper import get_quickpay_url, get_payment
+from app.api_v1.utils.yoomoney_pay_helper import get_quickpay_url
 
 
 class PayActions(IntEnum):
     pay = auto()
     back_to_account = auto()
-    success = auto()
 
 
 class ProductActions(IntEnum):
     details = auto()
     back_to_choice = auto()
+    success = auto()
 
 
 class PaymentCbData(CallbackData, prefix="pay"):
@@ -56,14 +56,19 @@ def build_payment_kb() -> InlineKeyboardMarkup:
 
 
 def product_details_kb(
-    payment_cb_data: PaymentCbData,
     tg_id: int,
+    pay_in: int = None,
+    payment_cb_data: ProductCbData = None,
 ) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
     builder.button(
         text="Оплатить",
-        url=f"{get_quickpay_url(pay_in=payment_cb_data.price, tg_id=tg_id,)}",
+        url=(
+            f"""{get_quickpay_url(
+            pay_in=payment_cb_data.price if payment_cb_data else pay_in,
+            tg_id=tg_id,)}"""
+        ),
     ),
 
     builder.button(
@@ -77,21 +82,19 @@ def product_details_kb(
     return builder.as_markup()
 
 
-def build_pay_button(tg_id: int) -> InlineKeyboardMarkup:
-    pay_btn = InlineKeyboardButton(
-        text="Оплатить",
-        url=f"{get_quickpay_url(pay_in=150, tg_id=tg_id,)}",
-    )
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[pay_btn]])
-    return keyboard
+# def build_pay_button(tg_id: int) -> InlineKeyboardMarkup:
+#     pay_btn = InlineKeyboardButton(
+#         text="Оплатить",
+#         url=f"{get_quickpay_url(pay_in=150, tg_id=tg_id,)}",
+#     )
+#     keyboard = InlineKeyboardMarkup(inline_keyboard=[[pay_btn]])
+#     return keyboard
 
 
-def get_success_pay_button(
-    product_data: ProductCbData,
-) -> InlineKeyboardMarkup:
+def get_success_pay_button() -> InlineKeyboardMarkup:
     success_btn = InlineKeyboardButton(
         text="Я оплатил",
-        callback_data=ProductCbData(action=PayActions.success).pack(),
+        callback_data=ProductCbData(action=ProductActions.success).pack(),
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[success_btn]])
     return keyboard

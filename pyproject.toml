@@ -16,6 +16,7 @@ flask = {extras = ["async"], version = "^3.0.2"}
 yoomoney = "^0.1.0"
 requests = "^2.31.0"
 outline-vpn-api = "^6.1.0"
+yookassa = "^3.0.1"
 
 
 [build-system]

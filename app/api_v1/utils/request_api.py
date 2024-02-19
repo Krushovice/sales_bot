@@ -24,16 +24,16 @@ class OutlineHelper:
         self.client.rename_key(key.key_id, str(name))
 
     # Delete it
-    def delete_key(self, key):
-        self.client.delete_key(key.key_id)
+    def delete_key(self, key_id: int):
+        self.client.delete_key(key_id)
 
     # Set a monthly data limit for a key (20MB)
-    def set_key_limit(self, key):
-        self.client.add_data_limit(key.key_id, 1000 * 1000 * 20)
+    def set_key_limit(self, key_id: int):
+        self.client.add_data_limit(key_id, 1000 * 1000 * 20)
 
     # Remove the data limit
-    def remove_key_limit(self, key):
-        self.client.delete_data_limit(key.key_id)
+    def remove_key_limit(self, key_id: int):
+        self.client.delete_data_limit(key_id)
 
 
 outline_helper = OutlineHelper()

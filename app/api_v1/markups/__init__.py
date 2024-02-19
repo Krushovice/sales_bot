@@ -1,5 +1,5 @@
 __all__ = (
-    "AccountCbData",
+    "ProfileCbData",
     "ProfileActions",
     "MenuActions",
     "MenuCbData",
@@ -14,13 +14,15 @@ __all__ = (
     "product_details_kb",
     "get_success_pay_button",
     "root_kb",
+    "help_kb",
 )
 
 from .account_kb import (
     build_account_kb,
-    AccountCbData,
+    ProfileCbData,
     ProfileActions,
     root_kb,
+    help_kb,
 )
 from .main_kb import build_main_kb, MenuActions, MenuCbData
 
