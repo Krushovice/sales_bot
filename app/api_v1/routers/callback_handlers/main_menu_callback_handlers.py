@@ -60,6 +60,7 @@ async def handle_pay_button(call: CallbackQuery):
         reply_markup=product_details_kb(
             tg_id=call.from_user.id,
             pay_in=150,
+            from_main_menu=True,
         ),
     )
 
@@ -69,12 +70,16 @@ async def handle_advantage_button(call: CallbackQuery):
     await call.answer()
 
     await call.message.edit_caption(
-        caption="Почему мы?",
+        caption=LEXICON_RU["advantage"],
         reply_markup=root_kb(),
     )
 
 
-@router.callback_query(ProfileCbData.filter(F.action == ProfileActions.back))
+@router.callback_query(
+    ProfileCbData.filter(
+        F.action == ProfileActions.back_to_main,
+    )
+)
 async def handle_root_button(call: CallbackQuery):
     await call.answer()
 

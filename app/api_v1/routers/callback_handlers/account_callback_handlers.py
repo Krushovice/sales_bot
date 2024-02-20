@@ -7,7 +7,7 @@ from app.api_v1.core.crud import AsyncOrm
 from app.api_v1.markups import (
     ProfileActions,
     ProfileCbData,
-    root_kb,
+    back_to_key_kb,
     build_payment_kb,
     help_kb,
 )
@@ -52,5 +52,21 @@ async def handle_help_button(call: CallbackQuery):
     text = LEXICON_RU["tutorial"]
     await call.message.edit_caption(
         caption=text,
-        reply_markup=root_kb(),
+        reply_markup=back_to_key_kb(),
+    )
+
+
+@router.callback_query(
+    ProfileCbData.filter(
+        F.action == ProfileActions.back_to_key,
+    )
+)
+async def handle_back_to_key_button(call: CallbackQuery):
+    user = await AsyncOrm.get_user(
+        tg_id=call.from_user.id,
+    )
+    await call.answer()
+    await call.message.edit_caption(
+        caption=markdown.hbold(f"Ваш ключ: {user.key.value}\n\nСкопируйте его ☑️"),
+        reply_markup=help_kb(),
     )

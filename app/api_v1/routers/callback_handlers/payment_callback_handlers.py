@@ -38,14 +38,14 @@ async def handle_back_button(call: CallbackQuery):
         tg_id=call.from_user.id,
     )
     await call.message.edit_caption(
-        (
+        caption=(
             f"<b>Личный кабинет</b>\n\n"
             f"🆔 {user.tg_id} \n"
             f"💰 Баланс: {user.balance}руб\n\n"
             f"<i>Для оплаты и продления VPN используется баланс.\n</i>"
             f"<i>Для его пополнения используйте клавиши ниже</i>"
         ),
-        reply_markup=build_account_kb(),
+        reply_markup=build_account_kb(user=user),
     )
 
 
@@ -75,10 +75,8 @@ async def handle_product_actions__button(
     payment = get_payment(tg_id=tg_id)
     if payment:
         balance = payment.balance
-        operation = 2 - ((2 * 3) / 100)
-        # operation = callback_data.price - ((callback_data.price * 3) / 100)
-        print(callback_data.price)
-        print(operation)
+        # operation = 2 - ((2 * 3) / 100)
+        operation = callback_data.price - ((callback_data.price * 3) / 100)
         if balance == operation:
             await call.message.edit_caption(
                 caption="Оптатил? Жми кнопку ✅",

@@ -1,15 +1,21 @@
 from enum import IntEnum, auto
 
+from typing import TYPE_CHECKING
+
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
+from .payment_kb import PayActions, PaymentCbData
+
+
 class ProfileActions(IntEnum):
     refill = auto()
-    back = auto()
+    back_to_main = auto()
     show_key = auto()
     tutorial = auto()
+    back_to_key = auto()
 
 
 class ProfileCbData(CallbackData, prefix="account"):
@@ -30,7 +36,7 @@ def build_account_kb(user=None) -> InlineKeyboardMarkup:
         )
     builder.button(
         text="Назад 🔙",
-        callback_data=ProfileCbData(action=ProfileActions.back).pack(),
+        callback_data=ProfileCbData(action=ProfileActions.back_to_main).pack(),
     )
     builder.adjust(1)
 
@@ -41,7 +47,18 @@ def root_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(
         text="Назад 🔙",
-        callback_data=ProfileCbData(action=ProfileActions.back).pack(),
+        callback_data=ProfileCbData(action=ProfileActions.back_to_main).pack(),
+    )
+    builder.adjust(1)
+
+    return builder.as_markup()
+
+
+def back_to_key_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Назад 🔙",
+        callback_data=ProfileCbData(action=ProfileActions.back_to_key).pack(),
     )
     builder.adjust(1)
 
@@ -58,7 +75,7 @@ def help_kb() -> InlineKeyboardMarkup:
 
     builder.button(
         text="Назад 🔙",
-        callback_data=ProfileCbData(action=ProfileActions.back).pack(),
+        callback_data=PaymentCbData(action=PayActions.back_to_account).pack(),
     )
     builder.adjust(1)
 

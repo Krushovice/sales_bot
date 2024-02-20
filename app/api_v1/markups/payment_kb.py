@@ -1,10 +1,15 @@
 from enum import IntEnum, auto
 
+from typing import TYPE_CHECKING
+
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from app.api_v1.utils.yoomoney_pay_helper import get_quickpay_url
+
+if TYPE_CHECKING:
+    from .account_kb import ProfileActions, ProfileCbData
 
 
 class PayActions(IntEnum):
@@ -59,6 +64,7 @@ def product_details_kb(
     tg_id: int,
     pay_in: int = None,
     payment_cb_data: ProductCbData = None,
+    from_main_menu: bool = False,
 ) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
@@ -73,9 +79,15 @@ def product_details_kb(
 
     builder.button(
         text="Назад🔙",
-        callback_data=ProductCbData(
-            action=ProductActions.back_to_choice,
-        ).pack(),
+        callback_data=(
+            ProductCbData(
+                action=ProductActions.back_to_choice,
+            ).pack()
+            if not from_main_menu
+            else ProfileCbData(
+                action=ProfileActions.back_to_main,
+            )
+        ),
     )
     builder.adjust(1)
 

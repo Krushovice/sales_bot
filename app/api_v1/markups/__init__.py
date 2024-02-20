@@ -9,11 +9,11 @@ __all__ = (
     "ProductCbData",
     "build_main_kb",
     "build_payment_kb",
-    "build_pay_button",
     "build_account_kb",
     "product_details_kb",
     "get_success_pay_button",
     "root_kb",
+    "back_to_key_kb",
     "help_kb",
 )
 
@@ -22,13 +22,13 @@ from .account_kb import (
     ProfileCbData,
     ProfileActions,
     root_kb,
+    back_to_key_kb,
     help_kb,
 )
 from .main_kb import build_main_kb, MenuActions, MenuCbData
 
 from .payment_kb import (
     build_payment_kb,
-    build_pay_button,
     PayActions,
     PaymentCbData,
     product_details_kb,
