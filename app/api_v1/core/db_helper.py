@@ -4,10 +4,11 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_scoped_session,
 )
+from asyncio import current_task
 
 from app.api_v1.config import settings
-from asyncio import current_task
-from .base import Base
+
+from .models import Base
 
 
 class DataBaseHelper:

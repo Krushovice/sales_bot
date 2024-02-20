@@ -8,8 +8,6 @@ from app.api_v1.core import AsyncOrm, Key
 
 
 from app.api_v1.markups import (
-    ProfileActions,
-    ProfileCbData,
     PayActions,
     PaymentCbData,
     ProductActions,
