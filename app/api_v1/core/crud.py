@@ -7,9 +7,9 @@ from .db_helper import db_helper
 class AsyncOrm:
 
     @staticmethod
-    async def create_user(tg_id: int, username: str) -> None:
+    async def create_user(tg_id: int, username: str, **kwargs) -> None:
         async with db_helper.session_factory() as session:
-            user = User(tg_id=tg_id, username=username)
+            user = User(tg_id=tg_id, username=username, **kwargs)
             session.add(user)
             await session.commit()
             return user
@@ -26,15 +26,12 @@ class AsyncOrm:
             return user
 
     @staticmethod
-    async def get_user_key(tg_id: int) -> User:
+    async def get_users_by_subscription() -> list:
         async with db_helper.session_factory() as session:
-            user = await session.scalar(
-                select(User).where(User.tg_id == tg_id),
-            )
-
-            if not user:
-                return None
-            return user.key
+            query = select(User).where(User.subscription).order_by(User.subscribe_date)
+            result = await session.execute(query)
+            users_with_subscription = result.scalars().all()
+            return users_with_subscription
 
     @staticmethod
     async def update_user(tg_id: int, **kwargs):

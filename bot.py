@@ -7,6 +7,10 @@ from aiogram.enums import ParseMode
 from app.api_v1.routers import router as main_router
 from app.api_v1.core import create_tables
 from app.api_v1.config import settings
+from app.api_v1.utils.request_subscribe import (
+    check_subscription_expiry,
+    schedule_next_check,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +35,10 @@ async def main() -> None:
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.session.close()
     await create_tables()
+
+    # await asyncio.create_task(check_subscription_expiry())
+    # await asyncio.create_task(schedule_next_check())
+
     await dp.start_polling(bot)
 
 

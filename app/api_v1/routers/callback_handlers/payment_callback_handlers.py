@@ -120,13 +120,13 @@ async def handle_success_button(
     tg_id = call.from_user.id
     payment = get_payment(tg_id=tg_id)
     user = await AsyncOrm.get_user(tg_id=tg_id)
-    print(user.username)
     if not user.key:
-        key = outline_helper.create_new_key(name=tg_id)
+        key = await outline_helper.create_new_key(name=tg_id)
 
         await AsyncOrm.update_user(
             tg_id=tg_id,
             balance=payment.balance,
+            subscription=True,
             subscribe_date=payment.operation_date,
             expiration_date=payment.expiration_date,
             key=Key(
@@ -144,7 +144,7 @@ async def handle_success_button(
 
     else:
         user = await AsyncOrm.get_user(tg_id=tg_id)
-        outline_helper.remove_key_limit(key_id=user.key.api_id)
+        await outline_helper.remove_key_limit(key_id=user.key.api_id)
         await call.message.edit_caption(
             caption="Подписка оплачена, доступ не ограничен 🛜",
             reply_markup=build_account_kb(user=user),
