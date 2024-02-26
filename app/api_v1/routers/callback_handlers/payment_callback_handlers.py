@@ -73,61 +73,55 @@ async def handle_product_actions__button(
             payment_cb_data=payment,
         ),
     )
-    # tg_id = call.from_user.id
-
-    # payment = get_payment(tg_id=tg_id)
-    # if payment:
-    #     balance = payment.balance
-    #     # operation = 2 - ((2 * 3) / 100)
-    #     operation = callback_data.price - ((callback_data.price * 3) / 100)
-    #     if balance == operation:
-    #         await call.message.edit_caption(
-    #             caption="Оптатил? Жми кнопку ✅",
-    #             reply_markup=get_success_pay_button(),
-    #         )
-    #     else:
-    #         user = await AsyncOrm.get_user(tg_id=tg_id)
-    #         await AsyncOrm.update_user(
-    #             id=user.id,
-    #             tg_id=tg_id,
-    #             balance=payment.balance,
-    #         )
-
-    #         await call.message.edit_caption(
-    #             caption="Недостаточно средств для оплаты подписки 😢",
-    #             reply_markup=product_details_kb(
-    #                 tg_id=tg_id,
-    #                 pay_in=operation,
-    #             ),
-    #         )
 
 
 @router.callback_query(PaymentCbData.filter(F.action == PayActions.pay))
 async def handle_pay_action_button(
     call: CallbackQuery,
+    callback_data: PaymentCbData,
 ):
 
-    unpacked_data = PaymentCbData().unpack(call.data)
-
-    payment_id = unpacked_data.payment_id
-    price = unpacked_data.price
-    payment = await payment_helper.get_status_payment(
+    payment_id = callback_data.payment_id
+    price = callback_data.price
+    payment = await payment_helper.get_payment(
         payment_id=payment_id,
     )
-    status = payment.status
-    if status == "succeeded":
-        await call.message.edit_caption(
-            caption="Оптатил? Жми кнопку ✅",
-            reply_markup=get_success_pay_button(
-                payment_id=payment_id,
-            ),
-        )
+    if payment:
+        status = payment.status
+        if status == "succeeded":
+            await call.message.edit_caption(
+                caption="Оптатил? Жми кнопку ✅",
+                reply_markup=get_success_pay_button(
+                    payment_id=payment_id,
+                ),
+            )
+
+        else:
+            payment = await payment_helper.create_payment(
+                tg_id=call.from_user.id,
+                price=price,
+            )
+            await call.message.edit_caption(
+                caption="Что-то пошло не так😢",
+                reply_markup=product_details_kb(
+                    payment_cb_data=payment,
+                ),
+            )
 
     else:
+        msg_text = markdown.text(
+            markdown.hbold("Сумма: 150 руб"),
+            markdown.hitalic("Для оплаты перейдите по ссылке ниже"),
+            sep="\n\n",
+        )
+        payment = await payment_helper.create_payment(
+            tg_id=call.from_user.id,
+            price=150,
+        )
         await call.message.edit_caption(
-            caption="Что-то пошло не так😢",
+            caption=msg_text,
             reply_markup=product_details_kb(
-                pay_in=price,
+                payment_cb_data=payment,
             ),
         )
 
@@ -146,13 +140,14 @@ async def handle_back_to_choice_button(
 
 
 @router.callback_query(
-    ProductCbData.filter(F.action == ProductActions.success),
+    PaymentCbData.filter(F.action == PayActions.success),
 )
 async def handle_success_button(
     call: CallbackQuery,
+    callback_data: PaymentCbData,
 ):
-    unpacked_data = ProductCbData().unpack(call.data)
-    payment_id = unpacked_data.payment_id
+
+    payment_id = callback_data.payment_id
 
     payment = await payment_helper.get_payment(
         payment_id=payment_id,
@@ -195,56 +190,4 @@ async def handle_success_button(
         )
 
 
-# PRICE = LabeledPrice(label="Подписка на VPN", amount=150 * 100)
-
-
-# @router.callback_query(PaymentCbData.filter(F.action == PayActions.pay))
-# async def handle_pay_action_button(
-#     call: CallbackQuery,
-# ):
-#     if settings.pay_token.split(":")[1] == "TEST":
-#         await call.answer("Это тестовый платеж!")
-#     await call.answer()
-#     await call.bot.send_invoice(
-#         call.from_user.id,
-#         title="Оплата VPN",
-#         description="Активация подписки",
-#         provider_token=settings.pay_token,
-#         currency="rub",
-#         photo_url="",
-#         photo_width=416,
-#         photo_height=234,
-#         photo_size=416,
-#         is_flexible=False,
-#         need_phone_number=False,
-#         need_email=False,
-#         need_name=False,
-#         need_shipping_address=False,
-#         prices=[PRICE],
-#         start_parameter="subscription",
-#         payload="test-invoice-payload",
-#     )
-
-
-# @router.pre_checkout_query(lambda query: True)
-# async def handle_pre_checkout_query(
-#     pre_checkout_q: PreCheckoutQuery,
-#     bot: Bot,
-# ):
-#     await bot.answer_pre_checkout_query(
-#         pre_checkout_q.id,
-#         ok=True,
-#     )
-
-
-# @router.message(F.action == ContentType.SUCCESSFUL_PAYMENT)
-# async def successful_payment(message: Message):
-#     payment_info = message.successful_payment.to_python()
-#     for key, value in payment_info.items():
-#         print(f"{key} = {value}")
-#     await message.answer(
-#         (
-#             f"Платеж на сумму {message.successful_payment.total_amount // 100}"
-#             f"{message.successful_payment.currency} прошел успешно!"
-#         )
-#     )
+#

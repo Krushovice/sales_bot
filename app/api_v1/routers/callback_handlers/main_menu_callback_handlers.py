@@ -18,6 +18,7 @@ from app.api_v1.markups import (
 )
 
 from app.api_v1.utils.lexicon import LEXICON_RU
+from app.api_v1.utils.yookassa_pay_helper import payment_helper
 
 router = Router(name=__name__)
 
@@ -54,12 +55,15 @@ async def handle_support_button(call: CallbackQuery):
 @router.callback_query(PaymentCbData.filter(F.action == PayActions.pay))
 async def handle_pay_button(call: CallbackQuery):
     await call.answer()
+    payment = await payment_helper.create_payment(
+        tg_id=call.from_user.id,
+        price=150,
+    )
 
     await call.message.edit_caption(
         caption="Для оплаты VPN перейдите по ссылке:",
         reply_markup=product_details_kb(
-            tg_id=call.from_user.id,
-            pay_in=150,
+            payment_cb_data=payment,
             from_main_menu=True,
         ),
     )

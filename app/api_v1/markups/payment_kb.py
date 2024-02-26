@@ -16,16 +16,18 @@ if TYPE_CHECKING:
 class PayActions(IntEnum):
     pay = auto()
     back_to_account = auto()
+    success = auto()
 
 
 class ProductActions(IntEnum):
     details = auto()
     back_to_choice = auto()
-    success = auto()
 
 
 class PaymentCbData(CallbackData, prefix="pay"):
     action: PayActions
+    payment_id: int | None = None
+    price: int | None = None
 
 
 class ProductCbData(CallbackData, prefix="product"):
@@ -62,7 +64,6 @@ def build_payment_kb() -> InlineKeyboardMarkup:
 
 
 def product_details_kb(
-    pay_in: int = None,
     payment_cb_data=None,
     from_main_menu: bool = False,
 ) -> InlineKeyboardMarkup:
@@ -75,7 +76,7 @@ def product_details_kb(
             action=PayActions.pay,
             payment_id=payment_cb_data.payment_id,
             price=payment_cb_data.amount.value,
-        ).pack(),
+        ),
     ),
 
     builder.button(
@@ -109,10 +110,10 @@ def get_success_pay_button(
 ) -> InlineKeyboardMarkup:
     success_btn = InlineKeyboardButton(
         text="Я оплатил",
-        callback_data=ProductCbData(
-            action=ProductActions.success,
+        callback_data=PaymentCbData(
+            action=PayActions.success,
             payment_id=payment_id,
-        ).pack(),
+        ),
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[success_btn]])
     return keyboard

@@ -33,7 +33,9 @@ class PaymentHelper:
     @staticmethod
     async def get_payment(payment_id: int):
         payment = Payment.find_one(payment_id)
-        return payment
+        if payment:
+            return payment
+        return None
 
 
 payment_helper = PaymentHelper()

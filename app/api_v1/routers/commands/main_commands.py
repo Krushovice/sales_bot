@@ -7,17 +7,19 @@ from app.api_v1.markups import (
     build_main_kb,
     build_payment_kb,
     build_account_kb,
+    root_kb,
 )
 
 
 from app.api_v1.core.crud import AsyncOrm
+
 
 from app.api_v1.utils.chek_user import check_user_expiration
 
 
 router = Router(name=__name__)
 
-file_path = "app/api_v1/utils/images/image1.jpg"
+file_path = "app/api_v1/utils/images/image2.jpg"
 
 
 @router.message(CommandStart())
@@ -56,7 +58,7 @@ async def command_start_handler(message: Message):
             "🚀  Подключение в 1 клик, без ограничений скорости\n\n"
             "🛡  Отсутствие рекламы и полная конфиденциальность\n\n"
             "🔥  Твой личный VPN по самой низкой цене\n\n"
-            "💰  Цена: 1̶9̶9̶руб 💥129 руб/мес",
+            "💰  Цена: 1̶9̶9̶руб 💥150 руб/мес",
         ),
         reply_markup=build_main_kb(),
     )
@@ -64,7 +66,13 @@ async def command_start_handler(message: Message):
 
 @router.message(Command("partners", prefix="!/"))
 async def command_help_handler(message: Message):
-    await message.answer("В разработке!")
+    await message.answer_photo(
+        photo=FSInputFile(
+            path=file_path,
+        ),
+        caption="В разработке!",
+        reply_markup=root_kb(),
+    )
 
 
 @router.message(Command("account", prefix="!/"))
@@ -81,14 +89,20 @@ async def show_profile_handler(message: Message):
         f"<i>Для его пополнения используйте клавиши ниже</i>"
     )
     if await check_user_expiration(tg_id=user.tg_id):
-        await message.answer(
-            text=text,
+        await message.answer_photo(
+            photo=FSInputFile(
+                path=file_path,
+            ),
+            caption=text,
             reply_markup=build_account_kb(user=user),
         )
 
     else:
-        await message.answer(
-            text=text,
+        await message.answer_photo(
+            photo=FSInputFile(
+                path=file_path,
+            ),
+            caption=text,
             reply_markup=build_account_kb(),
         )
 
