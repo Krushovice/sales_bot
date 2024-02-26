@@ -29,7 +29,7 @@ def build_account_kb(user=None) -> InlineKeyboardMarkup:
         text="Пополнить баланс 💰",
         callback_data=ProfileCbData(action=ProfileActions.refill).pack(),
     )
-    if user:
+    if user.key:
         builder.button(
             text=f"VPN | {user.expiration_date} | Outline",
             callback_data=ProfileCbData(action=ProfileActions.show_key).pack(),

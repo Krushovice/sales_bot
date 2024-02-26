@@ -20,7 +20,10 @@ from app.api_v1.markups import (
 )
 
 from app.api_v1.utils.request_api import outline_helper
-from app.api_v1.utils.yoomoney_pay_helper import get_payment
+from app.api_v1.utils.yookassa_pay_helper import (
+    payment_helper,
+    set_expiration_date,
+)
 
 router = Router(name=__name__)
 
@@ -60,41 +63,73 @@ async def handle_product_actions__button(
         markdown.hitalic("Для оплаты перейдите по ссылке ниже"),
         sep="\n\n",
     )
-
+    payment = await payment_helper.create_payment(
+        tg_id=call.from_user.id,
+        price=callback_data.price,
+    )
     await call.message.edit_caption(
         caption=msg_text,
         reply_markup=product_details_kb(
-            tg_id=call.from_user.id,
-            payment_cb_data=callback_data,
+            payment_cb_data=payment,
         ),
     )
-    tg_id = call.from_user.id
+    # tg_id = call.from_user.id
 
-    payment = get_payment(tg_id=tg_id)
-    if payment:
-        balance = payment.balance
-        # operation = 2 - ((2 * 3) / 100)
-        operation = callback_data.price - ((callback_data.price * 3) / 100)
-        if balance == operation:
-            await call.message.edit_caption(
-                caption="Оптатил? Жми кнопку ✅",
-                reply_markup=get_success_pay_button(),
-            )
-        else:
-            user = await AsyncOrm.get_user(tg_id=tg_id)
-            await AsyncOrm.update_user(
-                id=user.id,
-                tg_id=tg_id,
-                balance=payment.balance,
-            )
+    # payment = get_payment(tg_id=tg_id)
+    # if payment:
+    #     balance = payment.balance
+    #     # operation = 2 - ((2 * 3) / 100)
+    #     operation = callback_data.price - ((callback_data.price * 3) / 100)
+    #     if balance == operation:
+    #         await call.message.edit_caption(
+    #             caption="Оптатил? Жми кнопку ✅",
+    #             reply_markup=get_success_pay_button(),
+    #         )
+    #     else:
+    #         user = await AsyncOrm.get_user(tg_id=tg_id)
+    #         await AsyncOrm.update_user(
+    #             id=user.id,
+    #             tg_id=tg_id,
+    #             balance=payment.balance,
+    #         )
 
-            await call.message.edit_caption(
-                caption="Недостаточно средств для оплаты подписки 😢",
-                reply_markup=product_details_kb(
-                    tg_id=tg_id,
-                    pay_in=operation,
-                ),
-            )
+    #         await call.message.edit_caption(
+    #             caption="Недостаточно средств для оплаты подписки 😢",
+    #             reply_markup=product_details_kb(
+    #                 tg_id=tg_id,
+    #                 pay_in=operation,
+    #             ),
+    #         )
+
+
+@router.callback_query(PaymentCbData.filter(F.action == PayActions.pay))
+async def handle_pay_action_button(
+    call: CallbackQuery,
+):
+
+    unpacked_data = PaymentCbData().unpack(call.data)
+
+    payment_id = unpacked_data.payment_id
+    price = unpacked_data.price
+    payment = await payment_helper.get_status_payment(
+        payment_id=payment_id,
+    )
+    status = payment.status
+    if status == "succeeded":
+        await call.message.edit_caption(
+            caption="Оптатил? Жми кнопку ✅",
+            reply_markup=get_success_pay_button(
+                payment_id=payment_id,
+            ),
+        )
+
+    else:
+        await call.message.edit_caption(
+            caption="Что-то пошло не так😢",
+            reply_markup=product_details_kb(
+                pay_in=price,
+            ),
+        )
 
 
 @router.callback_query(
@@ -116,19 +151,28 @@ async def handle_back_to_choice_button(
 async def handle_success_button(
     call: CallbackQuery,
 ):
+    unpacked_data = ProductCbData().unpack(call.data)
+    payment_id = unpacked_data.payment_id
+
+    payment = await payment_helper.get_payment(
+        payment_id=payment_id,
+    )
+
+    expiration = set_expiration_date()
+
     await call.answer()
     tg_id = call.from_user.id
-    payment = get_payment(tg_id=tg_id)
+
     user = await AsyncOrm.get_user(tg_id=tg_id)
     if not user.key:
         key = await outline_helper.create_new_key(name=tg_id)
-
+        current_balance = user.balance + payment.amount.value
         await AsyncOrm.update_user(
             tg_id=tg_id,
-            balance=payment.balance,
+            balance=current_balance,
             subscription=True,
-            subscribe_date=payment.operation_date,
-            expiration_date=payment.expiration_date,
+            subscribe_date=payment.created_at,
+            expiration_date=expiration,
             key=Key(
                 api_id=key.key_id,
                 name=key.name,

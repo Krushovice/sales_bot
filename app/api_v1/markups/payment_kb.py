@@ -7,6 +7,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from app.api_v1.utils.yoomoney_pay_helper import get_quickpay_url
+from app.api_v1.utils.yookassa_pay_helper import payment_helper
 
 if TYPE_CHECKING:
     from .account_kb import ProfileActions, ProfileCbData
@@ -61,20 +62,20 @@ def build_payment_kb() -> InlineKeyboardMarkup:
 
 
 def product_details_kb(
-    tg_id: int,
     pay_in: int = None,
-    payment_cb_data: ProductCbData = None,
+    payment_cb_data=None,
     from_main_menu: bool = False,
 ) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
     builder.button(
         text="Оплатить",
-        url=(
-            f"""{get_quickpay_url(
-            pay_in=payment_cb_data.price if payment_cb_data else pay_in,
-            tg_id=tg_id,)}"""
-        ),
+        url=f"{payment_cb_data.confirmation.confirmation_url}",
+        callback_data=PaymentCbData(
+            action=PayActions.pay,
+            payment_id=payment_cb_data.payment_id,
+            price=payment_cb_data.amount.value,
+        ).pack(),
     ),
 
     builder.button(
@@ -103,10 +104,15 @@ def product_details_kb(
 #     return keyboard
 
 
-def get_success_pay_button() -> InlineKeyboardMarkup:
+def get_success_pay_button(
+    payment_id: int,
+) -> InlineKeyboardMarkup:
     success_btn = InlineKeyboardButton(
         text="Я оплатил",
-        callback_data=ProductCbData(action=ProductActions.success).pack(),
+        callback_data=ProductCbData(
+            action=ProductActions.success,
+            payment_id=payment_id,
+        ).pack(),
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[success_btn]])
     return keyboard
