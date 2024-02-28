@@ -11,10 +11,12 @@ class OutlineHelper:
         )
 
     async def create_new_key(self, name):
-        return await self.client.create_key(name=str(name))
+        key = await self.client.create_key(name=str(name))
+        return key
 
     async def get_key(self, key_id: int):
-        return await self.client.get_key(key_id)
+        key = await self.client.get_key(key_id)
+        return key
 
     async def set_key_name(self, key, name):
         await self.client.rename_key(key.key_id, str(name))

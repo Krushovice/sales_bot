@@ -41,8 +41,8 @@ def build_payment_kb() -> InlineKeyboardMarkup:
 
     for name, price in [
         ("150р - 1мес🔹", 150),
-        ("400р - 3мес🔸", 400),
-        ("800р - 6мес🔻", 800),
+        ("270р - 2мес🔸", 270),
+        ("390р - 3мес🔻", 390),
     ]:
         builder.button(
             text=name,
@@ -64,7 +64,7 @@ def build_payment_kb() -> InlineKeyboardMarkup:
 
 
 def product_details_kb(
-    payment_cb_data=None,
+    payment_cb_data,
     from_main_menu: bool = False,
 ) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
@@ -94,15 +94,6 @@ def product_details_kb(
     builder.adjust(1)
 
     return builder.as_markup()
-
-
-# def build_pay_button(tg_id: int) -> InlineKeyboardMarkup:
-#     pay_btn = InlineKeyboardButton(
-#         text="Оплатить",
-#         url=f"{get_quickpay_url(pay_in=150, tg_id=tg_id,)}",
-#     )
-#     keyboard = InlineKeyboardMarkup(inline_keyboard=[[pay_btn]])
-#     return keyboard
 
 
 def get_success_pay_button(

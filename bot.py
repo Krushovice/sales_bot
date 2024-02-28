@@ -1,5 +1,7 @@
 import asyncio
+
 import logging
+from logging.handlers import RotatingFileHandler
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
@@ -8,8 +10,7 @@ from app.api_v1.routers import router as main_router
 from app.api_v1.core import create_tables
 from app.api_v1.config import settings
 from app.api_v1.utils.request_subscribe import (
-    check_subscription_expiry,
-    schedule_next_check,
+    shredule_next_check,
 )
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,14 @@ async def main() -> None:
         format="%(filename)s:%(lineno)d #%(levelname)-8s "
         "[%(asctime)s] - %(name)s - %(message)s",
     )
+    # Добавляем обработчик для записи в файл
+    file_handler = RotatingFileHandler("app.log", maxBytes=100000, backupCount=5)
+    file_handler.setFormatter(
+        logging.Formatter(
+            "%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s"
+        )
+    )
+    logger.addHandler(file_handler)
 
     # Выводим в консоль информацию о начале запуска бота
     logger.info("Starting bot")
@@ -35,9 +44,7 @@ async def main() -> None:
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.session.close()
     await create_tables()
-
-    # await asyncio.create_task(check_subscription_expiry())
-    # await asyncio.create_task(schedule_next_check())
+    asyncio.create_task(shredule_next_check())
 
     await dp.start_polling(bot)
 

@@ -23,6 +23,7 @@ from app.api_v1.utils.request_api import outline_helper
 from app.api_v1.utils.yookassa_pay_helper import (
     payment_helper,
     set_expiration_date,
+    get_duration,
 )
 
 router = Router(name=__name__)
@@ -152,8 +153,8 @@ async def handle_success_button(
     payment = await payment_helper.get_payment(
         payment_id=payment_id,
     )
-
-    expiration = set_expiration_date()
+    payment_duration = get_duration(payment)
+    expiration = set_expiration_date(payment_duration)
 
     await call.answer()
     tg_id = call.from_user.id
