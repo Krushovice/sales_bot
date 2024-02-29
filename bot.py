@@ -9,9 +9,8 @@ from aiogram.enums import ParseMode
 from app.api_v1.routers import router as main_router
 from app.api_v1.core import create_tables
 from app.api_v1.config import settings
-from app.api_v1.utils.request_subscribe import (
-    shredule_next_check,
-)
+from app.api_v1.utils import shredule_next_check
+
 
 logger = logging.getLogger(__name__)
 

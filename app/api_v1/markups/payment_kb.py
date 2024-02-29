@@ -6,8 +6,6 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from app.api_v1.utils.yoomoney_pay_helper import get_quickpay_url
-from app.api_v1.utils.yookassa_pay_helper import payment_helper
 
 if TYPE_CHECKING:
     from .account_kb import ProfileActions, ProfileCbData

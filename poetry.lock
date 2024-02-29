@@ -1354,18 +1354,7 @@ netaddr = "*"
 requests = "*"
 urllib3 = "*"
 
-[[package]]
-name = "yoomoney"
-version = "0.1.0"
-description = "Unofficial YooMoney API python library"
-optional = false
-python-versions = "*"
-files = [
-    {file = "YooMoney-0.1.0-py3-none-any.whl", hash = "sha256:7d0474999c622d795a1c2cf5a7460008915d6975f51f8c41d0aea4071648907c"},
-    {file = "YooMoney-0.1.0.tar.gz", hash = "sha256:9a8f88c54c70ed93fc5ae91f26a76df7aa3eadb1f32f4ef26840c15fe65ad848"},
-]
-
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "aebd2950800a765b77c3517ea79f4e38fe5c377225a649f44c57bb57cb696294"
+content-hash = "a9d21860d7bf79e543dbc773e66a9708523c76d61b8df99f4b64ef3d0a31fe14"

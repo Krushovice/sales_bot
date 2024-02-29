@@ -5,7 +5,7 @@ import logging
 
 from app.api_v1.core.crud import AsyncOrm
 
-from app.api_v1.utils.request_api import outline_helper
+from . import outline_helper
 
 
 async def check_subscription_expiry():

@@ -14,7 +14,7 @@ from app.api_v1.markups import (
 from app.api_v1.core.crud import AsyncOrm
 
 
-from app.api_v1.utils.chek_user import check_user_expiration
+from app.api_v1.utils import check_user_expiration
 
 
 router = Router(name=__name__)

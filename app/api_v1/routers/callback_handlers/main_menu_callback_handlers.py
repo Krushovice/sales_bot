@@ -17,8 +17,8 @@ from app.api_v1.markups import (
     product_details_kb,
 )
 
-from app.api_v1.utils.lexicon import LEXICON_RU
-from app.api_v1.utils.yookassa_pay_helper import payment_helper
+from app.api_v1.utils import LEXICON_RU, payment_helper
+
 
 router = Router(name=__name__)
 
