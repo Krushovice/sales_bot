@@ -52,21 +52,21 @@ async def handle_support_button(call: CallbackQuery):
     )
 
 
-@router.callback_query(PaymentCbData.filter(F.action == PayActions.pay))
-async def handle_pay_button(call: CallbackQuery):
-    await call.answer()
-    payment = await payment_helper.create_payment(
-        tg_id=call.from_user.id,
-        price=150,
-    )
+# @router.callback_query(PaymentCbData.filter(F.action == PayActions.pay))
+# async def handle_pay_button(call: CallbackQuery):
+#     await call.answer()
+#     payment = await payment_helper.create_payment(
+#         tg_id=call.from_user.id,
+#         price=150,
+#     )
 
-    await call.message.edit_caption(
-        caption="Для оплаты VPN перейдите по ссылке:",
-        reply_markup=product_details_kb(
-            payment_cb_data=payment,
-            from_main_menu=True,
-        ),
-    )
+#     await call.message.edit_caption(
+#         caption="Для оплаты VPN перейдите по ссылке:",
+#         reply_markup=product_details_kb(
+#             payment_cb_data=payment,
+#             from_main_menu=True,
+#         ),
+#     )
 
 
 @router.callback_query(MenuCbData.filter(F.action == MenuActions.advantage))

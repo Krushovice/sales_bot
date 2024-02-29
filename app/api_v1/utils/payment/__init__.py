@@ -5,7 +5,7 @@ __all__ = (
 )
 
 
-from yookassa_pay_helper import (
+from .yookassa_pay_helper import (
     payment_helper,
     set_expiration_date,
     get_duration,

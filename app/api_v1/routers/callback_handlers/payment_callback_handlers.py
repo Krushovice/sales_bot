@@ -124,6 +124,7 @@ async def handle_pay_action_button(
             caption=msg_text,
             reply_markup=product_details_kb(
                 payment_cb_data=payment,
+                from_main_menu=True,
             ),
         )
 
