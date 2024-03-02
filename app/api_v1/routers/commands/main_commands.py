@@ -42,7 +42,6 @@ async def command_start_handler(message: Message):
                     user=user,
                 ),
             )
-            return
 
     else:
         await AsyncOrm.create_user(

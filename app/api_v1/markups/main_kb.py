@@ -14,6 +14,7 @@ class MenuActions(IntEnum):
     account = auto()
     support = auto()
     advantage = auto()
+    promo = auto()
 
 
 class MenuCbData(CallbackData, prefix="main"):
@@ -40,6 +41,11 @@ def build_main_kb() -> InlineKeyboardMarkup:
     builder.button(
         text="Преимущества ♻️",
         callback_data=MenuCbData(action=MenuActions.advantage).pack(),
+    )
+
+    builder.button(
+        text="Ввести промокод 👑",
+        callback_data=MenuCbData(action=MenuActions.promo).pack(),
     )
     builder.adjust(2)
 

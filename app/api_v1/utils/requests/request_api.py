@@ -11,24 +11,24 @@ class OutlineHelper:
         )
 
     async def create_new_key(self, name):
-        key = await self.client.create_key(name=str(name))
+        key = self.client.create_key(name=str(name))
         return key
 
     async def get_key(self, key_id: int):
-        key = await self.client.get_key(key_id)
+        key = self.client.get_key(key_id)
         return key
 
     async def set_key_name(self, key, name):
-        await self.client.rename_key(key.key_id, str(name))
+        self.client.rename_key(key.key_id, str(name))
 
     async def delete_key(self, key_id: int):
-        await self.client.delete_key(key_id)
+        self.client.delete_key(key_id)
 
     async def set_key_limit(self, key_id: int):
-        await self.client.add_data_limit(key_id, 1000 * 1000 * 20)
+        self.client.add_data_limit(key_id, 1000 * 1000 * 20)
 
     async def remove_key_limit(self, key_id: int):
-        await self.client.delete_data_limit(key_id)
+        self.client.delete_data_limit(key_id)
 
 
 outline_helper = OutlineHelper()

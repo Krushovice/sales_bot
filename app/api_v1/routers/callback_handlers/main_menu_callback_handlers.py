@@ -52,6 +52,16 @@ async def handle_support_button(call: CallbackQuery):
     )
 
 
+@router.callback_query(MenuCbData.filter(F.action == MenuActions.promo))
+async def handle_promo_button(call: CallbackQuery):
+    await call.answer()
+
+    await call.message.edit_caption(
+        caption="Введите пожалуйста промокод на бесплатный 7-дневный триал 🎁",
+        reply_markup=root_kb(),
+    )
+
+
 # @router.callback_query(PaymentCbData.filter(F.action == PayActions.pay))
 # async def handle_pay_button(call: CallbackQuery):
 #     await call.answer()
