@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     BOT_TOKEN: str
     PAY_TOKEN: str
     DEBUG: bool = False
-    ECHO: bool = True
+    ECHO: bool = False
     YOOKASSA_APP_ID: str
     YOOKASSA_ACCESS_TOKEN: str
     YOOKASSA_CLIENT_SECRET: str

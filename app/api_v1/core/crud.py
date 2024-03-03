@@ -28,7 +28,13 @@ class AsyncOrm:
     @staticmethod
     async def get_users_by_subscription() -> list:
         async with db_helper.session_factory() as session:
-            query = select(User).where(User.subscription).order_by(User.subscribe_date)
+            query = (
+                select(User)
+                .where(User.subscription)
+                .order_by(
+                    User.subscribe_date,
+                )
+            )
             result = await session.execute(query)
             users_with_subscription = result.scalars().all()
             return users_with_subscription

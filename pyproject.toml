@@ -17,6 +17,7 @@ requests = "^2.31.0"
 outline-vpn-api = "^6.1.0"
 yookassa = "^3.0.1"
 alembic = "^1.13.1"
+apscheduler = "^3.10.4"
 
 
 [build-system]

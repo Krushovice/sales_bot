@@ -28,22 +28,7 @@ async def command_start_handler(message: Message):
     user = await AsyncOrm.get_user(
         tg_id=message.from_user.id,
     )
-    if user:
-        if await check_user_expiration(tg_id=user.tg_id):
-            await message.answer_photo(
-                photo=FSInputFile(
-                    path=file_path,
-                ),
-                caption=markdown.hbold(
-                    f"C возвращением, {message.from_user.first_name}!\n"
-                    "Ваша подписка заканчивается. Пожалуйста, пополните баланс"
-                ),
-                reply_markup=build_account_kb(
-                    user=user,
-                ),
-            )
-
-    else:
+    if not user:
         await AsyncOrm.create_user(
             tg_id=message.from_user.id,
             username=message.from_user.username,

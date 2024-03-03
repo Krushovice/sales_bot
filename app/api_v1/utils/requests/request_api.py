@@ -16,7 +16,9 @@ class OutlineHelper:
 
     async def get_key(self, key_id: int):
         key = self.client.get_key(key_id)
-        return key
+        if key:
+            return key
+        return None
 
     async def set_key_name(self, key, name):
         self.client.rename_key(key.key_id, str(name))

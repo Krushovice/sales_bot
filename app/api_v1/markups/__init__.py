@@ -15,6 +15,7 @@ __all__ = (
     "root_kb",
     "back_to_key_kb",
     "help_kb",
+    "build_renewal_kb",
 )
 
 from .account_kb import (
@@ -24,6 +25,7 @@ from .account_kb import (
     root_kb,
     back_to_key_kb,
     help_kb,
+    build_renewal_kb,
 )
 from .main_kb import build_main_kb, MenuActions, MenuCbData
 

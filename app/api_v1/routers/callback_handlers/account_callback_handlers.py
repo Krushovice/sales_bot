@@ -20,6 +20,20 @@ router = Router(name=__name__)
 @router.callback_query(ProfileCbData.filter(F.action == ProfileActions.refill))
 async def handle_payment_button(call: CallbackQuery):
     await call.answer()
+    user = await AsyncOrm.get_user(
+        tg_id=call.from_user.id,
+    )
+    await call.message.edit_caption(
+        caption=(
+            f"Ваш баланс: {user.balance}\n\n" "Укажите сумму пополнения баланса💰"
+        ),
+        reply_markup=build_payment_kb(),
+    )
+
+
+@router.callback_query(ProfileCbData.filter(F.action == ProfileActions.renewal))
+async def handle_renewal_button(call: CallbackQuery):
+    await call.answer()
     await call.message.edit_caption(
         caption="💰 Укажите сумму пополнения баланса",
         reply_markup=build_payment_kb(),

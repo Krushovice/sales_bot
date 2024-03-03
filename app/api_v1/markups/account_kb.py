@@ -15,6 +15,7 @@ class ProfileActions(IntEnum):
     show_key = auto()
     tutorial = auto()
     back_to_key = auto()
+    renewal = auto()
 
 
 class ProfileCbData(CallbackData, prefix="account"):
@@ -76,6 +77,19 @@ def help_kb() -> InlineKeyboardMarkup:
         text="Назад 🔙",
         callback_data=PaymentCbData(action=PayActions.back_to_account).pack(),
     )
+    builder.adjust(1)
+
+    return builder.as_markup()
+
+
+def build_renewal_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text="Подключить со скидкой ❇️",
+        callback_data=ProfileCbData(action=ProfileActions.renewal).pack(),
+    )
+
     builder.adjust(1)
 
     return builder.as_markup()

@@ -1,7 +1,13 @@
 import datetime
-import uuid
 import logging
+import uuid
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.api_v1.utils import setup_logger
+
+    logger = setup_logger()
 
 from yookassa import Payment, Configuration
 
@@ -50,9 +56,9 @@ payment_helper = PaymentHelper()
 
 
 def set_expiration_date(duration: int) -> str:
-    today = datetime.datetime.today().strftime("%Y-%m-%d")
+    today = datetime.datetime.today().strftime("%d-%m-%Y")
     delta = datetime.timedelta(days=31 * duration)
-    expiration_date = (today + delta).strftime("%Y-%m-%d")
+    expiration_date = (today + delta).strftime("%d-%m-%Y")
     return expiration_date
 
 
