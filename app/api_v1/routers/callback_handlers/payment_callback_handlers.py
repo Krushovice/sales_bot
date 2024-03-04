@@ -26,8 +26,12 @@ from app.api_v1.utils import (
     set_expiration_date,
     get_duration,
 )
+from app.api_v1.utils.logging import setup_logger
+
 
 router = Router(name=__name__)
+
+logger = setup_logger(__name__)
 
 
 @router.callback_query(
@@ -65,16 +69,20 @@ async def handle_product_actions__button(
         markdown.hitalic("Для оплаты перейдите по ссылке ниже"),
         sep="\n\n",
     )
-    payment = await payment_helper.create_payment(
-        tg_id=call.from_user.id,
-        price=callback_data.price,
-    )
-    await call.message.edit_caption(
-        caption=msg_text,
-        reply_markup=product_details_kb(
-            payment_cb_data=payment,
-        ),
-    )
+    try:
+        payment = await payment_helper.create_payment(
+            tg_id=call.from_user.id,
+            price=callback_data.price,
+        )
+        await call.message.edit_caption(
+            caption=msg_text,
+            reply_markup=product_details_kb(
+                payment_cb_data=payment,
+            ),
+        )
+
+    except Exception as e:
+        logger.error(f"Ошибка перехода к платежу: {e}")
 
 
 @router.callback_query(PaymentCbData.filter(F.action == PayActions.pay))
@@ -82,51 +90,53 @@ async def handle_pay_action_button(
     call: CallbackQuery,
     callback_data: PaymentCbData,
 ):
+    try:
+        payment_id = callback_data.payment_id
+        price = callback_data.price
+        payment = await payment_helper.get_payment(
+            payment_id=payment_id,
+        )
+        if payment:
+            status = payment.status
+            if status == "succeeded":
+                await call.message.edit_caption(
+                    caption="Оптатил? Жми кнопку ✅",
+                    reply_markup=get_success_pay_button(
+                        payment_id=payment_id,
+                    ),
+                )
 
-    payment_id = callback_data.payment_id
-    price = callback_data.price
-    payment = await payment_helper.get_payment(
-        payment_id=payment_id,
-    )
-    if payment:
-        status = payment.status
-        if status == "succeeded":
-            await call.message.edit_caption(
-                caption="Оптатил? Жми кнопку ✅",
-                reply_markup=get_success_pay_button(
-                    payment_id=payment_id,
-                ),
-            )
+            else:
+                payment = await payment_helper.create_payment(
+                    tg_id=call.from_user.id,
+                    price=price,
+                )
+                await call.message.edit_caption(
+                    caption="Что-то пошло не так😢",
+                    reply_markup=product_details_kb(
+                        payment_cb_data=payment,
+                    ),
+                )
 
         else:
+            msg_text = markdown.text(
+                markdown.hbold("Сумма: 150 руб"),
+                markdown.hitalic("Для оплаты перейдите по ссылке ниже"),
+                sep="\n\n",
+            )
             payment = await payment_helper.create_payment(
                 tg_id=call.from_user.id,
-                price=price,
+                price=150,
             )
             await call.message.edit_caption(
-                caption="Что-то пошло не так😢",
+                caption=msg_text,
                 reply_markup=product_details_kb(
                     payment_cb_data=payment,
+                    from_main_menu=True,
                 ),
             )
-
-    else:
-        msg_text = markdown.text(
-            markdown.hbold("Сумма: 150 руб"),
-            markdown.hitalic("Для оплаты перейдите по ссылке ниже"),
-            sep="\n\n",
-        )
-        payment = await payment_helper.create_payment(
-            tg_id=call.from_user.id,
-            price=150,
-        )
-        await call.message.edit_caption(
-            caption=msg_text,
-            reply_markup=product_details_kb(
-                payment_cb_data=payment,
-                from_main_menu=True,
-            ),
-        )
+    except Exception as e:
+        logger.error(f"Error creating payment: {e}")
 
 
 @router.callback_query(
@@ -149,48 +159,50 @@ async def handle_success_button(
     call: CallbackQuery,
     callback_data: PaymentCbData,
 ):
+    try:
+        payment_id = callback_data.payment_id
 
-    payment_id = callback_data.payment_id
-
-    payment = await payment_helper.get_payment(
-        payment_id=payment_id,
-    )
-    payment_duration = get_duration(payment)
-    expiration = set_expiration_date(payment_duration)
-
-    await call.answer()
-    tg_id = call.from_user.id
-
-    user = await AsyncOrm.get_user(tg_id=tg_id)
-    if not user.key:
-        key = await outline_helper.create_new_key(name=tg_id)
-        current_balance = user.balance + payment.amount.value
-        await AsyncOrm.update_user(
-            tg_id=tg_id,
-            balance=current_balance,
-            subscription=True,
-            subscribe_date=payment.created_at,
-            expiration_date=expiration,
-            key=Key(
-                api_id=key.key_id,
-                name=key.name,
-                user_id=user.id,
-                value=key.access_url,
-            ),
+        payment = await payment_helper.get_payment(
+            payment_id=payment_id,
         )
+        payment_duration = get_duration(payment)
+        expiration = set_expiration_date(payment_duration)
 
-        await call.message.edit_caption(
-            caption=(f"Подписка оплачена, вот ваш ключ \n\n" f"{key.access_url}"),
-            reply_markup=build_main_kb(),
-        )
+        await call.answer()
+        tg_id = call.from_user.id
 
-    else:
         user = await AsyncOrm.get_user(tg_id=tg_id)
-        await outline_helper.remove_key_limit(key_id=user.key.api_id)
-        await call.message.edit_caption(
-            caption="Подписка оплачена, доступ не ограничен 🛜",
-            reply_markup=build_account_kb(user=user),
-        )
+        if not user.key:
+            key = await outline_helper.create_new_key(name=tg_id)
+            current_balance = user.balance + payment.amount.value
+            await AsyncOrm.update_user(
+                tg_id=tg_id,
+                balance=current_balance,
+                subscription=True,
+                subscribe_date=payment.created_at,
+                expiration_date=expiration,
+                key=Key(
+                    api_id=key.key_id,
+                    name=key.name,
+                    user_id=user.id,
+                    value=key.access_url,
+                ),
+            )
+
+            await call.message.edit_caption(
+                caption=(f"Подписка оплачена, вот ваш ключ \n\n" f"{key.access_url}"),
+                reply_markup=build_main_kb(),
+            )
+
+        else:
+            user = await AsyncOrm.get_user(tg_id=tg_id)
+            await outline_helper.remove_key_limit(key_id=user.key.api_id)
+            await call.message.edit_caption(
+                caption="Подписка оплачена, доступ не ограничен 🛜",
+                reply_markup=build_account_kb(user=user),
+            )
+    except Exception as e:
+        logger.error(f"Error creating payment: {e}")
 
 
 #

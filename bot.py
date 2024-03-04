@@ -25,7 +25,7 @@ async def check_users(bot: Bot):
 
 async def main() -> None:
     # Конфигурируем логирование
-    logger = setup_logger()
+    logger = setup_logger(__name__)
     # scheduler = AsyncIOScheduler()
     # scheduler.add()
     # Выводим в консоль информацию о начале запуска бота

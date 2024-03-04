@@ -13,8 +13,11 @@ from app.api_v1.markups import (
 )
 
 from app.api_v1.utils import LEXICON_RU
+from app.api_v1.utils.logging import setup_logger
 
 router = Router(name=__name__)
+
+logger = setup_logger(__name__)
 
 
 @router.callback_query(ProfileCbData.filter(F.action == ProfileActions.refill))
@@ -46,14 +49,22 @@ async def handle_renewal_button(call: CallbackQuery):
     )
 )
 async def handle_show_key_button(call: CallbackQuery):
+    await call.answer()
     user = await AsyncOrm.get_user(
         tg_id=call.from_user.id,
     )
-    await call.answer()
-    await call.message.edit_caption(
-        caption=markdown.hbold(f"Ваш ключ: {user.key.value}\n\nСкопируйте его ☑️"),
-        reply_markup=help_kb(),
-    )
+    if user.key:
+        try:
+
+            await call.message.edit_caption(
+                caption=markdown.hbold(
+                    f"Ваш ключ: {user.key.value}\n\nСкопируйте его ☑️"
+                ),
+                reply_markup=help_kb(),
+            )
+
+        except Exception as e:
+            logger.error(f"У данного пользователя отсутствует ключ, {e}")
 
 
 @router.callback_query(
@@ -76,11 +87,19 @@ async def handle_help_button(call: CallbackQuery):
     )
 )
 async def handle_back_to_key_button(call: CallbackQuery):
+    await call.answer()
     user = await AsyncOrm.get_user(
         tg_id=call.from_user.id,
     )
-    await call.answer()
-    await call.message.edit_caption(
-        caption=markdown.hbold(f"Ваш ключ: {user.key.value}\n\nСкопируйте его ☑️"),
-        reply_markup=help_kb(),
-    )
+    if user.key:
+        try:
+
+            await call.message.edit_caption(
+                caption=markdown.hbold(
+                    f"Ваш ключ: {user.key.value}\n\nСкопируйте его ☑️"
+                ),
+                reply_markup=help_kb(),
+            )
+
+        except Exception as e:
+            logger.error(f"У данного пользователя отсутствует ключ, {e}")

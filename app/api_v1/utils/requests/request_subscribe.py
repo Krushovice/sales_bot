@@ -1,24 +1,23 @@
 import asyncio
 import datetime
-import logging
 
 
 from aiogram.types import FSInputFile
 from aiogram.exceptions import TelegramBadRequest
-from typing import TYPE_CHECKING
+
+
 from app.api_v1.core import AsyncOrm
 
+from app.api_v1.utils.logging import setup_logger
 from . import outline_helper
 
 
 from app.api_v1.markups import build_renewal_kb
 
-if TYPE_CHECKING:
-    from app.api_v1.utils import setup_logger
-
-    logger = setup_logger()
 
 file_path = "app/api_v1/utils/images/image2.jpg"
+
+logger = setup_logger(__name__)
 
 
 async def check_user_expiration(user):
@@ -45,7 +44,7 @@ async def check_subscription_expiry():
 
     except Exception as e:
         error_msg = f"An error occurred in check_subscription_expiry: {e}"
-        logging.error(error_msg)
+        logger.error(error_msg)
 
 
 async def schredule_next_check(bot):
@@ -80,4 +79,4 @@ async def send_subscription_reminder(bot) -> None:
                 )
         except TelegramBadRequest as e:
             error_msg = f"Ошибка при отправке сообщения пользователю {user.tg_id}: {e}"
-            logging.error(error_msg)
+            logger.error(error_msg)

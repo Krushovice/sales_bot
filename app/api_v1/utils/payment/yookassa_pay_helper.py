@@ -1,18 +1,18 @@
 import datetime
-import logging
+
+# import logging
 import uuid
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from app.api_v1.utils import setup_logger
-
-    logger = setup_logger()
 
 from yookassa import Payment, Configuration
 
 
 from app.api_v1.config import settings
+
+
+from app.api_v1.utils.logging import setup_logger
+
+logger = setup_logger(__name__)
 
 
 class PaymentHelper:
@@ -38,7 +38,7 @@ class PaymentHelper:
             )
             return payment
         except Exception as e:
-            logging.error(f"Error with payment create: {e}")
+            logger.error(f"Error with payment create: {e}")
 
     @staticmethod
     async def get_payment(payment_id: int):
@@ -49,7 +49,7 @@ class PaymentHelper:
             return None
 
         except Exception as e:
-            logging.error(f"Something wrong with payment request: {e}")
+            logger.error(f"Something wrong with payment request: {e}")
 
 
 payment_helper = PaymentHelper()
@@ -73,4 +73,4 @@ def get_duration(payment) -> int:
         else:
             return 3
     except Exception as e:
-        logging.error(f"Something wrong with payment check: {e}")
+        logger.error(f"Something wrong with payment check: {e}")
