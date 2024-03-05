@@ -4,7 +4,6 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from app.api_v1.routers import router as main_router
 from app.api_v1.core import create_tables
@@ -25,10 +24,6 @@ async def check_users(bot: Bot):
 async def main() -> None:
     try:  # Конфигурируем логирование
         logger = setup_logger(__name__)
-        # scheduler = AsyncIOScheduler()
-        # scheduler.add()
-        # Выводим в консоль информацию о начале запуска бота
-        # logger.info("Starting bot")
 
         dp = Dispatcher()
         bot = Bot(token=settings.bot_token, parse_mode=ParseMode.HTML)
