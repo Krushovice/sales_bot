@@ -4,12 +4,11 @@ from pydantic_settings import SettingsConfigDict, BaseSettings
 class Settings(BaseSettings):
     DB_URL: str
     BOT_TOKEN: str
-    PAY_TOKEN: str
     DEBUG: bool = False
     ECHO: bool = False
-    YOOKASSA_APP_ID: str
-    YOOKASSA_ACCESS_TOKEN: str
-    YOOKASSA_CLIENT_SECRET: str
+    TINKOFF_TERMINAL_KEY: str
+    TINKOFF_TOKEN: str
+    TINKOFF_SECRET: str
     OUTLINE_API_URL: str
     OUTLINE_SHA_CERT: str
 
@@ -25,20 +24,16 @@ class Settings(BaseSettings):
         return f"{self.BOT_TOKEN}"
 
     @property
-    def pay_token(self) -> str:
-        return f"{self.PAY_TOKEN}"
+    def get_tinkoff_token(self) -> str:
+        return f"{self.TINKOFF_TOKEN}"
 
     @property
-    def get_app_id(self) -> str:
-        return f"{self.YOOKASSA_APP_ID}"
+    def get_tinkoff_secret(self) -> str:
+        return f"{self.TINKOFF_SECRET}"
 
     @property
-    def get_yookassa_token(self) -> str:
-        return f"{self.YOOKASSA_ACCESS_TOKEN}"
-
-    @property
-    def get_pay_secret(self) -> str:
-        return f"{self.YOOKASSA_CLIENT_SECRET}"
+    def get_tinkoff_terminal_key(self) -> str:
+        return f"{self.TINKOFF_TERMINAL_KEY}"
 
     @property
     def get_outline_url(self) -> str:

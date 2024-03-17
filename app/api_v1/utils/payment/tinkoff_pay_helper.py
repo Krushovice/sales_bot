@@ -1,4 +1,4 @@
-import requests
+import aiohttp
 
 from app.api_v1.config import settings
 
@@ -9,34 +9,58 @@ class PaymentManager:
         self.secret_key = secret_key
         self.api_url = "https://securepay.tinkoff.ru/v2/"
 
-    def init_payment(self, amount, order_id, description):
+    async def init_payment(
+        self,
+        amount,
+        order_id,
+        description,
+        receipt,
+    ):
         data = {
             "TerminalKey": self.terminal_key,
             "Amount": amount,
             "OrderId": order_id,
             "Description": description,
+            "Receipt": receipt,
         }
-        response = requests.post(self.api_url + "Init", json=data)
-        return response.json()
 
-    def check_payment_status(self, payment_id):
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                self.api_url + "Init",
+                json=data,
+            ) as response:
+                result = await response.json()
+                return result
+
+    async def check_payment_status(self, payment_id):
+        data = {
+            "TerminalKey": self.terminal_key,
+            "Token": self.secret_key,
+            "PaymentId": payment_id,
+        }
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                self.api_url + "GetState",
+                json=data,
+            ) as response:
+                result = await response.json()
+                return result
+
+    async def get_payment_info(self, payment_id):
         data = {
             "TerminalKey": self.terminal_key,
             "PaymentId": payment_id,
         }
-        response = requests.post(self.api_url + "GetState", json=data)
-        return response.json()
-
-    def get_payment_info(self, payment_id):
-        data = {
-            "TerminalKey": self.terminal_key,
-            "PaymentId": payment_id,
-        }
-        response = requests.post(self.api_url + "GetReceipt", json=data)
-        return response.json()
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                self.api_url + "GetReceipt",
+                json=data,
+            ) as response:
+                result = await response.json()
+                return result
 
 
 payment_manager = PaymentManager(
-    terminal_key=settings.tinkoff_terminal_key,
-    secret_key=settings.tinkoff_secret_key,
+    terminal_key=settings.get_tinkoff_terminal_key,
+    secret_key=settings.get_tinkoff_secret,
 )
