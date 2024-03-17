@@ -17,7 +17,9 @@ def setup_logger(module_name):
             backupCount=5,
         )
         file_handler.setFormatter(
-            logging.Formatter("%(name)s %(asctime)s %(levelname)s %(message)s")
+            logging.Formatter(
+                "%(name)s %(asctime)s %(levelname)s %(filename)s %(funcName)s line %(lineno)d: %(message)s"
+            )
         )
         logger.addHandler(file_handler)
 

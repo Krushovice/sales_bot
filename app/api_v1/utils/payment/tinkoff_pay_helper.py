@@ -28,20 +28,22 @@ class PaymentManager:
             async with session.post(
                 self.api_url + "Init",
                 json=data,
+                ssl=False,
             ) as response:
                 result = await response.json()
                 return result
 
-    async def check_payment_status(self, payment_id):
+    async def check_payment_status(self, payment_id, token):
         data = {
             "TerminalKey": self.terminal_key,
-            "Token": self.secret_key,
+            "Token": token,
             "PaymentId": payment_id,
         }
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 self.api_url + "GetState",
                 json=data,
+                ssl=False,
             ) as response:
                 result = await response.json()
                 return result
@@ -55,6 +57,7 @@ class PaymentManager:
             async with session.post(
                 self.api_url + "GetReceipt",
                 json=data,
+                ssl=False,
             ) as response:
                 result = await response.json()
                 return result

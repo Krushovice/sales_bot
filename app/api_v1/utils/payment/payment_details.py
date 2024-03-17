@@ -1,8 +1,10 @@
 import uuid
-
+import hashlib
 import datetime
 
 from app.api_v1.utils.logging import setup_logger
+
+from app.api_v1.config import settings
 
 logger = setup_logger(__name__)
 
@@ -18,7 +20,7 @@ def generate_order_number():
 
 
 def set_expiration_date(duration: int) -> str:
-    today = datetime.datetime.today().strftime("%d-%m-%Y")
+    today = datetime.datetime.today()
     delta = datetime.timedelta(days=31 * duration)
     expiration_date = (today + delta).strftime("%d-%m-%Y")
     return expiration_date
@@ -26,10 +28,10 @@ def set_expiration_date(duration: int) -> str:
 
 def get_duration(payment) -> int:
     try:
-        if payment.amount.value == 150:
+        if payment["Amount"] == 15000:
             return 1
 
-        elif payment.amount.value == 270:
+        elif payment["Amount"] == 27000:
             return 2
 
         else:
@@ -54,3 +56,12 @@ def get_receipt(price):
             },
         ],
     }
+
+
+def create_token(payment_id):
+
+    tokentr = (
+        settings.get_tinkoff_secret + payment_id + settings.get_tinkoff_terminal_key
+    )
+    tokensha256 = str(hashlib.sha256(tokentr.encode()).hexdigest())
+    return tokensha256

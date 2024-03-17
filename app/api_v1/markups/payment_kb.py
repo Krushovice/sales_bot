@@ -69,13 +69,21 @@ def product_details_kb(
 
     builder.button(
         text="Оплатить",
-        url=f"{payment_cb_data.confirmation.confirmation_url}",
+        url=f"{payment_cb_data['PaymentURL']}",
         callback_data=PaymentCbData(
             action=PayActions.pay,
-            payment_id=payment_cb_data.payment_id,
-            price=payment_cb_data.amount.value,
+            payment_id=payment_cb_data["PaymentId"],
+            price=payment_cb_data["Amount"] / 100,
         ),
     ),
+
+    builder.button(
+        text="Я оплатил✅",
+        callback_data=PaymentCbData(
+            action=PayActions.success,
+            payment_id=payment_cb_data["PaymentId"],
+        ),
+    )
 
     builder.button(
         text="Назад🔙",
@@ -95,7 +103,7 @@ def product_details_kb(
 
 
 def get_success_pay_button(
-    payment_id: int,
+    payment_id: str,
 ) -> InlineKeyboardMarkup:
     success_btn = InlineKeyboardButton(
         text="Я оплатил",

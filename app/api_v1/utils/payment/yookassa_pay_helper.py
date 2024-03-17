@@ -53,24 +53,3 @@ class PaymentHelper:
 
 
 payment_helper = PaymentHelper()
-
-
-def set_expiration_date(duration: int) -> str:
-    today = datetime.datetime.today().strftime("%d-%m-%Y")
-    delta = datetime.timedelta(days=31 * duration)
-    expiration_date = (today + delta).strftime("%d-%m-%Y")
-    return expiration_date
-
-
-def get_duration(payment) -> int:
-    try:
-        if payment.amount.value == 150:
-            return 1
-
-        elif payment.amount.value == 270:
-            return 2
-
-        else:
-            return 3
-    except Exception as e:
-        logger.error(f"Something wrong with payment check: {e}")
