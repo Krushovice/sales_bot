@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     TINKOFF_SECRET: str
     OUTLINE_API_URL: str
     OUTLINE_SHA_CERT: str
+    OUTLINE_USERS_GATEWAY: str
 
     @property
     def db_url(self) -> str:
