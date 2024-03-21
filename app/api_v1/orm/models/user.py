@@ -1,7 +1,7 @@
 from typing import Annotated, TYPE_CHECKING
 from .base import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Numeric, String
+from sqlalchemy import Numeric, String, BigInteger
 
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
@@ -14,7 +14,7 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[intpk]
-    tg_id: Mapped[int] = mapped_column(unique=True)
+    tg_id: Mapped[int] = mapped_column(BigInteger(), unique=True)
     username: Mapped[str] = mapped_column(String(30), unique=True)
     subscription: Mapped[bool] = mapped_column(default=False)
     cost: Mapped[Numeric] = mapped_column(

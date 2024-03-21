@@ -1,7 +1,12 @@
 from typing import Annotated, TYPE_CHECKING
 from .base import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey, String, UniqueConstraint
+from sqlalchemy import (
+    ForeignKey,
+    String,
+    UniqueConstraint,
+    BigInteger,
+)
 
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
@@ -13,7 +18,7 @@ if TYPE_CHECKING:
 class Key(Base):
     __tablename__ = "keys"
     id: Mapped[intpk]
-    api_id: Mapped[int] = mapped_column(unique=True)
+    api_id: Mapped[int] = mapped_column(BigInteger(), unique=True)
     name: Mapped[str] = mapped_column(String(25), unique=True, default=None)
     value: Mapped[str] = mapped_column(unique=True, default=None)
     user_id: Mapped[int] = mapped_column(
