@@ -1,3 +1,4 @@
+from typing import Union
 from sqlalchemy import select
 
 from .models import User
@@ -7,9 +8,13 @@ from .db_helper import db_helper
 class AsyncOrm:
 
     @staticmethod
-    async def create_user(tg_id: int, username: str, **kwargs) -> None:
+    async def create_user(tg_id: int, username: Union[str | None], **kwargs) -> None:
         async with db_helper.session_factory() as session:
-            user = User(tg_id=tg_id, username=username, **kwargs)
+            user = User(
+                tg_id=tg_id,
+                username=username,
+                **kwargs,
+            )
             session.add(user)
             await session.commit()
             return user
