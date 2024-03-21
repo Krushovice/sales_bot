@@ -5,7 +5,7 @@ from aiogram.types import Message, FSInputFile
 
 from app.api_v1.markups import build_main_kb, root_kb
 
-from app.api_v1.core import AsyncOrm, Key
+from app.api_v1.orm import AsyncOrm, Key
 
 from app.api_v1.utils import outline_helper
 

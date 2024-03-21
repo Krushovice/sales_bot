@@ -11,7 +11,7 @@ from app.api_v1.markups import (
 )
 
 
-from app.api_v1.core.crud import AsyncOrm
+from app.api_v1.orm.crud import AsyncOrm
 
 
 from app.api_v1.utils import check_user_expiration

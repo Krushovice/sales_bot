@@ -6,7 +6,7 @@ from aiogram.types import FSInputFile
 from aiogram.exceptions import TelegramBadRequest
 
 
-from app.api_v1.core import AsyncOrm
+from app.api_v1.orm import AsyncOrm
 
 from app.api_v1.utils.logging import setup_logger
 from . import outline_helper
@@ -40,7 +40,7 @@ async def check_subscription_expiry():
         for user in users:
             if current_date > user.expiration_date:
                 if user.key:
-                    await outline_helper.set_key_limit(key_id=user.key.api_id)
+                    outline_helper.set_key_limit(key_id=user.key.api_id)
 
     except Exception as e:
         error_msg = f"An error occurred in check_subscription_expiry: {e}"

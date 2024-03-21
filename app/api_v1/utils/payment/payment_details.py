@@ -60,8 +60,6 @@ def get_receipt(price):
 
 def create_token(payment_id):
 
-    tokentr = (
-        settings.get_tinkoff_secret + payment_id + settings.get_tinkoff_terminal_key
-    )
+    tokentr = settings.tinkoff_secret + payment_id + settings.tinkoff_terminal_key
     tokensha256 = str(hashlib.sha256(tokentr.encode()).hexdigest())
     return tokensha256

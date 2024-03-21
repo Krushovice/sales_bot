@@ -6,7 +6,7 @@ from aiogram.types import CallbackQuery, FSInputFile
 from aiogram.utils import markdown
 
 
-from app.api_v1.core import AsyncOrm, Key
+from app.api_v1.orm import AsyncOrm, Key
 
 
 from app.api_v1.markups import (

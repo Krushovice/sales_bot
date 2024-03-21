@@ -6,7 +6,7 @@ from aiogram.enums import ParseMode
 
 
 from app.api_v1.routers import router as main_router
-from app.api_v1.core import create_tables
+from app.api_v1.orm import create_tables
 from app.api_v1.config import settings
 from app.api_v1.utils import (
     schredule_next_check,

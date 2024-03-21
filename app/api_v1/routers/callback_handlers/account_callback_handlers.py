@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
 from aiogram.utils import markdown
-from app.api_v1.core.crud import AsyncOrm
+from app.api_v1.orm.crud import AsyncOrm
 
 from app.api_v1.markups import (
     ProfileActions,

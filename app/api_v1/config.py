@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     ECHO: bool = False
     TINKOFF_TERMINAL_KEY: str
+    TINKOFF_PROD_TERMINAL_KEY: str
+    TINKOFF_PROD_SECRET: str
     TINKOFF_TOKEN: str
     TINKOFF_SECRET: str
     OUTLINE_API_URL: str
@@ -35,6 +37,14 @@ class Settings(BaseSettings):
     @property
     def get_tinkoff_terminal_key(self) -> str:
         return f"{self.TINKOFF_TERMINAL_KEY}"
+
+    @property
+    def tinkoff_secret(self) -> str:
+        return f"{self.TINKOFF_PROD_SECRET}"
+
+    @property
+    def tinkoff_terminal_key(self) -> str:
+        return f"{self.TINKOFF_PROD_TERMINAL_KEY}"
 
     @property
     def get_outline_url(self) -> str:
