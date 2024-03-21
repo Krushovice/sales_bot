@@ -2,42 +2,46 @@ import asyncio
 
 # import hashlib
 
-# from app.api_v1.utils.payment.tinkoff_pay_helper import payment_manager
+from app.api_v1.utils.payment.tinkoff_pay_helper import payment_manager
 
-# from app.api_v1.utils import (
-#     generate_order_number,
-#     get_receipt,
+from app.api_v1.utils import (
+    generate_order_number,
+    get_receipt,
+)
+
 #     create_token,
 # )
 from app.api_v1.orm import AsyncOrm
 
-# async def create_payment():
-#     payment = await payment_manager.init_payment(
-#         amount=15000,
-#         order_id=generate_order_number(),
-#         description="Оплата платной подписки на канал",
-#         receipt=get_receipt(150),
-#     )
-#     return payment
+
+async def create_payment():
+    payment = await payment_manager.init_payment(
+        amount=15000,
+        order_id=generate_order_number(),
+        description="Оплата платной подписки на канал",
+        receipt=get_receipt(150),
+    )
+    return payment
 
 
-# async def check_status(payment):
-#     payment_id = payment["PaymentId"]
-#     token = create_token(payment_id)
-#     payment_status = await payment_manager.check_payment_status(
-#         payment_id=payment_id,
-#         token=token,
-#     )
-#     return payment_status
+async def check_status(payment):
+    payment_id = payment["PaymentId"]
+
+    payment_status = await payment_manager.check_payment_status(
+        payment_id=payment_id,
+    )
+    return payment_status
 
 
-# async def check_pay():
+async def check_pay():
+    status = await check_status(payment)
+    return status
 
 
 async def main():
     try:
-        await AsyncOrm.get_user(tg_id=6908916076)
-        print()
+        res = await check_pay()
+        print(res)
     except Exception as e:
         print(f"Ошибка: {e}")
 

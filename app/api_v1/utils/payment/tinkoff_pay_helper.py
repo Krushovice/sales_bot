@@ -1,6 +1,7 @@
 import aiohttp
 
 from app.api_v1.config import settings
+from .payment_details import generate_token, create_token
 
 
 class PaymentManager:
@@ -16,6 +17,7 @@ class PaymentManager:
         description,
         receipt,
     ):
+
         data = {
             "TerminalKey": self.terminal_key,
             "Amount": amount,
@@ -23,6 +25,12 @@ class PaymentManager:
             "Description": description,
             "Receipt": receipt,
         }
+
+        token = generate_token(
+            data=data,
+            password=self.secret_key,
+        )
+        data.update({"Token": token})
 
         async with aiohttp.ClientSession() as session:
             async with session.post(
@@ -33,12 +41,14 @@ class PaymentManager:
                 result = await response.json()
                 return result
 
-    async def check_payment_status(self, payment_id, token):
+    async def check_payment_status(self, payment_id):
         data = {
             "TerminalKey": self.terminal_key,
-            "Token": token,
             "PaymentId": payment_id,
         }
+        token = create_token(str(data["PaymentId"]))
+        data.update({"Token": token})
+
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 self.api_url + "GetState",
@@ -53,6 +63,10 @@ class PaymentManager:
             "TerminalKey": self.terminal_key,
             "PaymentId": payment_id,
         }
+
+        token = create_token(str(data["PaymentId"]))
+        data.update({"Token": token})
+
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 self.api_url + "GetReceipt",
@@ -64,6 +78,6 @@ class PaymentManager:
 
 
 payment_manager = PaymentManager(
-    terminal_key=settings.get_tinkoff_terminal_key,
-    secret_key=settings.get_tinkoff_secret,
+    terminal_key=settings.tinkoff_terminal_key,
+    secret_key=settings.tinkoff_secret,
 )

@@ -1,5 +1,6 @@
 import uuid
 import hashlib
+import json
 import datetime
 
 from app.api_v1.utils.logging import setup_logger
@@ -41,7 +42,7 @@ def get_duration(payment) -> int:
 
 
 def get_receipt(price):
-    return {
+    data = {
         "Taxation": "usn_income",
         "Email": "list90@list.ru",
         "Items": [
@@ -56,6 +57,7 @@ def get_receipt(price):
             },
         ],
     }
+    return data
 
 
 def create_token(payment_id):
@@ -63,3 +65,21 @@ def create_token(payment_id):
     tokentr = settings.tinkoff_secret + payment_id + settings.tinkoff_terminal_key
     tokensha256 = str(hashlib.sha256(tokentr.encode()).hexdigest())
     return tokensha256
+
+
+def generate_token(data, password):
+    # Конвертация словаря в отсортированный список кортежей (ключ, значение)
+    sorted_data = sorted(data.items(), key=lambda x: x[0])
+
+    # Конкатенация значений пар в одну строку
+    concatenated_values = "".join([str(value) for key, value in sorted_data])
+
+    # Добавление пароля к конкатенированным значениям
+    concatenated_values += password
+
+    # Применение хеш-функции SHA-256
+    hashed_token = hashlib.sha256(concatenated_values.encode()).hexdigest()
+
+    return hashed_token
+
+    return hashed_token

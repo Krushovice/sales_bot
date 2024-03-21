@@ -199,66 +199,69 @@ async def handle_success_button(
     call: CallbackQuery,
     callback_data: PaymentCbData,
 ):
-    try:
-        payment_id = callback_data.payment_id
 
-        token = create_token(payment_id=str(payment_id))
-        payment = await payment_manager.check_payment_status(
-            payment_id=payment_id,
-            token=token,
-        )
-        await call.answer()
-        if payment["Status"] == "CONFIRMED":
-            payment_duration = get_duration(payment)
-            expiration = set_expiration_date(payment_duration)
+    payment_id = callback_data.payment_id
 
-            tg_id = call.from_user.id
-            pay_amount = int(payment["Amount"]) / 100
+    payment = await payment_manager.check_payment_status(
+        payment_id=payment_id,
+    )
+    await call.answer()
 
-            user = await AsyncOrm.get_user(tg_id=tg_id)
-            if not user.key:
-                key = await outline_helper.create_new_key(name=tg_id)
-                current_balance = user.balance + pay_amount
-                await AsyncOrm.update_user(
-                    tg_id=tg_id,
-                    balance=current_balance,
-                    subscription=True,
-                    subscribe_date=datetime.datetime.today().strftime("%d-%m-%Y"),
-                    expiration_date=expiration,
-                    key=Key(
-                        api_id=int(key.key_id),
-                        name=key.name,
-                        user_id=user.id,
-                        value=key.access_url,
-                    ),
-                )
-                msg = markdown.hbold(
-                    f"Подписка оплачена, вот ваш ключ \n\n" f"{key.access_url}"
-                )
-                await call.message.edit_caption(
-                    caption=msg,
-                    reply_markup=build_account_kb(user=user),
-                )
+    if payment["Status"] == "CONFIRMED":  # дата платежа?
+        payment_duration = get_duration(payment)
+        expiration = set_expiration_date(payment_duration)
+        print(expiration)
 
-            else:
-                user = await AsyncOrm.get_user(tg_id=tg_id)
-                await outline_helper.remove_key_limit(key_id=user.key.api_id)
-                await call.message.edit_caption(
-                    caption="Подписка оплачена, доступ не ограничен 🛜",
-                    reply_markup=build_account_kb(user=user),
-                )
+        tg_id = call.from_user.id
+        pay_amount = int(payment["Amount"] / 100)
 
-        else:
-            await call.message.edit_caption(
-                caption="Платеж вероятно всё еще обрабатывается.\n\n"
-                "Попробуйте немного позже",
-                reply_markup=product_details_kb(
-                    payment_cb_data=payment,
+        user = await AsyncOrm.get_user(tg_id=tg_id)
+        if not user.key:
+            key = outline_helper.create_new_key(name=tg_id)
+            current_balance = (
+                int(user.balance) + pay_amount
+            )  # баланс должен зависеть от зачисления денег. Нужен ли он ?
+            await AsyncOrm.update_user(
+                tg_id=tg_id,
+                balance=current_balance,
+                subscription=True,
+                subscribe_date=datetime.datetime.today().strftime("%d-%m-%Y"),
+                expiration_date=expiration,
+                key=Key(
+                    api_id=int(key.key_id),
+                    name=key.name,
+                    user_id=user.id,
+                    value=key.access_url,
                 ),
             )
+            msg = markdown.hbold(
+                f"Подписка оплачена, вот ваш ключ \n\n" f"{key.access_url}"
+            )
+            await call.message.edit_caption(
+                caption=msg,
+                reply_markup=build_account_kb(user=user),
+            )
 
-    except Exception as e:
-        logger.error(f"Error creating payment: {e}")
+        else:
+            user = await AsyncOrm.get_user(tg_id=tg_id)
+            outline_helper.remove_key_limit(key_id=user.key.api_id)
+            await call.message.edit_caption(
+                caption="Подписка оплачена, доступ не ограничен 🛜",
+                reply_markup=build_account_kb(user=user),
+            )
+
+    else:
+        await call.message.edit_caption(
+            caption="Платеж вероятно всё еще обрабатывается.\n\n"
+            "Попробуйте немного позже",
+            reply_markup=product_details_kb(
+                payment_cb_data=payment,  # ссылка на платеж или сам платеж тут
+            ),
+        )
 
 
-#
+#     except Exception as e:
+#         logger.error(f"Error creating payment: {e}")
+
+
+# #

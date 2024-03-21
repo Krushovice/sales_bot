@@ -31,11 +31,11 @@ class Settings(BaseSettings):
         return f"{self.TINKOFF_TOKEN}"
 
     @property
-    def get_tinkoff_secret(self) -> str:
+    def test_tinkoff_secret(self) -> str:
         return f"{self.TINKOFF_SECRET}"
 
     @property
-    def get_tinkoff_terminal_key(self) -> str:
+    def test_tinkoff_terminal_key(self) -> str:
         return f"{self.TINKOFF_TERMINAL_KEY}"
 
     @property
