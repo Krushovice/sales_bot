@@ -1,3 +1,4 @@
+import datetime
 from aiogram import Router, F
 from aiogram.utils import markdown
 from aiogram.types import CallbackQuery
@@ -17,7 +18,13 @@ from app.api_v1.markups import (
     product_details_kb,
 )
 
-from app.api_v1.utils import LEXICON_RU, payment_helper
+from app.api_v1.utils import (
+    payment_manager,
+    get_receipt,
+    generate_order_number,
+    LEXICON_RU,
+    check_payment,
+)
 
 
 router = Router(name=__name__)
@@ -62,21 +69,32 @@ async def handle_promo_button(call: CallbackQuery):
     )
 
 
-# @router.callback_query(PaymentCbData.filter(F.action == PayActions.pay))
-# async def handle_pay_button(call: CallbackQuery):
-#     await call.answer()
-#     payment = await payment_helper.create_payment(
-#         tg_id=call.from_user.id,
-#         price=150,
-#     )
+@router.callback_query(PaymentCbData.filter(F.action == PayActions.pay))
+async def handle_pay_action_button(
+    call: CallbackQuery,
+):
 
-#     await call.message.edit_caption(
-#         caption="Для оплаты VPN перейдите по ссылке:",
-#         reply_markup=product_details_kb(
-#             payment_cb_data=payment,
-#             from_main_menu=True,
-#         ),
-#     )
+    await call.answer()
+    msg_text = markdown.text(
+        markdown.hbold("Сумма: 150 руб"),
+        markdown.hitalic("Для оплаты перейдите по ссылке ниже"),
+        sep="\n\n",
+    )
+    payment = await payment_manager.init_payment(
+        amount=15000,
+        order_id=generate_order_number(),
+        description=f"Оплата пользователя №{call.from_user.id}",
+        receipt=get_receipt(price=150),
+    )
+    is_payment = check_payment(payment)
+    await call.message.edit_caption(
+        caption=msg_text,
+        reply_markup=product_details_kb(
+            payment_cb_data=payment,
+            from_main_menu=True,
+            success=True if is_payment else False,
+        ),
+    )
 
 
 @router.callback_query(MenuCbData.filter(F.action == MenuActions.advantage))
@@ -94,7 +112,7 @@ async def handle_advantage_button(call: CallbackQuery):
         F.action == ProfileActions.back_to_main,
     )
 )
-async def handle_root_button(call: CallbackQuery):
+async def handle_back_button(call: CallbackQuery):
     await call.answer()
 
     await call.message.edit_caption(

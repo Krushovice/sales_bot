@@ -7,10 +7,6 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
-if TYPE_CHECKING:
-    from .account_kb import ProfileActions, ProfileCbData
-
-
 class PayActions(IntEnum):
     pay = auto()
     back_to_account = auto()
@@ -20,6 +16,7 @@ class PayActions(IntEnum):
 class ProductActions(IntEnum):
     details = auto()
     back_to_choice = auto()
+    back_to_root = auto()
 
 
 class PaymentCbData(CallbackData, prefix="pay"):
@@ -64,6 +61,7 @@ def build_payment_kb() -> InlineKeyboardMarkup:
 def product_details_kb(
     payment_cb_data,
     from_main_menu: bool = False,
+    success: bool = False,
 ) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
@@ -77,13 +75,14 @@ def product_details_kb(
         ),
     ),
 
-    builder.button(
-        text="Я оплатил✅",
-        callback_data=PaymentCbData(
-            action=PayActions.success,
-            payment_id=payment_cb_data["PaymentId"],
-        ),
-    )
+    if success:
+        builder.button(
+            text="Я оплатил✅",
+            callback_data=PaymentCbData(
+                action=PayActions.success,
+                payment_id=payment_cb_data["PaymentId"],
+            ),
+        )
 
     builder.button(
         text="Назад🔙",
@@ -92,8 +91,8 @@ def product_details_kb(
                 action=ProductActions.back_to_choice,
             ).pack()
             if not from_main_menu
-            else ProfileCbData(
-                action=ProfileActions.back_to_main,
+            else ProductCbData(
+                action=ProductActions.back_to_root,
             )
         ),
     )

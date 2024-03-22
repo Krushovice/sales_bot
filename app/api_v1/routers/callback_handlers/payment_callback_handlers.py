@@ -29,7 +29,6 @@ from app.api_v1.utils import (
     get_duration,
     get_receipt,
     generate_order_number,
-    create_token,
 )
 from app.api_v1.utils.logging import setup_logger
 
@@ -92,93 +91,6 @@ async def handle_product_actions__button(
         logger.error(f"Ошибка перехода к платежу: {e}")
 
 
-@router.callback_query(PaymentCbData.filter(F.action == PayActions.pay))
-async def handle_pay_action_button(
-    call: CallbackQuery,
-    callback_data: PaymentCbData,
-):
-
-    await call.answer()
-    price = callback_data.price
-    msg_text = markdown.text(
-        markdown.hbold("Сумма: 150 руб"),
-        markdown.hitalic("Для оплаты перейдите по ссылке ниже"),
-        sep="\n\n",
-    )
-    payment = await payment_manager.init_payment(
-        amount=price * 100,
-        order_id=generate_order_number(),
-        description=f"Оплата пользователя № {call.from_user.id}",
-        receipt=get_receipt(price=price),
-    )
-    await call.message.edit_caption(
-        caption=msg_text,
-        reply_markup=product_details_kb(
-            payment_cb_data=payment,
-            from_main_menu=True,
-        ),
-    )
-    # payment_id = callback_data["PaymentId"]
-    # await call.message.answer_photo(
-    #     photo=FSInputFile(
-    #         path=file_path,
-    #     ),
-    #     caption="Оптатил? Жми кнопку ✅",
-    #     reply_markup=get_success_pay_button(
-    #         payment_id=payment_id,
-    #     ),
-    # )
-    # try:
-    #     payment_id = callback_data["PaymentId"]
-    #     price = callback_data.price
-    #     token = create_token(payment_id=payment_id)
-    #     payment = await payment_manager.check_payment_status(
-    #         payment_id=payment_id,
-    #         token=token,
-    #     )
-    #     print(payment)
-    #     if payment:
-    #         if payment["Success"]:
-
-    #             await call.message.edit_caption(
-    #                 caption="Оптатил? Жми кнопку ✅",
-    #                 reply_markup=get_success_pay_button(
-    #                     payment_id=payment_id,
-    #                 ),
-    #             )
-
-    #         else:
-
-    #             await call.message.edit_caption(
-    #                 caption="Что-то пошло не так😢",
-    #                 reply_markup=product_details_kb(
-    #                     payment_cb_data=payment,
-    #                 ),
-    #             )
-
-    #     else:
-    #         msg_text = markdown.text(
-    #             markdown.hbold("Сумма: 150 руб"),
-    #             markdown.hitalic("Для оплаты перейдите по ссылке ниже"),
-    #             sep="\n\n",
-    #         )
-    #         payment = await payment_manager.init_payment(
-    #             amount=price * 100,
-    #             order_id=generate_order_number(),
-    #             description=f"Оплата пользователя № {call.from_user.id}",
-    #             receipt=get_receipt(price=price),
-    #         )
-    #         await call.message.edit_caption(
-    #             caption=msg_text,
-    #             reply_markup=product_details_kb(
-    #                 payment_cb_data=payment,
-    #                 from_main_menu=True,
-    #             ),
-    #         )
-    # except Exception as e:
-    #     logger.error(f"Error creating payment: {e}")
-
-
 @router.callback_query(
     ProductCbData.filter(F.action == ProductActions.back_to_choice),
 )
@@ -206,53 +118,63 @@ async def handle_success_button(
         payment_id=payment_id,
     )
     await call.answer()
+    if payment["Status"]:
+        if payment["Status"] == "CONFIRMED":
+            payment_duration = get_duration(payment)
+            expiration = set_expiration_date(payment_duration)
+            print(expiration)
 
-    if payment["Status"] == "CONFIRMED":  # дата платежа?
-        payment_duration = get_duration(payment)
-        expiration = set_expiration_date(payment_duration)
-        print(expiration)
+            tg_id = call.from_user.id
+            pay_amount = int(payment["Amount"] / 100)
 
-        tg_id = call.from_user.id
-        pay_amount = int(payment["Amount"] / 100)
+            user = await AsyncOrm.get_user(tg_id=tg_id)
+            if not user.key:
+                key = outline_helper.create_new_key(name=tg_id)
+                current_balance = (
+                    int(user.balance) + pay_amount
+                )  # баланс должен зависеть от зачисления денег. Нужен ли он ?
+                await AsyncOrm.update_user(
+                    tg_id=tg_id,
+                    balance=current_balance,
+                    subscription=True,
+                    subscribe_date=datetime.datetime.today().strftime("%d-%m-%Y"),
+                    expiration_date=expiration,
+                    key=Key(
+                        api_id=int(key.key_id),
+                        name=key.name,
+                        user_id=user.id,
+                        value=key.access_url,
+                    ),
+                )
+                msg = markdown.hbold(
+                    f"Подписка оплачена, вот ваш ключ \n\n" f"{key.access_url}"
+                )
+                await call.message.edit_caption(
+                    caption=msg,
+                    reply_markup=build_account_kb(user=user),
+                )
 
-        user = await AsyncOrm.get_user(tg_id=tg_id)
-        if not user.key:
-            key = outline_helper.create_new_key(name=tg_id)
-            current_balance = (
-                int(user.balance) + pay_amount
-            )  # баланс должен зависеть от зачисления денег. Нужен ли он ?
-            await AsyncOrm.update_user(
-                tg_id=tg_id,
-                balance=current_balance,
-                subscription=True,
-                subscribe_date=datetime.datetime.today().strftime("%d-%m-%Y"),
-                expiration_date=expiration,
-                key=Key(
-                    api_id=int(key.key_id),
-                    name=key.name,
-                    user_id=user.id,
-                    value=key.access_url,
-                ),
-            )
-            msg = markdown.hbold(
-                f"Подписка оплачена, вот ваш ключ \n\n" f"{key.access_url}"
-            )
-            await call.message.edit_caption(
-                caption=msg,
-                reply_markup=build_account_kb(user=user),
-            )
+            else:
+                user = await AsyncOrm.get_user(tg_id=tg_id)
+                outline_helper.remove_key_limit(key_id=user.key.api_id)
+                await call.message.edit_caption(
+                    caption="Подписка оплачена, доступ не ограничен 🛜",
+                    reply_markup=build_account_kb(user=user),
+                )
 
         else:
-            user = await AsyncOrm.get_user(tg_id=tg_id)
-            outline_helper.remove_key_limit(key_id=user.key.api_id)
+            # формирование нового платежа
             await call.message.edit_caption(
-                caption="Подписка оплачена, доступ не ограничен 🛜",
-                reply_markup=build_account_kb(user=user),
+                caption="Платеж вероятно всё еще обрабатывается,\n\n"
+                "попробуйте немного позже",
+                reply_markup=product_details_kb(
+                    payment_cb_data=payment,  # ссылка на платеж или сам платеж тут
+                ),
             )
-
     else:
+        # формирование нового платежа
         await call.message.edit_caption(
-            caption="Платеж вероятно всё еще обрабатывается.\n\n"
+            caption="Возникла ошибка при выполнении платежа,\n\n"
             "Попробуйте немного позже",
             reply_markup=product_details_kb(
                 payment_cb_data=payment,  # ссылка на платеж или сам платеж тут
@@ -260,8 +182,20 @@ async def handle_success_button(
         )
 
 
-#     except Exception as e:
-#         logger.error(f"Error creating payment: {e}")
+@router.callback_query(
+    ProductCbData.filter(
+        F.action == ProductActions.back_to_root,
+    )
+)
+async def handle_root_button(call: CallbackQuery):
+    await call.answer()
 
-
-# #
+    await call.message.edit_caption(
+        caption=markdown.hbold(
+            "🚀  Подключение в 1 клик, без ограничений скорости\n\n"
+            "🛡  Отсутствие рекламы и полная конфиденциальность\n\n"
+            "🔥  Твой личный VPN по самой низкой цене\n\n"
+            "💰  Цена: 1̶9̶9̶руб 💥129 руб/мес",
+        ),
+        reply_markup=build_main_kb(),
+    )

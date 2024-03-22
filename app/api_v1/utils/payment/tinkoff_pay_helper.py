@@ -1,4 +1,5 @@
 import aiohttp
+import datetime
 
 from app.api_v1.config import settings
 from .payment_details import generate_token, create_token
@@ -78,6 +79,6 @@ class PaymentManager:
 
 
 payment_manager = PaymentManager(
-    terminal_key=settings.tinkoff_terminal_key,
-    secret_key=settings.tinkoff_secret,
+    terminal_key=settings.test_tinkoff_terminal_key,
+    secret_key=settings.test_tinkoff_secret,
 )

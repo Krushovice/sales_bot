@@ -1,3 +1,4 @@
+import re
 import uuid
 import hashlib
 import json
@@ -62,7 +63,9 @@ def get_receipt(price):
 
 def create_token(payment_id):
 
-    tokentr = settings.tinkoff_secret + payment_id + settings.tinkoff_terminal_key
+    tokentr = (
+        settings.test_tinkoff_secret + payment_id + settings.test_tinkoff_terminal_key
+    )
     tokensha256 = str(hashlib.sha256(tokentr.encode()).hexdigest())
     return tokensha256
 
@@ -83,3 +86,22 @@ def generate_token(data, password):
     return hashed_token
 
     return hashed_token
+
+
+def check_payment_date(data: str) -> bool:
+    today = datetime.datetime.today()
+    pattern = r":\s*(\d{4}-\d{2}-\d{2})"
+
+    # Извлекаем дату из строки, если она присутствует
+    match = re.search(pattern, data)
+    if match:
+        string_date = match.group(1)
+        # Преобразование строки даты в объект datetime
+        pay_date = datetime.datetime.strptime(string_date, "%Y-%m-%d").datetime.date()
+        if pay_date == today:
+            return True
+    return False
+
+
+def check_payment(payment) -> bool:
+    return True if payment["Status"] == "NEW" else False
