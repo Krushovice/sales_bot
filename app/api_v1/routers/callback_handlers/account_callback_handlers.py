@@ -57,9 +57,7 @@ async def handle_show_key_button(call: CallbackQuery):
         try:
 
             await call.message.edit_caption(
-                caption=markdown.hbold(
-                    f"Ваш ключ: {user.key.value}\n\nСкопируйте его ☑️"
-                ),
+                caption=(f"Ваш ключ: <b>{user.key.value}<b>\n\nСкопируйте его ☑️"),
                 reply_markup=help_kb(),
             )
 
