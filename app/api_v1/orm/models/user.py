@@ -29,6 +29,10 @@ class User(Base):
         Numeric(precision=10, scale=2),
         default=0,
     )
+    discount: Mapped[int] = mapped_column(
+        default=0,
+        nullable=True,
+    )
     subscribe_date: Mapped[str] = mapped_column(
         nullable=True,
     )

@@ -59,21 +59,22 @@ def build_payment_kb() -> InlineKeyboardMarkup:
 
 
 def product_details_kb(
-    payment_cb_data,
+    payment_cb_data=None,
     from_main_menu: bool = False,
     success: bool = False,
 ) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
-    builder.button(
-        text="Оплатить",
-        url=f"{payment_cb_data['PaymentURL']}",
-        callback_data=PaymentCbData(
-            action=PayActions.pay,
-            payment_id=payment_cb_data["PaymentId"],
-            price=payment_cb_data["Amount"] / 100,
+    if payment_cb_data:
+        builder.button(
+            text="Оплатить",
+            url=f"{payment_cb_data['PaymentURL']}",
+            callback_data=PaymentCbData(
+                action=PayActions.pay,
+                payment_id=payment_cb_data["PaymentId"],
+                price=payment_cb_data["Amount"] / 100,
+            ),
         ),
-    ),
 
     if success:
         builder.button(

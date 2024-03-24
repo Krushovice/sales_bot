@@ -24,6 +24,7 @@ from app.api_v1.utils import (
     generate_order_number,
     LEXICON_RU,
     check_payment,
+    get_user_info,
 )
 
 
@@ -37,11 +38,14 @@ async def handle_account_button(call: CallbackQuery):
         tg_id=call.from_user.id,
     )
 
+    user_info = get_user_info(user)
+
     await call.message.edit_caption(
         caption=(
             f"<b>Личный кабинет</b>\n\n"
             f"🆔 {user.tg_id} \n"
-            f"💰 Баланс: {user.balance}руб\n\n"
+            f"🗓 Подписка: {user_info['sub_info']}\n\n"
+            f"🎁 <b>Скидка:</b> {user_info['discount']}\n\n"
             f"<i>Для оплаты и продления VPN используется баланс.\n</i>"
             f"<i>Для его пополнения используйте клавиши ниже</i>"
         ),
