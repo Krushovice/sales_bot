@@ -13,7 +13,7 @@ __all__ = (
     "get_receipt",
     "create_token",
     "check_payment",
-    "get_user_info",
+    "get_subscribe_info",
 )
 
 
@@ -39,4 +39,4 @@ from .logging import setup_logger
 
 from .lexicon import LEXICON_RU
 
-from .tools import get_user_info
+from .tools import get_subscribe_info

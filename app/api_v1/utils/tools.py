@@ -1,4 +1,7 @@
-def get_user_info(user) -> dict:
+from app.api_v1.orm import User
+
+
+def get_subscribe_info(user: User) -> dict:
     info = {}
     sub_date = user.expiration_date
     if user.subscription:

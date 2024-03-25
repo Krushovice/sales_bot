@@ -24,7 +24,7 @@ from app.api_v1.utils import (
     generate_order_number,
     LEXICON_RU,
     check_payment,
-    get_user_info,
+    get_subscribe_info,
 )
 
 
@@ -38,14 +38,14 @@ async def handle_account_button(call: CallbackQuery):
         tg_id=call.from_user.id,
     )
 
-    user_info = get_user_info(user)
+    sub_info = get_subscribe_info(user)
 
     await call.message.edit_caption(
         caption=(
             f"<b>Личный кабинет</b>\n\n"
             f"🆔 {user.tg_id} \n"
-            f"🗓 Подписка: <i>{user_info['sub_info']}</i>\n"
-            f"🎁 Скидка: <i>{user_info['discount']}</i>\n\n"
+            f"🗓 Подписка: <i>{sub_info['sub_info']}</i>\n"
+            f"🎁 Скидка: <i>{sub_info['discount']}</i>\n\n"
             f"<i>На данной странице отображена основная информация о профиле.\n</i>"
             f"<i>Для оплаты и доступа к ключу используйте клавиши ниже</i>"
         ),
@@ -124,7 +124,7 @@ async def handle_back_button(call: CallbackQuery):
             "🚀  Подключение в 1 клик, без ограничений скорости\n\n"
             "🛡  Отсутствие рекламы и полная конфиденциальность\n\n"
             "🔥  Твой личный VPN по самой низкой цене\n\n"
-            "💰  Цена: 1̶9̶9̶руб 💥129 руб/мес",
+            "💰  Цена: 1̶9̶9̶руб 💥150 руб/мес",
         ),
         reply_markup=build_main_kb(),
     )

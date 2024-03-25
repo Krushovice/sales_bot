@@ -7,11 +7,12 @@ from app.api_v1.utils.payment.tinkoff_pay_helper import payment_manager
 from app.api_v1.utils import (
     generate_order_number,
     get_receipt,
+    set_expiration_date,
 )
 
 #     create_token,
-# )
-from app.api_v1.orm import AsyncOrm
+# # )
+# from app.api_v1.orm import AsyncOrm
 
 
 async def create_payment():
@@ -34,6 +35,7 @@ async def check_status(payment):
 
 
 async def check_pay():
+    payment = await create_payment()
     status = await check_status(payment)
     return status
 
@@ -54,9 +56,8 @@ if __name__ == "__main__":
 
 
 # def test():
-#     key = outline_helper.create_new_key(name="12345673")
-#     url = gen_outline_dynamic_link(key=key)
-#     return url
+#     date = set_expiration_date(duration=2, rest="15-04-2024")
+#     return date
 
 
 # print(test())

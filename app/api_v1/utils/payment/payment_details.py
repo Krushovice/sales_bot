@@ -1,7 +1,6 @@
 import re
 import uuid
 import hashlib
-import json
 import datetime
 
 from app.api_v1.utils.logging import setup_logger
@@ -21,9 +20,13 @@ def generate_order_number():
     return order_number
 
 
-def set_expiration_date(duration: int) -> str:
+def set_expiration_date(duration: int, rest: str) -> str:
     today = datetime.datetime.today()
-    delta = datetime.timedelta(days=31 * duration)
+    expiration = datetime.datetime.strptime(rest, "%d-%m-%Y")
+    if expiration > today:
+        result = expiration - today
+        rest = result.days
+    delta = datetime.timedelta(days=31 * duration + int(rest))
     expiration_date = (today + delta).strftime("%d-%m-%Y")
     return expiration_date
 

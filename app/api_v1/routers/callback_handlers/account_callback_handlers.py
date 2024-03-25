@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
-from aiogram.utils import markdown
+
 from app.api_v1.orm.crud import AsyncOrm
 
 from app.api_v1.markups import (
@@ -12,8 +12,11 @@ from app.api_v1.markups import (
     help_kb,
 )
 
-from app.api_v1.utils import LEXICON_RU
-from app.api_v1.utils.logging import setup_logger
+from app.api_v1.utils import (
+    LEXICON_RU,
+    setup_logger,
+    get_subscribe_info,
+)
 
 router = Router(name=__name__)
 
@@ -26,9 +29,11 @@ async def handle_payment_button(call: CallbackQuery):
     user = await AsyncOrm.get_user(
         tg_id=call.from_user.id,
     )
+    sub_info = get_subscribe_info(user)
     await call.message.edit_caption(
         caption=(
-            f"Ваш баланс: {user.balance}\n\n" "Укажите сумму пополнения баланса💰"
+            f"Ваша подписка: <i>{sub_info['sub_info']}</i>\n\n"
+            f"Выберите вариант продления подписки:"
         ),
         reply_markup=build_payment_kb(),
     )
@@ -38,7 +43,7 @@ async def handle_payment_button(call: CallbackQuery):
 async def handle_renewal_button(call: CallbackQuery):
     await call.answer()
     await call.message.edit_caption(
-        caption="💰 Укажите сумму пополнения баланса",
+        caption="💰 Варианты оплаты подписки:",
         reply_markup=build_payment_kb(),
     )
 
@@ -54,10 +59,11 @@ async def handle_show_key_button(call: CallbackQuery):
         tg_id=call.from_user.id,
     )
     if user.key:
+        key = user.key.value
         try:
 
             await call.message.edit_caption(
-                caption=(f"Ваш ключ: <b>{user.key.value}<b>\n\nСкопируйте его ☑️"),
+                caption=(f"Ваш ключ: <b>{key}<b>\n\nСкопируйте его ☑️"),
                 reply_markup=help_kb(),
             )
 
@@ -90,12 +96,11 @@ async def handle_back_to_key_button(call: CallbackQuery):
         tg_id=call.from_user.id,
     )
     if user.key:
+        key = user.key.value
         try:
 
             await call.message.edit_caption(
-                caption=markdown.hbold(
-                    f"Ваш ключ: {user.key.value}\n\nСкопируйте его ☑️"
-                ),
+                caption=f"Ваш ключ: <b>{key}<b>\n\nСкопируйте его ☑️",
                 reply_markup=help_kb(),
             )
 

@@ -11,7 +11,6 @@ __all__ = (
     "build_payment_kb",
     "build_account_kb",
     "product_details_kb",
-    "get_success_pay_button",
     "root_kb",
     "back_to_key_kb",
     "help_kb",
@@ -36,5 +35,4 @@ from .payment_kb import (
     product_details_kb,
     ProductActions,
     ProductCbData,
-    get_success_pay_button,
 )

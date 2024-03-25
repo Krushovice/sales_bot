@@ -59,13 +59,13 @@ def build_payment_kb() -> InlineKeyboardMarkup:
 
 
 def product_details_kb(
-    payment_cb_data=None,
+    payment_cb_data,
     from_main_menu: bool = False,
     success: bool = False,
 ) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
-    if payment_cb_data:
+    if not success:
         builder.button(
             text="Оплатить",
             url=f"{payment_cb_data['PaymentURL']}",
@@ -75,8 +75,6 @@ def product_details_kb(
                 price=payment_cb_data["Amount"] / 100,
             ),
         ),
-
-    if success:
         builder.button(
             text="Я оплатил✅",
             callback_data=PaymentCbData(
@@ -84,7 +82,14 @@ def product_details_kb(
                 payment_id=payment_cb_data["PaymentId"],
             ),
         )
-
+    else:
+        builder.button(
+            text="Проверить платеж 🔄",
+            callback_data=PaymentCbData(
+                action=PayActions.success,
+                payment_id=payment_cb_data["PaymentId"],
+            ),
+        )
     builder.button(
         text="Назад🔙",
         callback_data=(
@@ -100,17 +105,3 @@ def product_details_kb(
     builder.adjust(1)
 
     return builder.as_markup()
-
-
-def get_success_pay_button(
-    payment_id: str,
-) -> InlineKeyboardMarkup:
-    success_btn = InlineKeyboardButton(
-        text="Я оплатил",
-        callback_data=PaymentCbData(
-            action=PayActions.success,
-            payment_id=payment_id,
-        ),
-    )
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[success_btn]])
-    return keyboard

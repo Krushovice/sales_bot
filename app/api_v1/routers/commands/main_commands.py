@@ -14,7 +14,7 @@ from app.api_v1.markups import (
 from app.api_v1.orm.crud import AsyncOrm
 
 
-from app.api_v1.utils import check_user_expiration
+from app.api_v1.utils import check_user_expiration, get_subscribe_info
 
 
 router = Router(name=__name__)
@@ -64,13 +64,14 @@ async def show_profile_handler(message: Message):
     user = await AsyncOrm.get_user(
         tg_id=message.from_user.id,
     )
-
+    sub_info = get_subscribe_info(user)
     text = (
         f"<b>Личный кабинет</b>\n\n"
         f"🆔 {user.tg_id} \n"
-        f"💰 Баланс: {user.balance}руб\n\n"
-        f"<i>Для оплаты и продления VPN используется баланс.\n</i>"
-        f"<i>Для его пополнения используйте клавиши ниже</i>"
+        f"🗓 Подписка: <i>{sub_info['sub_info']}</i>\n"
+        f"🎁 Скидка: <i>{sub_info['discount']}</i>\n\n"
+        f"<i>На данной странице отображена основная информация о профиле.\n</i>"
+        f"<i>Для оплаты и доступа к ключу используйте клавиши ниже</i>"
     )
     if await check_user_expiration(tg_id=user.tg_id):
         await message.answer_photo(
@@ -98,6 +99,6 @@ async def refill_user_balance(message: Message):
         photo=FSInputFile(
             path=file_path,
         ),
-        caption=markdown.hbold("💰 Укажите сумму пополнения баланса"),
+        caption=markdown.hbold("💰 Варианты оплаты подписки"),
         reply_markup=build_payment_kb(),
     )

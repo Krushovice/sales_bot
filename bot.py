@@ -34,7 +34,7 @@ async def main() -> None:
         await bot.delete_webhook(drop_pending_updates=True)
         await bot.session.close()
         await create_tables()
-        await check_users(bot)
+        # await check_users(bot)
 
         await dp.start_polling(bot)
 
