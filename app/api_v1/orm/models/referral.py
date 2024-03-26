@@ -19,10 +19,12 @@ class Referral(Base):
         ForeignKey("users.id", ondelete="CASCADE"),
     )
     # Добавляем отношение многие к одному с моделью User
-    user: Mapped["User"] = relationship(back_populates="referrals")
+    user: Mapped["User"] = relationship(
+        back_populates="referrals",
+    )
 
     def __str__(self):
-        return f"User(id={self.id!r})"
+        return f"User(tg_id={self.tg_id!r})"
 
     def __repr__(self) -> str:
         return str(self)

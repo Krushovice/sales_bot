@@ -18,13 +18,25 @@ if TYPE_CHECKING:
 class Key(Base):
     __tablename__ = "keys"
     id: Mapped[intpk]
-    api_id: Mapped[int] = mapped_column(BigInteger(), unique=True)
-    name: Mapped[str] = mapped_column(String(25), unique=True, default=None)
-    value: Mapped[str] = mapped_column(unique=True, default=None)
+    api_id: Mapped[int] = mapped_column(
+        BigInteger(),
+        unique=True,
+    )
+    name: Mapped[str] = mapped_column(
+        String(25),
+        unique=True,
+        default=None,
+    )
+    value: Mapped[str] = mapped_column(
+        unique=True,
+        default=None,
+    )
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"),
     )
-    user: Mapped["User"] = relationship(back_populates="key")
+    user: Mapped["User"] = relationship(
+        back_populates="key",
+    )
 
     __table_args__ = (UniqueConstraint("user_id"),)
 
