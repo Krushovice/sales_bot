@@ -1,9 +1,8 @@
 from enum import IntEnum, auto
 
-from typing import TYPE_CHECKING
 
 from aiogram.filters.callback_data import CallbackData
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
@@ -67,7 +66,7 @@ def product_details_kb(
 
     if not success:
         builder.button(
-            text="Оплатить",
+            text="Оплатить💳",
             url=f"{payment_cb_data['PaymentURL']}",
             callback_data=PaymentCbData(
                 action=PayActions.pay,

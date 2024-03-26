@@ -107,4 +107,4 @@ def check_payment_date(data: str) -> bool:
 
 
 def check_payment(payment) -> bool:
-    return True if payment["Status"] == "NEW" else False
+    return True if payment["Status"] == "CONFIRMED" else False

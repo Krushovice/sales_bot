@@ -8,11 +8,12 @@ from app.api_v1.utils import (
     generate_order_number,
     get_receipt,
     set_expiration_date,
+    get_subscribe_info,
 )
 
 #     create_token,
 # # )
-# from app.api_v1.orm import AsyncOrm
+from app.api_v1.orm import AsyncOrm
 
 
 async def create_payment():
@@ -41,11 +42,17 @@ async def check_pay():
 
 
 async def main():
-    try:
-        res = await check_pay()
-        print(res)
-    except Exception as e:
-        print(f"Ошибка: {e}")
+    # try:
+    #     res = await check_pay()
+    #     print(res)
+    # except Exception as e:
+    #     print(f"Ошибка: {e}")
+    user = await AsyncOrm.get_user(tg_id=1130398207)
+    print(user.subscription)
+    # sub_info = get_subscribe_info(user)
+    # print(sub_info)
+
+    # return sub_info
 
 
 if __name__ == "__main__":

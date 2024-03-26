@@ -22,16 +22,17 @@ class ProfileCbData(CallbackData, prefix="account"):
     action: ProfileActions
 
 
-def build_account_kb(user=None) -> InlineKeyboardMarkup:
-
+def build_account_kb(
+    user=None,
+) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.button(
-        text="Пополнить баланс 💰",
-        callback_data=ProfileCbData(action=ProfileActions.refill).pack(),
-    )
     if user and user.key:
         builder.button(
-            text=f"VPN | {user.expiration_date} | Outline",
+            text="Оплатить подписку 💰",
+            callback_data=ProfileCbData(action=ProfileActions.refill).pack(),
+        )
+        builder.button(
+            text=f"VPN 🛡| {user.expiration_date} | Outline♻️",
             callback_data=ProfileCbData(action=ProfileActions.show_key).pack(),
         )
     builder.button(

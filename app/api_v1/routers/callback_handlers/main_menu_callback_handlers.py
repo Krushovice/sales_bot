@@ -23,7 +23,6 @@ from app.api_v1.utils import (
     get_receipt,
     generate_order_number,
     LEXICON_RU,
-    check_payment,
     get_subscribe_info,
 )
 
@@ -39,15 +38,19 @@ async def handle_account_button(call: CallbackQuery):
     )
 
     sub_info = get_subscribe_info(user)
-
+    url = markdown.hlink(
+        "Ссылка",
+        f"https://t.me/Real_vpnBot?start={user.tg_id}",
+    )
     await call.message.edit_caption(
         caption=(
             f"<b>Личный кабинет</b>\n\n"
             f"🆔 {user.tg_id} \n"
-            f"🗓 Подписка: <i>{sub_info['sub_info']}</i>\n"
-            f"🎁 Скидка: <i>{sub_info['discount']}</i>\n\n"
+            f"🗓 Подписка: <i>{sub_info['subscribe']}</i> 🗓\n"
+            f"🎁 Скидка: <i>{sub_info['discount']}</i>\n"
+            f"Ваша реферальная ссылка: <i>{url}</i>\n\n"
             f"<i>На данной странице отображена основная информация о профиле.\n</i>"
-            f"<i>Для оплаты и доступа к ключу используйте клавиши ниже</i>"
+            f"<i>Для оплаты и доступа к ключу используйте клавиши ниже ⬇️</i>"
         ),
         reply_markup=build_account_kb(user=user),
     )
@@ -80,8 +83,8 @@ async def handle_pay_action_button(
 
     await call.answer()
     msg_text = markdown.text(
-        markdown.hbold("Сумма: 150 руб"),
-        markdown.hitalic("Для оплаты перейдите по ссылке ниже"),
+        markdown.hbold("💰 Сумма: 150 руб"),
+        markdown.hitalic("Для оплаты перейдите по ссылке ниже ⬇️"),
         sep="\n\n",
     )
     payment = await payment_manager.init_payment(
@@ -90,13 +93,11 @@ async def handle_pay_action_button(
         description=f"Оплата пользователя №{call.from_user.id}",
         receipt=get_receipt(price=150),
     )
-    is_payment = check_payment(payment)
     await call.message.edit_caption(
         caption=msg_text,
         reply_markup=product_details_kb(
             payment_cb_data=payment,
             from_main_menu=True,
-            success=True if is_payment else False,
         ),
     )
 

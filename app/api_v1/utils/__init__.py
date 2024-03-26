@@ -14,6 +14,7 @@ __all__ = (
     "create_token",
     "check_payment",
     "get_subscribe_info",
+    "check_for_referral",
 )
 
 
@@ -39,4 +40,4 @@ from .logging import setup_logger
 
 from .lexicon import LEXICON_RU
 
-from .tools import get_subscribe_info
+from .tools import get_subscribe_info, check_for_referral

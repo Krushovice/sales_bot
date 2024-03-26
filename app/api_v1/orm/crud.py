@@ -1,7 +1,7 @@
 from typing import Union
 from sqlalchemy import select
 
-from .models import User
+from .models import User, Referral
 from .db_helper import db_helper
 
 
@@ -45,16 +45,30 @@ class AsyncOrm:
             return users_with_subscription
 
     @staticmethod
-    async def update_user(tg_id: int, **kwargs):
+    async def update_user(tg_id: int, referral: User = None, **kwargs):
         async with db_helper.session_factory() as session:
             user = await session.scalar(
                 select(User).where(User.tg_id == tg_id),
             )
             for key, value in kwargs.items():
                 setattr(user, key, value)
+            if referral:
+                ref = Referral(
+                    tg_id=referral.tg_id,
+                    user_id=user.id,
+                )
+                user.referrals.append(ref)
             session.add(user)
             await session.commit()
             return user
+
+    @staticmethod
+    async def get_referrals(tg_id: int):
+        async with db_helper.session_factory() as session:
+            user = await session.scalar(select(User).where(User.tg_id == tg_id))
+            if user:
+                return user.referrals
+            return []
 
     @staticmethod
     async def delete_user(tg_id: int):

@@ -32,8 +32,8 @@ async def handle_payment_button(call: CallbackQuery):
     sub_info = get_subscribe_info(user)
     await call.message.edit_caption(
         caption=(
-            f"Ваша подписка: <i>{sub_info['sub_info']}</i>\n\n"
-            f"Выберите вариант продления подписки:"
+            f"Ваша подписка: <i>{sub_info['subscribe']}</i>🗓\n\n"
+            f"Выберите вариант продления подписки: ⬇️"
         ),
         reply_markup=build_payment_kb(),
     )
@@ -43,7 +43,7 @@ async def handle_payment_button(call: CallbackQuery):
 async def handle_renewal_button(call: CallbackQuery):
     await call.answer()
     await call.message.edit_caption(
-        caption="💰 Варианты оплаты подписки:",
+        caption="💰 Варианты оплаты подписки: ⬇️",
         reply_markup=build_payment_kb(),
     )
 
@@ -59,16 +59,16 @@ async def handle_show_key_button(call: CallbackQuery):
         tg_id=call.from_user.id,
     )
     if user.key:
-        key = user.key.value
         try:
+            key = user.key.value
 
             await call.message.edit_caption(
-                caption=(f"Ваш ключ: <b>{key}<b>\n\nСкопируйте его ☑️"),
+                caption=(f"Ваш ключ: <b>{key}</b>\n\nСкопируйте его ☑️"),
                 reply_markup=help_kb(),
             )
 
         except Exception as e:
-            logger.error(f"У данного пользователя отсутствует ключ, {e}")
+            logger.error(f"Ошибка обработки кнопки доступа к ключу: {e}")
 
 
 @router.callback_query(
@@ -100,7 +100,7 @@ async def handle_back_to_key_button(call: CallbackQuery):
         try:
 
             await call.message.edit_caption(
-                caption=f"Ваш ключ: <b>{key}<b>\n\nСкопируйте его ☑️",
+                caption=f"Ваш ключ: 📌<b>{key}</b>\n\nСкопируйте его ☑️",
                 reply_markup=help_kb(),
             )
 
