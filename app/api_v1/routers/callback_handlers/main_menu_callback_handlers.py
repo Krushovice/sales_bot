@@ -37,7 +37,7 @@ async def handle_account_button(call: CallbackQuery):
         tg_id=call.from_user.id,
     )
 
-    sub_info = get_subscribe_info(user)
+    sub_info = await get_subscribe_info(user)
     url = markdown.hlink(
         "Ссылка",
         f"https://t.me/Real_vpnBot?start={user.tg_id}",
@@ -46,11 +46,11 @@ async def handle_account_button(call: CallbackQuery):
         caption=(
             f"<b>Личный кабинет</b>\n\n"
             f"🆔 {user.tg_id} \n"
-            f"🗓 Подписка: <i>{sub_info['subscribe']}</i> 🗓\n"
-            f"🎁 Скидка: <i>{sub_info['discount']}</i>\n"
+            f"🗓 Подписка: <i>{sub_info['subscribe']}</i>\n"
+            f"🎁 Скидка: <b>{sub_info['discount']}%</b>\n"
             f"Ваша реферальная ссылка: <i>{url}</i>\n\n"
-            f"<i>На данной странице отображена основная информация о профиле.\n</i>"
-            f"<i>Для оплаты и доступа к ключу используйте клавиши ниже ⬇️</i>"
+            f"<i>На данной странице отображена основная информация о профиле.</i>"
+            f"<i>Для оплаты и доступа к ключу\n используйте клавиши ниже ⬇️</i>"
         ),
         reply_markup=build_account_kb(user=user),
     )
@@ -80,18 +80,23 @@ async def handle_promo_button(call: CallbackQuery):
 async def handle_pay_action_button(
     call: CallbackQuery,
 ):
+    user = await AsyncOrm.get_user(
+        tg_id=call.from_user.id,
+    )
 
+    discount = user.discount if user.discount else 1
+    total = int(150 - (150 * discount / 100))
     await call.answer()
     msg_text = markdown.text(
-        markdown.hbold("💰 Сумма: 150 руб"),
+        markdown.hbold(f"💰 Сумма: {total} руб"),
         markdown.hitalic("Для оплаты перейдите по ссылке ниже ⬇️"),
         sep="\n\n",
     )
     payment = await payment_manager.init_payment(
-        amount=15000,
+        amount=total * 100,
         order_id=generate_order_number(),
-        description=f"Оплата пользователя №{call.from_user.id}",
-        receipt=get_receipt(price=150),
+        description=f"Оплата пользователя №{user.tg_id}",
+        receipt=get_receipt(price=total),
     )
     await call.message.edit_caption(
         caption=msg_text,

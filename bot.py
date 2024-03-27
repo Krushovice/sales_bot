@@ -10,15 +10,13 @@ from app.api_v1.orm import create_tables
 from app.api_v1.config import settings
 from app.api_v1.utils import (
     schredule_next_check,
-    schredule_user_subscription_expiry,
     setup_logger,
 )
 
 
 async def check_users(bot: Bot):
-    task1 = asyncio.create_task(schredule_next_check(bot))
-    task2 = asyncio.create_task(schredule_user_subscription_expiry())
-    asyncio.gather(task1, task2)
+    task = asyncio.create_task(schredule_next_check(bot))
+    asyncio.gather(task)
 
 
 async def main() -> None:
@@ -34,7 +32,7 @@ async def main() -> None:
         await bot.delete_webhook(drop_pending_updates=True)
         await bot.session.close()
         await create_tables()
-        # await check_users(bot)
+        await check_users(bot)
 
         await dp.start_polling(bot)
 

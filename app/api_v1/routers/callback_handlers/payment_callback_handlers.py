@@ -52,7 +52,7 @@ async def handle_back_button(call: CallbackQuery):
         tg_id=call.from_user.id,
     )
 
-    sub_info = get_subscribe_info(user)
+    sub_info = await get_subscribe_info(user)
     url = markdown.hlink(
         "Ссылка",
         f"https://t.me/Real_vpnBot?start={user.tg_id}",
@@ -62,10 +62,10 @@ async def handle_back_button(call: CallbackQuery):
             f"<b>Личный кабинет</b>\n\n"
             f"🆔 {user.tg_id} \n"
             f"🗓 Подписка: <i>{sub_info['subscribe']}</i> 🗓\n"
-            f"🎁 Скидка: <i>{sub_info['discount']}</i>\n"
+            f"🎁 Скидка: <b>{sub_info['discount']}%</b>\n"
             f"📍Ваша реферальная ссылка: <i>{url}</i>\n\n"
-            f"<i>На данной странице отображена основная информация о профиле.\n</i>"
-            f"<i>Для оплаты и доступа к ключу используйте клавиши ниже</i>"
+            f"<i>На данной странице отображена основная информация о профиле.</i>"
+            f"<i>Для оплаты и доступа к ключу\n используйте клавиши ниже⬇️</i>"
         ),
         reply_markup=build_account_kb(user=user),
     )
@@ -79,17 +79,25 @@ async def handle_product_actions__button(
     callback_data: ProductCbData,
 ):
     await call.answer()
+    user = await AsyncOrm.get_user(
+        tg_id=call.from_user.id,
+    )
+
+    price = callback_data.price
+    discount = user.discount if user.discount else 1
+    total = int(price - (price * discount / 100))
+
     msg_text = markdown.text(
-        markdown.hbold(f"💰 Сумма: {callback_data.price} руб"),
+        markdown.hbold(f"💰 Сумма: {total} руб"),
         markdown.hitalic("Для оплаты перейдите по ссылке ниже ⬇️"),
         sep="\n\n",
     )
     try:
         payment = await payment_manager.init_payment(
-            amount=callback_data.price * 100,
+            amount=total * 100,
             order_id=generate_order_number(),
-            description=f"Оплата пользователя № {call.from_user.id}",
-            receipt=get_receipt(price=callback_data.price),
+            description=f"Оплата пользователя № {user.tg_id}",
+            receipt=get_receipt(price=total),
         )
         await call.message.edit_caption(
             caption=msg_text,
@@ -126,15 +134,15 @@ async def handle_success_button(
     payment_id = callback_data.payment_id
 
     try:
+        tg_id = call.from_user.id
+        user = await AsyncOrm.get_user(tg_id=tg_id)
         payment = await payment_manager.check_payment_status(
             payment_id=payment_id,
         )
         await call.answer()
-        tg_id = call.from_user.id
-        if payment["Status"]:
 
+        if payment["Status"]:
             if check_payment(payment):
-                user = await AsyncOrm.get_user(tg_id=tg_id)
 
                 payment_duration = get_duration(payment)
 
@@ -159,7 +167,9 @@ async def handle_success_button(
                         ),
                     )
                     value = key.access_url
-                    msg = f"Подписка оплачена, вот ваш ключ \n" f"📌<i>{value}<i>"
+                    msg = (
+                        "Подписка успешно оплачена, ваш ключ\n" f"📌<pre>{value}</pre>"
+                    )
                     await call.message.edit_caption(
                         caption=msg,
                         reply_markup=build_account_kb(user=user),
@@ -186,8 +196,11 @@ async def handle_success_button(
                     ),
                 )
         else:
+            price = callback_data.price
+            discount = user.discount if user.discount else 1
+            total = int(price - (price * discount / 100))
             payment = await payment_manager.init_payment(
-                amount=callback_data.price * 100,
+                amount=total * 100,
                 order_id=generate_order_number(),
                 description=f"Оплата пользователя № {tg_id}",
                 receipt=get_receipt(price=callback_data.price),

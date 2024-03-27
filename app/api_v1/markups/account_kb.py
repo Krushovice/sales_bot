@@ -6,7 +6,15 @@ from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
-from .payment_kb import PayActions, PaymentCbData
+from .payment_kb import (
+    PayActions,
+    PaymentCbData,
+)
+
+from .main_kb import (
+    MenuActions,
+    MenuCbData,
+)
 
 
 class ProfileActions(IntEnum):
@@ -83,14 +91,26 @@ def help_kb() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def build_renewal_kb() -> InlineKeyboardMarkup:
+def build_renewal_kb(
+    need_help: bool = False,
+) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
 
-    builder.button(
-        text="Подключить со скидкой ❇️",
-        callback_data=ProfileCbData(action=ProfileActions.renewal).pack(),
-    )
+    if not need_help:
+        builder.button(
+            text="Подключить со скидкой ❇️",
+            callback_data=ProfileCbData(action=ProfileActions.renewal).pack(),
+        )
+
+    else:
+        builder.button(
+            text="Помощь в подключении",
+            callback_data=MenuCbData(action=MenuActions.support).pack(),
+        )
+        builder.button(
+            text="Подключить со скидкой ❇️",
+            callback_data=ProfileCbData(action=ProfileActions.renewal).pack(),
+        )
 
     builder.adjust(1)
-
     return builder.as_markup()

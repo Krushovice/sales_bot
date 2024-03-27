@@ -29,7 +29,7 @@ async def handle_payment_button(call: CallbackQuery):
     user = await AsyncOrm.get_user(
         tg_id=call.from_user.id,
     )
-    sub_info = get_subscribe_info(user)
+    sub_info = await get_subscribe_info(user)
     await call.message.edit_caption(
         caption=(
             f"Ваша подписка: <i>{sub_info['subscribe']}</i>🗓\n\n"
@@ -63,7 +63,7 @@ async def handle_show_key_button(call: CallbackQuery):
             key = user.key.value
 
             await call.message.edit_caption(
-                caption=(f"Ваш ключ: <b>{key}</b>\n\nСкопируйте его ☑️"),
+                caption=(f"Ваш ключ: <pre>{key}</pre>\n\nСкопируйте его ☑️"),
                 reply_markup=help_kb(),
             )
 
@@ -100,7 +100,7 @@ async def handle_back_to_key_button(call: CallbackQuery):
         try:
 
             await call.message.edit_caption(
-                caption=f"Ваш ключ: 📌<b>{key}</b>\n\nСкопируйте его ☑️",
+                caption=f"Ваш ключ: 📌<pre>{key}</pre>\n\nСкопируйте его ☑️",
                 reply_markup=help_kb(),
             )
 

@@ -2,6 +2,7 @@ import asyncio
 import datetime
 
 
+from aiogram import Bot
 from aiogram.types import FSInputFile
 from aiogram.exceptions import TelegramBadRequest
 
@@ -12,7 +13,7 @@ from app.api_v1.utils.logging import setup_logger
 from . import outline_helper
 
 
-from app.api_v1.markups import build_renewal_kb
+from app.api_v1.markups import build_renewal_kb, build_account_kb
 
 
 file_path = "app/api_v1/utils/images/image2.jpg"
@@ -47,32 +48,27 @@ async def check_subscription_expiry():
         logger.error(error_msg)
 
 
-async def schredule_next_check(bot):
-    while True:
-        await send_subscription_reminder(bot)
-        await asyncio.sleep(24 * 3600)
-
-
-async def schredule_user_subscription_expiry():
+async def schredule_next_check(bot: Bot):
     while True:
         await check_subscription_expiry()
+        await send_subscription_reminder(bot)
+        await send_reminder_for_inactive(bot)
         await asyncio.sleep(24 * 3600)
 
 
-async def send_subscription_reminder(bot) -> None:
+async def send_subscription_reminder(bot: Bot) -> None:
     users = await AsyncOrm.get_users_by_subscription()
     for user in users:
         try:
             if await check_user_expiration(user):
                 tg_id = user.tg_id
-                username = user.username
                 await bot.send_photo(
                     photo=FSInputFile(
                         path=file_path,
                     ),
                     chat_id=tg_id,
                     caption=(
-                        f"Привет, {username}! Напоминаю, что твоя подписка скоро закончится 👋\n\n"
+                        "Привет! Напоминаю, что твоя подписка скоро закончится👋\n"
                         "Не забудь пожалуйста пополнить баланс, чтобы продолжить пользоваться VPN✅"
                     ),
                     reply_markup=build_renewal_kb(),
@@ -80,3 +76,22 @@ async def send_subscription_reminder(bot) -> None:
         except TelegramBadRequest as e:
             error_msg = f"Ошибка при отправке сообщения пользователю {user.tg_id}: {e}"
             logger.error(error_msg)
+
+
+async def send_reminder_for_inactive(bot: Bot) -> None:
+    users = await AsyncOrm.get_inactive_users()
+    for user in users:
+        text = (
+            "Привет 👋\n"
+            "Вижу, вы так и не воспользовались нашим VPN 😔\n"
+            "Ниже я оставлю инструкцию по подключению и промокод на бесплатные 7 дней 🎁\n"
+            "Для подключения нажмите <b>Подключить со скидкой</b>"
+        )
+        await bot.send_photo(
+            photo=FSInputFile(
+                path=file_path,
+            ),
+            chat_id=user.tg_id,
+            caption=text,
+            reply_markup=build_renewal_kb(need_help=True),
+        )

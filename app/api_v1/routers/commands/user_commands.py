@@ -20,17 +20,22 @@ async def user_promo_handler(message: Message) -> None:
     tg_id = message.from_user.id
     today = datetime.now()
     delta = timedelta(days=7)
-    expiration_date = (today + delta).strftime("%Y-%m-%d")
+    expiration_date = (today + delta).strftime("%d-%m-%Y")
     user = await AsyncOrm.get_user(tg_id=tg_id)
+    if not user:
+        user = await AsyncOrm.create_user(
+            tg_id=tg_id,
+            username=message.from_user.username,
+        )
     if not user.key:
-        key = await outline_helper.create_new_key(name=tg_id)
+        key = outline_helper.create_new_key(name=tg_id)
         await AsyncOrm.update_user(
             tg_id=tg_id,
             subscription=True,
-            subscribe_date=today,
+            subscribe_date=today.strftime("%d-%m-%Y"),
             expiration_date=expiration_date,
             key=Key(
-                api_id=key.key_id,
+                api_id=int(key.key_id),
                 name=key.name,
                 user_id=user.id,
                 value=key.access_url,
@@ -41,7 +46,11 @@ async def user_promo_handler(message: Message) -> None:
             photo=FSInputFile(
                 path=file_path,
             ),
-            caption=(f"Вот ваш пробный ключ \n\n" f"{key.access_url}"),
+            caption=(
+                "Вот ваш пробный ключ \n"
+                f"<pre>{key.access_url}</pre>"
+                "👆Нажмите чтобы скопировать"
+            ),
             reply_markup=root_kb(),
         )
 

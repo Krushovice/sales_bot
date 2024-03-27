@@ -31,6 +31,20 @@ class AsyncOrm:
             return user
 
     @staticmethod
+    async def get_inactive_users() -> list:
+        async with db_helper.session_factory() as session:
+            query = (
+                select(User)
+                .where(User.subscription is False, User.key is None)
+                .order_by(
+                    User.tg_id,
+                )
+            )
+            result = await session.execute(query)
+            users_with_subscription = result.scalars().all()
+            return users_with_subscription
+
+    @staticmethod
     async def get_users_by_subscription() -> list:
         async with db_helper.session_factory() as session:
             query = (
@@ -63,11 +77,17 @@ class AsyncOrm:
             return user
 
     @staticmethod
-    async def get_referrals(tg_id: int):
+    async def get_active_referrals(tg_id: int):
         async with db_helper.session_factory() as session:
-            user = await session.scalar(select(User).where(User.tg_id == tg_id))
+            user = await session.scalar(
+                select(User).where(User.tg_id == tg_id),
+            )
             if user:
-                return user.referrals
+                res = []
+                for ref in user.referrals:
+                    if ref.user.subscription:
+                        res.append(ref.tg_id)
+                return res
             return []
 
     @staticmethod

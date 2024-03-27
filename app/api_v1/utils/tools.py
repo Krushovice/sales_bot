@@ -1,9 +1,14 @@
 from aiogram.types import Message
 
-from app.api_v1.orm import User
+from app.api_v1.orm import User, AsyncOrm
 
 
-def get_subscribe_info(user: User) -> dict:
+async def count_active_referrals(tg_id: int) -> int:
+    refs = await AsyncOrm.get_active_referrals(tg_id=tg_id)
+    return len(refs)
+
+
+async def get_subscribe_info(user: User) -> dict:
     info = {}
 
     sub_date = user.expiration_date
@@ -14,18 +19,20 @@ def get_subscribe_info(user: User) -> dict:
     else:
         info["subscribe"] = "Не активна"
 
-    discount = user.discount
+    discount = await count_active_referrals(user.tg_id)
 
     if discount and discount > 0:
         info["discount"] = discount
 
     else:
-        info["discount"] = "Нет"
+        info["discount"] = 0
 
     return info
 
 
 def check_for_referral(message: Message) -> int:
-    target = str(message.text)[6:]
-    referral_id = int(target)
-    return referral_id
+    if len(message.text) > 6:
+        target = str(message.text)[6:]
+        referral_id = int(target)
+        return referral_id
+    return False

@@ -5,7 +5,6 @@ __all__ = (
     "outline_helper",
     "schredule_next_check",
     "check_user_expiration",
-    "schredule_user_subscription_expiry",
     "LEXICON_RU",
     "setup_logger",
     "generate_order_number",
@@ -15,6 +14,8 @@ __all__ = (
     "check_payment",
     "get_subscribe_info",
     "check_for_referral",
+    "count_active_referrals",
+    "send_reminder_for_inactive",
 )
 
 
@@ -32,12 +33,16 @@ from .payment import (
 from .requests import (
     outline_helper,
     schredule_next_check,
-    schredule_user_subscription_expiry,
     check_user_expiration,
+    send_reminder_for_inactive,
 )
 
 from .logging import setup_logger
 
 from .lexicon import LEXICON_RU
 
-from .tools import get_subscribe_info, check_for_referral
+from .tools import (
+    get_subscribe_info,
+    check_for_referral,
+    count_active_referrals,
+)

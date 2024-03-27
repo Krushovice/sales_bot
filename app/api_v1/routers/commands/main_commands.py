@@ -30,21 +30,37 @@ file_path = "app/api_v1/utils/images/image2.jpg"
 @router.message(CommandStart())
 async def command_start_handler(message: Message):
     """Checking user if he is in the database"""
-    referrer_id = check_for_referral(message)
 
     user_check = await AsyncOrm.get_user(
         tg_id=message.from_user.id,
     )
-
+    referrer_id = check_for_referral(message)
     if not user_check:
         user = await AsyncOrm.create_user(
             tg_id=message.from_user.id,
             username=message.from_user.username,
         )
-    await AsyncOrm.update_user(
-        tg_id=referrer_id,
-        referral=user,
-    )
+        if referrer_id:
+            refferer = await AsyncOrm.get_user(
+                tg_id=referrer_id,
+            )
+
+            await AsyncOrm.update_user(
+                tg_id=referrer_id,
+                referral=user,
+                discount=refferer.discount + 1,
+            )
+    else:
+        if referrer_id:
+            refferer = await AsyncOrm.get_user(
+                tg_id=referrer_id,
+            )
+
+            await AsyncOrm.update_user(
+                tg_id=referrer_id,
+                referral=user_check,
+                discount=refferer.discount + 1,
+            )
     await message.answer_photo(
         photo=FSInputFile(
             path=file_path,
@@ -75,7 +91,8 @@ async def show_profile_handler(message: Message):
     user = await AsyncOrm.get_user(
         tg_id=message.from_user.id,
     )
-    sub_info = get_subscribe_info(user)
+
+    sub_info = await get_subscribe_info(user)
     url = markdown.hlink(
         "Ссылка",
         f"https://t.me/Real_vpnBot?start={user.tg_id}",
@@ -84,10 +101,10 @@ async def show_profile_handler(message: Message):
         f"<b>Личный кабинет</b>\n\n"
         f"🆔 {user.tg_id} \n"
         f"🗓 Подписка: <i>{sub_info['subscribe']}</i>\n"
-        f"🎁 Скидка: <i>{sub_info['discount']}</i>\n"
+        f"🎁 Скидка: <b>{sub_info['discount']}%</b>\n"
         f"Ваша реферальная ссылка: <i>{url}</i>\n\n"
-        f"<i>На данной странице отображена основная информация о профиле.\n</i>"
-        f"<i>Для оплаты и доступа к ключу используйте клавиши ниже</i>"
+        f"<i>На данной странице отображена основная информация о профиле.</i>"
+        f"<i>Для оплаты и доступа к ключу\n используйте клавиши ниже⬇️</i>"
     )
     if await check_user_expiration(tg_id=user.tg_id):
         await message.answer_photo(
