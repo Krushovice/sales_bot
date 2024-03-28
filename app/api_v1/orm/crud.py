@@ -1,5 +1,8 @@
 from typing import Union
+
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+from sqlalchemy.engine import Result
 
 from .models import User, Referral
 from .db_helper import db_helper
@@ -8,7 +11,11 @@ from .db_helper import db_helper
 class AsyncOrm:
 
     @staticmethod
-    async def create_user(tg_id: int, username: Union[str | None], **kwargs) -> None:
+    async def create_user(
+        tg_id: int,
+        username: Union[str | None],
+        **kwargs,
+    ) -> None:
         async with db_helper.session_factory() as session:
             user = User(
                 tg_id=tg_id,
@@ -22,48 +29,60 @@ class AsyncOrm:
     @staticmethod
     async def get_user(tg_id: int) -> User:
         async with db_helper.session_factory() as session:
-            user = await session.scalar(
-                select(User).where(User.tg_id == tg_id),
+            stmt = (
+                select(User)
+                # .options(selectinload(User.referrals))
+                # .options(selectinload(User.key))
+                .where(User.tg_id == tg_id)
             )
 
-            if not user:
-                return None
+            result: Result = await session.execute(stmt)
+
+            user: User | None = result.scalar_one_or_none()
             return user
 
     @staticmethod
-    async def get_inactive_users() -> list:
+    async def get_inactive_users() -> list[User]:
         async with db_helper.session_factory() as session:
-            query = (
+            stmt = (
                 select(User)
+                .options(selectinload(User.key))
                 .where(User.subscription is False, User.key is None)
                 .order_by(
                     User.tg_id,
                 )
             )
-            result = await session.execute(query)
-            users_with_subscription = result.scalars().all()
-            return users_with_subscription
+            result: Result = await session.execute(stmt)
+            users = result.scalars()
+            return users
 
     @staticmethod
-    async def get_users_by_subscription() -> list:
+    async def get_users_by_subscription() -> list[User]:
         async with db_helper.session_factory() as session:
-            query = (
+            stmt = (
                 select(User)
                 .where(User.subscription)
                 .order_by(
                     User.subscribe_date,
                 )
             )
-            result = await session.execute(query)
-            users_with_subscription = result.scalars().all()
+            result: Result = await session.execute(stmt)
+            users_with_subscription = result.scalars()
             return users_with_subscription
 
     @staticmethod
     async def update_user(tg_id: int, referral: User = None, **kwargs):
         async with db_helper.session_factory() as session:
-            user = await session.scalar(
-                select(User).where(User.tg_id == tg_id),
+            stmt = (
+                select(User)
+                .options(selectinload(User.key).selectinload(User.referrals))
+                .where(User.tg_id == tg_id)
             )
+
+            result: Result = await session.execute(stmt)
+
+            user: User | None = result.scalar_one_or_none()
+
             for key, value in kwargs.items():
                 setattr(user, key, value)
             if referral:
@@ -74,21 +93,24 @@ class AsyncOrm:
                 user.referrals.append(ref)
             session.add(user)
             await session.commit()
-            return user
 
     @staticmethod
-    async def get_active_referrals(tg_id: int):
+    async def get_active_referrals(tg_id: int) -> list[int]:
         async with db_helper.session_factory() as session:
-            user = await session.scalar(
-                select(User).where(User.tg_id == tg_id),
+            stmt = (
+                select(User)
+                .options(selectinload(User.referrals))
+                .where(User.tg_id == tg_id)
             )
-            if user:
-                res = []
-                for ref in user.referrals:
-                    if ref.user.subscription:
-                        res.append(ref.tg_id)
-                return res
-            return []
+
+            result: Result = await session.execute(stmt)
+            user = result.scalar()
+
+            res = []
+            for ref in user.referrals:
+                if ref.user.subscription:
+                    res.append(ref.tg_id)
+            return res
 
     @staticmethod
     async def delete_user(tg_id: int):

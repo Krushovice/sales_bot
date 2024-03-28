@@ -1,4 +1,5 @@
 import asyncio
+import time
 
 # import hashlib
 
@@ -47,8 +48,21 @@ async def main():
     #     print(res)
     # except Exception as e:
     #     print(f"Ошибка: {e}")
+    start_time = time.time()  # время начала выполнения
+    # referrals = await AsyncOrm.get_active_referrals(tg_id=1130398207)
+    # print(referrals)
     user = await AsyncOrm.get_user(tg_id=1130398207)
-    print(user.subscription)
+    print(user)
+    end_time = time.time()  # время окончания выполнения
+    execution_time = end_time - start_time  # вычисляем время выполнения
+
+    print(f"Время выполнения программы: {execution_time} секунд")
+
+    # users = await AsyncOrm.get_users_by_subscription()
+    # print(users)
+
+    # inactive = await AsyncOrm.get_inactive_users()
+    # print(inactive)
     # sub_info = get_subscribe_info(user)
     # print(sub_info)
 

@@ -92,7 +92,10 @@ async def show_profile_handler(message: Message):
         tg_id=message.from_user.id,
     )
 
-    sub_info = await get_subscribe_info(user)
+    if user.subscription:
+        subscribe_info = f"Активна до {user.expiration_date}"
+    else:
+        subscribe_info = "Не активна"
     url = markdown.hlink(
         "Ссылка",
         f"https://t.me/Real_vpnBot?start={user.tg_id}",
@@ -100,13 +103,13 @@ async def show_profile_handler(message: Message):
     text = (
         f"<b>Личный кабинет</b>\n\n"
         f"🆔 {user.tg_id} \n"
-        f"🗓 Подписка: <i>{sub_info['subscribe']}</i>\n"
-        f"🎁 Скидка: <b>{sub_info['discount']}%</b>\n"
+        f"🗓 Подписка: <i>{subscribe_info}</i>\n"
+        f"🎁 Скидка: <b>{user.discount if user.discount else 'Нет'}%</b>\n"
         f"Ваша реферальная ссылка: <i>{url}</i>\n\n"
         f"<i>На данной странице отображена основная информация о профиле.</i>"
         f"<i>Для оплаты и доступа к ключу\n используйте клавиши ниже⬇️</i>"
     )
-    if await check_user_expiration(tg_id=user.tg_id):
+    if user:
         await message.answer_photo(
             photo=FSInputFile(
                 path=file_path,

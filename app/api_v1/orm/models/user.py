@@ -41,12 +41,10 @@ class User(Base):
     )
     referrals: Mapped[list["Referral"]] = relationship(
         back_populates="user",
-        lazy="selectin",
         cascade="all, delete-orphan",
     )
     key: Mapped["Key"] = relationship(
         back_populates="user",
-        lazy="selectin",
     )
 
     def __str__(self):

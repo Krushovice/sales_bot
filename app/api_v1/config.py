@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     DB_URL: str
     BOT_TOKEN: str
     DEBUG: bool = False
-    ECHO: bool = False
+    ECHO: bool = True
     TINKOFF_TERMINAL_KEY: str
     TINKOFF_PROD_TERMINAL_KEY: str
     TINKOFF_PROD_SECRET: str
