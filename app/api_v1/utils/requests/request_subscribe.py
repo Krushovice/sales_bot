@@ -9,11 +9,11 @@ from aiogram.exceptions import TelegramBadRequest
 
 from app.api_v1.orm import AsyncOrm
 
-from app.api_v1.utils.logging import setup_logger
+from app.api_v1.utils import setup_logger, send_logs_email
 from . import outline_helper
 
 
-from app.api_v1.markups import build_renewal_kb, build_account_kb
+from app.api_v1.markups import build_renewal_kb
 
 
 file_path = "app/api_v1/utils/images/image2.jpg"
@@ -53,6 +53,7 @@ async def schredule_next_check(bot: Bot):
         await check_subscription_expiry()
         await send_subscription_reminder(bot)
         await send_reminder_for_inactive(bot)
+        await send_logs_email()
         await asyncio.sleep(24 * 3600)
 
 

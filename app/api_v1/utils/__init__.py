@@ -16,6 +16,7 @@ __all__ = (
     "check_for_referral",
     "count_active_referrals",
     "send_reminder_for_inactive",
+    "send_logs_email",
 )
 
 
@@ -45,4 +46,5 @@ from .tools import (
     get_subscribe_info,
     check_for_referral,
     count_active_referrals,
+    send_logs_email,
 )
