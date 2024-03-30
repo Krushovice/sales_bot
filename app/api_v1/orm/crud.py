@@ -7,6 +7,10 @@ from sqlalchemy.engine import Result
 from .models import User, Referral
 from .db_helper import db_helper
 
+""" Необходимо оптимизирвоать каждый запрос к БД
+    Также добавить отдельные методы для создания ключей и рефералов
+"""
+
 
 class AsyncOrm:
 
@@ -29,12 +33,7 @@ class AsyncOrm:
     @staticmethod
     async def get_user(tg_id: int) -> User:
         async with db_helper.session_factory() as session:
-            stmt = (
-                select(User)
-                # .options(selectinload(User.referrals))
-                # .options(selectinload(User.key))
-                .where(User.tg_id == tg_id)
-            )
+            stmt = select(User).where(User.tg_id == tg_id)
 
             result: Result = await session.execute(stmt)
 
@@ -46,7 +45,6 @@ class AsyncOrm:
         async with db_helper.session_factory() as session:
             stmt = (
                 select(User)
-                .options(selectinload(User.key))
                 .where(User.subscription is False, User.key is None)
                 .order_by(
                     User.tg_id,
@@ -73,11 +71,7 @@ class AsyncOrm:
     @staticmethod
     async def update_user(tg_id: int, referral: User = None, **kwargs):
         async with db_helper.session_factory() as session:
-            stmt = (
-                select(User)
-                .options(selectinload(User.key).selectinload(User.referrals))
-                .where(User.tg_id == tg_id)
-            )
+            stmt = select(User).where(User.tg_id == tg_id)
 
             result: Result = await session.execute(stmt)
 
@@ -97,11 +91,7 @@ class AsyncOrm:
     @staticmethod
     async def get_active_referrals(tg_id: int) -> list[int]:
         async with db_helper.session_factory() as session:
-            stmt = (
-                select(User)
-                .options(selectinload(User.referrals))
-                .where(User.tg_id == tg_id)
-            )
+            stmt = select(User).where(User.tg_id == tg_id)
 
             result: Result = await session.execute(stmt)
             user = result.scalar()

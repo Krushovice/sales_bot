@@ -16,6 +16,8 @@ from app.api_v1.markups import (
     root_kb,
     build_main_kb,
     product_details_kb,
+    build_questions_kb,
+    build_back_info_kb,
 )
 
 from app.api_v1.utils import (
@@ -50,9 +52,12 @@ async def handle_account_button(call: CallbackQuery):
             f"🎁 Скидка: <b>{sub_info['discount']}%</b>\n"
             f"Ваша реферальная ссылка: <i>{url}</i>\n\n"
             f"<i>На данной странице отображена основная информация о профиле.</i>"
-            f"<i>Для оплаты и доступа к ключу\n используйте клавиши ниже ⬇️</i>"
+            f"<i>Для оплаты и доступа к ключу используйте\n клавиши ниже ⬇️</i>"
         ),
-        reply_markup=build_account_kb(user=user),
+        reply_markup=build_account_kb(
+            exp_date=user.expiration_date,
+            is_key=True if user.key else False,
+        ),
     )
 
 
@@ -62,7 +67,7 @@ async def handle_support_button(call: CallbackQuery):
 
     await call.message.edit_caption(
         caption=LEXICON_RU["help_info"],
-        reply_markup=root_kb(),
+        reply_markup=build_questions_kb(),
     )
 
 
@@ -123,6 +128,41 @@ async def handle_advantage_button(call: CallbackQuery):
     )
 )
 async def handle_back_button(call: CallbackQuery):
+    await call.answer()
+
+    await call.message.edit_caption(
+        caption=markdown.hbold(
+            "🚀  Подключение в 1 клик, без ограничений скорости\n\n"
+            "🛡  Отсутствие рекламы и полная конфиденциальность\n\n"
+            "🔥  Твой личный VPN по самой низкой цене\n\n"
+            "💰  Цена: 1̶9̶9̶руб 💥150 руб/мес",
+        ),
+        reply_markup=build_main_kb(),
+    )
+
+
+@router.callback_query(MenuCbData.filter(F.action == MenuActions.questions))
+async def handle_questions_button(call: CallbackQuery):
+    await call.answer()
+    text = LEXICON_RU["QA"]
+
+    await call.message.edit_caption(
+        caption=text,
+        reply_markup=build_back_info_kb(),
+    )
+
+
+@router.callback_query(MenuCbData.filter(F.action == MenuActions.back_to_help))
+async def handle_back_to_help_button(call: CallbackQuery):
+    await call.answer()
+    await call.message.edit_caption(
+        caption=LEXICON_RU["help_info"],
+        reply_markup=build_questions_kb(),
+    )
+
+
+@router.callback_query(MenuCbData.filter(F.action == MenuActions.back_root))
+async def handle_back_root_button(call: CallbackQuery):
     await call.answer()
 
     await call.message.edit_caption(

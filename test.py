@@ -1,8 +1,10 @@
 import asyncio
 import time
 
-# import hashlib
-
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+from sqlalchemy.engine import Result
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.api_v1.utils.payment.tinkoff_pay_helper import payment_manager
 
 from app.api_v1.utils import (
@@ -14,7 +16,7 @@ from app.api_v1.utils import (
 
 #     create_token,
 # # )
-from app.api_v1.orm import AsyncOrm
+from app.api_v1.orm import AsyncOrm, User, db_helper, create_tables
 
 
 async def create_payment():
@@ -42,21 +44,37 @@ async def check_pay():
     return status
 
 
-async def main():
-    # try:
-    #     res = await check_pay()
-    #     print(res)
-    # except Exception as e:
-    #     print(f"Ошибка: {e}")
-    start_time = time.time()  # время начала выполнения
-    # referrals = await AsyncOrm.get_active_referrals(tg_id=1130398207)
-    # print(referrals)
-    user = await AsyncOrm.get_user(tg_id=1130398207)
-    print(user)
-    end_time = time.time()  # время окончания выполнения
-    execution_time = end_time - start_time  # вычисляем время выполнения
+async def get_user(session: AsyncSession, tg_id: int) -> User:
 
-    print(f"Время выполнения программы: {execution_time} секунд")
+    stmt = (
+        select(User)
+        .options(selectinload(User.referrals))
+        .options(selectinload(User.key))
+        .where(User.tg_id == tg_id)
+    )
+
+    result: Result = await session.execute(stmt)
+
+    user: User | None = result.scalar_one_or_none()
+    return user
+
+
+async def main():
+    await create_tables()
+    async with db_helper.session_factory() as session:  # try:
+        #     res = await check_pay()
+        #     print(res)
+        # except Exception as e:
+        #     print(f"Ошибка: {e}")
+        start_time = time.time()  # время начала выполнения
+        # referrals = await AsyncOrm.get_active_referrals(tg_id=1130398207)
+        # print(referrals)
+        user = await get_user(session=session, tg_id=1130398207)
+        print(user)
+        end_time = time.time()  # время окончания выполнения
+        execution_time = end_time - start_time  # вычисляем время выполнения
+
+        print(f"Время выполнения программы: {execution_time} секунд")
 
     # users = await AsyncOrm.get_users_by_subscription()
     # print(users)

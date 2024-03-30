@@ -44,22 +44,22 @@ async def command_start_handler(message: Message):
             refferer = await AsyncOrm.get_user(
                 tg_id=referrer_id,
             )
-
+            discount = refferer.discount + 1 if refferer.discount != 50 else 50
             await AsyncOrm.update_user(
                 tg_id=referrer_id,
                 referral=user,
-                discount=refferer.discount + 1,
+                discount=discount,
             )
     else:
         if referrer_id:
             refferer = await AsyncOrm.get_user(
                 tg_id=referrer_id,
             )
-
+            discount = refferer.discount + 1 if refferer.discount != 50 else 50
             await AsyncOrm.update_user(
                 tg_id=referrer_id,
                 referral=user_check,
-                discount=refferer.discount + 1,
+                discount=discount,
             )
     await message.answer_photo(
         photo=FSInputFile(

@@ -15,6 +15,9 @@ class MenuActions(IntEnum):
     support = auto()
     advantage = auto()
     promo = auto()
+    questions = auto()
+    back_to_help = auto()
+    back_root = auto()
 
 
 class MenuCbData(CallbackData, prefix="main"):
@@ -49,4 +52,30 @@ def build_main_kb() -> InlineKeyboardMarkup:
     )
     builder.adjust(2)
 
+    return builder.as_markup()
+
+
+def build_questions_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text="Основные вопросы ❓",
+        callback_data=MenuCbData(action=MenuActions.questions).pack(),
+    )
+
+    builder.button(
+        text="Назад в меню 🔙",
+        callback_data=MenuCbData(action=MenuActions.back_root).pack(),
+    )
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def build_back_info_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Назад ⏪",
+        callback_data=MenuCbData(action=MenuActions.back_to_help).pack(),
+    )
+    builder.adjust(1)
     return builder.as_markup()

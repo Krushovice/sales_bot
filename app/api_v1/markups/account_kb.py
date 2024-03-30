@@ -31,17 +31,23 @@ class ProfileCbData(CallbackData, prefix="account"):
 
 
 def build_account_kb(
-    user=None,
+    exp_date: str = None,
+    is_key: bool = False,
 ) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    if user and user.key:
+    if is_key and exp_date:
         builder.button(
             text="Оплатить подписку 💰",
             callback_data=ProfileCbData(action=ProfileActions.refill).pack(),
         )
         builder.button(
-            text=f"VPN 🛡| {user.expiration_date} | Outline♻️",
+            text=f"VPN 🛡| {exp_date} | Outline♻️",
             callback_data=ProfileCbData(action=ProfileActions.show_key).pack(),
+        )
+    else:
+        builder.button(
+            text="Оплатить подписку 💰",
+            callback_data=ProfileCbData(action=ProfileActions.refill).pack(),
         )
     builder.button(
         text="Назад 🔙",

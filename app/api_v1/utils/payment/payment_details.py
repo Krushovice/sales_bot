@@ -20,23 +20,31 @@ def generate_order_number():
     return order_number
 
 
-def set_expiration_date(duration: int, rest: str) -> str:
+def set_expiration_date(duration: int, rest: str | None) -> str:
     today = datetime.datetime.today()
-    expiration = datetime.datetime.strptime(rest, "%d-%m-%Y")
+    if rest:
+        expiration = datetime.datetime.strptime(rest, "%d-%m-%Y")
+    else:
+        expiration = today + datetime.timedelta(days=31 * duration)
+        return expiration.strftime("%d-%m-%Y")
+
     if expiration > today:
         result = expiration - today
         rest = result.days
-    delta = datetime.timedelta(days=31 * duration + int(rest))
-    expiration_date = (today + delta).strftime("%d-%m-%Y")
-    return expiration_date
+        delta = datetime.timedelta(days=31 * duration + int(rest))
+        expiration_date = (today + delta).strftime("%d-%m-%Y")
+        return expiration_date
+    else:
+        expiration = today + datetime.timedelta(days=31 * duration)
+        return expiration.strftime("%d-%m-%Y")
 
 
 def get_duration(payment) -> int:
     try:
-        if payment["Amount"] == 15000:
+        if 7500 <= payment["Amount"] <= 15000:
             return 1
 
-        elif payment["Amount"] == 27000:
+        elif 13500 <= payment["Amount"] <= 27000:
             return 2
 
         else:

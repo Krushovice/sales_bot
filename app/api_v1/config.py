@@ -4,7 +4,7 @@ from pydantic_settings import SettingsConfigDict, BaseSettings
 class Settings(BaseSettings):
     DB_URL: str
     BOT_TOKEN: str
-    DEBUG: bool = False
+    DEBUG: bool = True
     ECHO: bool = True
     TINKOFF_TERMINAL_KEY: str
     TINKOFF_PROD_TERMINAL_KEY: str
@@ -17,10 +17,10 @@ class Settings(BaseSettings):
 
     @property
     def db_url(self) -> str:
-        # if self.DEBUG:
-        #     return "sqlite+aiosqlite:///./db.sqlite3"
+        if self.DEBUG:
+            return "sqlite+aiosqlite:///./db.sqlite3"
         # else:
-        return f"{self.DB_URL}"
+        # return f"{self.DB_URL}"
 
     @property
     def bot_token(self) -> str:

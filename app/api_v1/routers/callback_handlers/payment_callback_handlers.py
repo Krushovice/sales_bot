@@ -67,7 +67,10 @@ async def handle_back_button(call: CallbackQuery):
             f"<i>На данной странице отображена основная информация о профиле.</i>"
             f"<i>Для оплаты и доступа к ключу\n используйте клавиши ниже⬇️</i>"
         ),
-        reply_markup=build_account_kb(user=user),
+        reply_markup=build_account_kb(
+            exp_date=user.expiration_date,
+            is_key=True if user.key else False,
+        ),
     )
 
 
@@ -139,6 +142,7 @@ async def handle_success_button(
         payment = await payment_manager.check_payment_status(
             payment_id=payment_id,
         )
+        exp_date = user.expiration_date
         await call.answer()
 
         if payment["Status"]:
@@ -148,7 +152,7 @@ async def handle_success_button(
 
                 expiration = set_expiration_date(
                     duration=payment_duration,
-                    rest=user.expiration_date,
+                    rest=exp_date if exp_date else None,
                 )
 
                 if not user.key:
@@ -172,7 +176,10 @@ async def handle_success_button(
                     )
                     await call.message.edit_caption(
                         caption=msg,
-                        reply_markup=build_account_kb(user=user),
+                        reply_markup=build_account_kb(
+                            exp_date=user.expiration_date,
+                            is_key=True,
+                        ),
                     )
 
                 else:
@@ -180,7 +187,10 @@ async def handle_success_button(
                     outline_helper.remove_key_limit(key_id=user.key.api_id)
                     await call.message.edit_caption(
                         caption="Подписка оплачена, доступ не ограничен 🛜",
-                        reply_markup=build_account_kb(user=user),
+                        reply_markup=build_account_kb(
+                            exp_date=user.expiration_date,
+                            is_key=True if user.key else False,
+                        ),
                     )
 
             else:
@@ -206,7 +216,7 @@ async def handle_success_button(
                 receipt=get_receipt(price=callback_data.price),
             )
             await call.message.edit_caption(
-                caption="Возникла ошибка при выполнении платежа,\n\n"
+                caption="Возникла ошибка при выполнении платежа,\n"
                 "Попробуйте немного позже",
                 reply_markup=product_details_kb(
                     payment_cb_data=payment,
