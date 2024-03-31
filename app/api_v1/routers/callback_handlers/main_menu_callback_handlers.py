@@ -93,7 +93,7 @@ async def handle_pay_action_button(
             tg_id=call.from_user.id,
         )
 
-        discount = user.discount if user.discount else 1
+        discount = user.discount if user.discount else 0
         total = int(150 - (150 * discount / 100))
         await call.answer()
         msg_text = markdown.text(

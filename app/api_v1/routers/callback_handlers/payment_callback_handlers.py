@@ -88,7 +88,7 @@ async def handle_product_actions__button(
     )
 
     price = callback_data.price
-    discount = user.discount if user.discount else 1
+    discount = user.discount if user.discount else 0
     total = int(price - (price * discount / 100))
 
     msg_text = markdown.text(
@@ -217,7 +217,7 @@ async def handle_success_button(
                 )
         else:
             price = callback_data.price
-            discount = user.discount if user.discount else 1
+            discount = user.discount if user.discount else 0
             total = int(price - (price * discount / 100))
             payment = await payment_manager.init_payment(
                 amount=total * 100,
