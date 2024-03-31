@@ -18,6 +18,7 @@ from app.api_v1.markups import (
     product_details_kb,
     build_account_kb,
     build_main_kb,
+    back_to_payment,
 )
 
 
@@ -102,12 +103,21 @@ async def handle_product_actions__button(
             description=f"Оплата пользователя № {user.tg_id}",
             receipt=get_receipt(price=total),
         )
-        await call.message.edit_caption(
-            caption=msg_text,
-            reply_markup=product_details_kb(
-                payment_cb_data=payment,
-            ),
-        )
+        if payment:
+            await call.message.edit_caption(
+                caption=msg_text,
+                reply_markup=product_details_kb(
+                    payment_cb_data=payment,
+                ),
+            )
+        else:
+            await call.message.edit_caption(
+                caption="Возникла ошибка при выполнении платежа.\n"
+                "Попробуйте немного позже",
+                reply_markup=back_to_payment(
+                    payment_data=callback_data,
+                ),
+            )
 
     except Exception as e:
         logger.error(f"Ошибка перехода к платежу: {e}")

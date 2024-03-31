@@ -9,7 +9,9 @@ from aiogram.exceptions import TelegramBadRequest
 
 from app.api_v1.orm import AsyncOrm
 
-from app.api_v1.utils import setup_logger, send_logs_email
+from app.api_v1.utils.tools import send_logs_email
+
+from app.api_v1.utils.logging import setup_logger
 from . import outline_helper
 
 

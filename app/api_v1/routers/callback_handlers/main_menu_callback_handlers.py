@@ -27,38 +27,42 @@ from app.api_v1.utils import (
     LEXICON_RU,
     get_subscribe_info,
 )
-
+from app.api_v1.utils.logging import setup_logger
 
 router = Router(name=__name__)
+logger = setup_logger(name=__name__)
 
 
 @router.callback_query(MenuCbData.filter(F.action == MenuActions.account))
 async def handle_account_button(call: CallbackQuery):
     await call.answer()
-    user = await AsyncOrm.get_user(
-        tg_id=call.from_user.id,
-    )
+    try:
+        user = await AsyncOrm.get_user(
+            tg_id=call.from_user.id,
+        )
 
-    sub_info = await get_subscribe_info(user)
-    url = markdown.hlink(
-        "Ссылка",
-        f"https://t.me/Real_vpnBot?start={user.tg_id}",
-    )
-    await call.message.edit_caption(
-        caption=(
-            f"<b>Личный кабинет</b>\n\n"
-            f"🆔 {user.tg_id} \n"
-            f"🗓 Подписка: <i>{sub_info['subscribe']}</i>\n"
-            f"🎁 Скидка: <b>{sub_info['discount']}%</b>\n"
-            f"Ваша реферальная ссылка: <i>{url}</i>\n\n"
-            f"<i>На данной странице отображена основная информация о профиле.</i>"
-            f"<i>Для оплаты и доступа к ключу используйте\n клавиши ниже ⬇️</i>"
-        ),
-        reply_markup=build_account_kb(
-            exp_date=user.expiration_date,
-            is_key=True if user.key else False,
-        ),
-    )
+        sub_info = await get_subscribe_info(user)
+        url = markdown.hlink(
+            "Ссылка",
+            f"https://t.me/Real_vpnBot?start={user.tg_id}",
+        )
+        await call.message.edit_caption(
+            caption=(
+                f"<b>Личный кабинет</b>\n\n"
+                f"🆔 {user.tg_id} \n"
+                f"🗓 Подписка: <i>{sub_info['subscribe']}</i>\n"
+                f"🎁 Скидка: <b>{sub_info['discount']}%</b>\n"
+                f"Ваша реферальная ссылка: <i>{url}</i>\n\n"
+                f"<i>На данной странице отображена основная информация о профиле.</i>"
+                f"<i>Для оплаты и доступа к ключу используйте\n клавиши ниже ⬇️</i>"
+            ),
+            reply_markup=build_account_kb(
+                exp_date=user.expiration_date,
+                is_key=True if user.key else False,
+            ),
+        )
+    except Exception as e:
+        logger.error(f"Ошибка перехода в личный кабинет: {e}")
 
 
 @router.callback_query(MenuCbData.filter(F.action == MenuActions.support))
@@ -85,31 +89,42 @@ async def handle_promo_button(call: CallbackQuery):
 async def handle_pay_action_button(
     call: CallbackQuery,
 ):
-    user = await AsyncOrm.get_user(
-        tg_id=call.from_user.id,
-    )
+    try:
+        user = await AsyncOrm.get_user(
+            tg_id=call.from_user.id,
+        )
 
-    discount = user.discount if user.discount else 1
-    total = int(150 - (150 * discount / 100))
-    await call.answer()
-    msg_text = markdown.text(
-        markdown.hbold(f"💰 Сумма: {total} руб"),
-        markdown.hitalic("Для оплаты перейдите по ссылке ниже ⬇️"),
-        sep="\n\n",
-    )
-    payment = await payment_manager.init_payment(
-        amount=total * 100,
-        order_id=generate_order_number(),
-        description=f"Оплата пользователя №{user.tg_id}",
-        receipt=get_receipt(price=total),
-    )
-    await call.message.edit_caption(
-        caption=msg_text,
-        reply_markup=product_details_kb(
-            payment_cb_data=payment,
-            from_main_menu=True,
-        ),
-    )
+        discount = user.discount if user.discount else 1
+        total = int(150 - (150 * discount / 100))
+        await call.answer()
+        msg_text = markdown.text(
+            markdown.hbold(f"💰 Сумма: {total} руб"),
+            markdown.hitalic("Для оплаты перейдите по ссылке ниже ⬇️"),
+            sep="\n\n",
+        )
+        payment = await payment_manager.init_payment(
+            amount=total * 100,
+            order_id=generate_order_number(),
+            description=f"Оплата пользователя №{user.tg_id}",
+            receipt=get_receipt(price=total),
+        )
+        if payment:
+            await call.message.edit_caption(
+                caption=msg_text,
+                reply_markup=product_details_kb(
+                    payment_cb_data=payment,
+                    from_main_menu=True,
+                ),
+            )
+        else:
+
+            await call.message.edit_caption(
+                caption="Возникла ошибка при выполнении платежа.\n"
+                "Попробуйте немного позже",
+                reply_markup=root_kb(),
+            ),
+    except Exception as e:
+        logger.error(f"Ошибка оплаты: {e}")
 
 
 @router.callback_query(MenuCbData.filter(F.action == MenuActions.advantage))

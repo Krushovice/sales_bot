@@ -7,8 +7,8 @@ def setup_logger(module_name):
     logger = logging.getLogger(module_name)
     logger.setLevel(logging.ERROR)
     filename = os.path.splitext(os.path.basename(module_name))[0]
-    # Проверяем, был ли уже добавлен обработчик
 
+    # Проверяем, был ли уже добавлен обработчик
     if not logger.handlers:
         # Добавляем обработчик для записи в файл
         file_handler = RotatingFileHandler(
@@ -16,11 +16,10 @@ def setup_logger(module_name):
             maxBytes=100000,
             backupCount=5,
         )
-        file_handler.setFormatter(
-            logging.Formatter(
-                "%(name)s %(asctime)s %(levelname)s %(filename)s %(funcName)s line %(lineno)d: %(message)s"
-            )
+        formatter = logging.Formatter(
+            "%(name)s %(asctime)s %(levelname)s %(filename)s %(funcName)s line %(lineno)d: %(message)s"
         )
+        file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
     return logger

@@ -1,49 +1,56 @@
-# import asyncio
+import asyncio
+
 # import time
 
 # from sqlalchemy import select
 # from sqlalchemy.orm import selectinload
 # from sqlalchemy.engine import Result
 # from sqlalchemy.ext.asyncio import AsyncSession
-# from app.api_v1.utils.payment.tinkoff_pay_helper import payment_manager
+from app.api_v1.utils.payment.tinkoff_pay_helper import payment_manager
 
-# from app.api_v1.utils import (
-#     generate_order_number,
-#     get_receipt,
+from app.api_v1.utils import (
+    generate_order_number,
+    get_receipt,
+)
+
 #     set_expiration_date,
 #     get_subscribe_info,
+#     create_token,
 # )
 
-#     create_token,
-# # )
+
 # from app.api_v1.orm import AsyncOrm, User, db_helper, create_tables
 
 
-# async def create_payment():
-#     payment = await payment_manager.init_payment(
-#         amount=15000,
-#         order_id=generate_order_number(),
-#         description="Оплата платной подписки на канал",
-#         receipt=get_receipt(150),
-#     )
-#     return payment
+async def create_payment():
+    payment = await payment_manager.init_sbp_payment(
+        amount=1000,
+        order_id=generate_order_number(),
+        description="Оплата платной подписки на канал",
+        receipt=get_receipt(10),
+    )
+    return payment
 
 
-# async def check_status(payment):
-#     payment_id = payment["PaymentId"]
+async def check_status(payment):
+    payment_id = payment["PaymentId"]
 
-#     payment_status = await payment_manager.check_payment_status(
-#         payment_id=payment_id,
-#     )
-#     return payment_status
-
-
-# async def check_pay():
-#     payment = await create_payment()
-#     status = await check_status(payment)
-#     return status
+    payment_status = await payment_manager.check_payment_status(
+        payment_id=payment_id,
+    )
+    return payment_status
 
 
+async def main():
+    payment = await create_payment()
+    # status = await check_status(payment["PaymentId"])
+
+    print(payment)
+    return
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
 # async def get_user(session: AsyncSession, tg_id: int) -> User:
 
 #     stmt = (
@@ -76,6 +83,7 @@
 
 #         print(f"Время выполнения программы: {execution_time} секунд")
 
+
 # users = await AsyncOrm.get_users_by_subscription()
 # print(users)
 
@@ -86,9 +94,6 @@
 
 # return sub_info
 
-
-# if __name__ == "__main__":
-#     asyncio.run(main())
 
 # from app.api_v1.utils import outline_helper
 # from app.api_v1.utils.requests.dinamic_url import gen_outline_dynamic_link
@@ -101,17 +106,17 @@
 
 # print(test())
 
-import asyncio
-from unittest.mock import AsyncMock, patch
+# import asyncio
+# from unittest.mock import AsyncMock, patch
 
-from app.api_v1.utils.tools import send_logs_email
+# from app.api_v1.utils.tools import send_logs_email
 
-from app.api_v1.config import settings
-
-
-async def test_email_send():
-    await send_logs_email()
+# from app.api_v1.config import settings
 
 
-if __name__ == "__main__":
-    asyncio.run(test_email_send())
+# async def test_email_send():
+#     await send_logs_email()
+
+
+# if __name__ == "__main__":
+#     asyncio.run(test_email_send())

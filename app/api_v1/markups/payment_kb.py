@@ -16,6 +16,7 @@ class ProductActions(IntEnum):
     details = auto()
     back_to_choice = auto()
     back_to_root = auto()
+    back_to_pay = auto()
 
 
 class PaymentCbData(CallbackData, prefix="pay"):
@@ -104,3 +105,16 @@ def product_details_kb(
     builder.adjust(1)
 
     return builder.as_markup()
+
+
+def back_to_payment(payment_data) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text="Назад🔙",
+        callback_data=ProductCbData(
+            action=ProductActions.details,
+            name=payment_data.name,
+            price=payment_data.price,
+        ),
+    )

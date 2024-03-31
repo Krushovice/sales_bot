@@ -17,6 +17,7 @@ __all__ = (
     "build_renewal_kb",
     "build_back_info_kb",
     "build_questions_kb",
+    "back_to_payment",
 )
 
 from .account_kb import (
@@ -43,4 +44,5 @@ from .payment_kb import (
     product_details_kb,
     ProductActions,
     ProductCbData,
+    back_to_payment,
 )

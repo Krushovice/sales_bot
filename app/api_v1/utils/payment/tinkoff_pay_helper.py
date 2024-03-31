@@ -11,6 +11,37 @@ class PaymentManager:
         self.secret_key = secret_key
         self.api_url = "https://securepay.tinkoff.ru/v2/"
 
+    # async def init_payment(
+    #     self,
+    #     amount,
+    #     order_id,
+    #     description,
+    #     receipt,
+    # ):
+
+    #     data = {
+    #         "TerminalKey": self.terminal_key,
+    #         "Amount": amount,
+    #         "OrderId": order_id,
+    #         "Description": description,
+    #         "Receipt": receipt,
+    #     }
+
+    #     token = generate_token(
+    #         data=data,
+    #         password=self.secret_key,
+    #     )
+    #     data.update({"Token": token})
+
+    #     async with aiohttp.ClientSession() as session:
+    #         async with session.post(
+    #             self.api_url + "Init",
+    #             json=data,
+    #             ssl=False,
+    #         ) as response:
+    #             result = await response.json()
+    #             return result
+
     async def init_payment(
         self,
         amount,
@@ -23,6 +54,10 @@ class PaymentManager:
             "TerminalKey": self.terminal_key,
             "Amount": amount,
             "OrderId": order_id,
+            "PayType": "O",
+            "DATA": {
+                "QR": "true",
+            },
             "Description": description,
             "Receipt": receipt,
         }
@@ -40,15 +75,17 @@ class PaymentManager:
                 ssl=False,
             ) as response:
                 result = await response.json()
-                return result
+                if result["Success"]:
+                    return result
+                return None
 
     async def check_payment_status(self, payment_id):
+        token = create_token(str(payment_id))
         data = {
             "TerminalKey": self.terminal_key,
             "PaymentId": payment_id,
+            "Token": token,
         }
-        token = create_token(str(data["PaymentId"]))
-        data.update({"Token": token})
 
         async with aiohttp.ClientSession() as session:
             async with session.post(
@@ -60,13 +97,12 @@ class PaymentManager:
                 return result
 
     async def get_payment_info(self, payment_id):
+        token = create_token(str(payment_id))
         data = {
             "TerminalKey": self.terminal_key,
             "PaymentId": payment_id,
+            "Token": token,
         }
-
-        token = create_token(str(data["PaymentId"]))
-        data.update({"Token": token})
 
         async with aiohttp.ClientSession() as session:
             async with session.post(
@@ -77,8 +113,27 @@ class PaymentManager:
                 result = await response.json()
                 return result
 
+    async def get_qr(self, payment_id):
+        token = create_token(str(payment_id))
+        data = {
+            "TerminalKey": self.terminal_key,
+            "PaymentId": payment_id,
+            "DataType": "PAYLOAD",
+            "Token": token,
+        }
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                self.api_url + "GetQr",
+                json=data,
+                ssl=False,
+            ) as response:
+                result = await response.json()
+                if result["Sucess"]:
+                    return result["Data"]
+                return None
+
 
 payment_manager = PaymentManager(
-    terminal_key=settings.test_tinkoff_terminal_key,
-    secret_key=settings.test_tinkoff_secret,
+    terminal_key=settings.tinkoff_terminal_key,
+    secret_key=settings.tinkoff_secret,
 )

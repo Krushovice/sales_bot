@@ -26,17 +26,21 @@ logger = setup_logger(__name__)
 @router.callback_query(ProfileCbData.filter(F.action == ProfileActions.refill))
 async def handle_payment_button(call: CallbackQuery):
     await call.answer()
-    user = await AsyncOrm.get_user(
-        tg_id=call.from_user.id,
-    )
-    sub_info = await get_subscribe_info(user)
-    await call.message.edit_caption(
-        caption=(
-            f"Ваша подписка: <i>{sub_info['subscribe']}</i>🗓\n\n"
-            f"Выберите вариант продления подписки: ⬇️"
-        ),
-        reply_markup=build_payment_kb(),
-    )
+    try:
+
+        user = await AsyncOrm.get_user(
+            tg_id=call.from_user.id,
+        )
+        sub_info = await get_subscribe_info(user)
+        await call.message.edit_caption(
+            caption=(
+                f"Ваша подписка: <i>{sub_info['subscribe']}</i>🗓\n\n"
+                f"Выберите вариант продления подписки: ⬇️"
+            ),
+            reply_markup=build_payment_kb(),
+        )
+    except Exception as e:
+        logger.error(f"Ошибка прехода к вариантам оплаты: {e}")
 
 
 @router.callback_query(ProfileCbData.filter(F.action == ProfileActions.renewal))
