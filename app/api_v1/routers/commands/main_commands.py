@@ -19,8 +19,10 @@ from app.api_v1.utils import (
     check_for_referral,
 )
 
+from app.api_v1.utils.logging import setup_logger
 
 router = Router(name=__name__)
+logger = setup_logger(__name__)
 
 file_path = "app/api_v1/utils/images/image2.jpg"
 
@@ -28,50 +30,52 @@ file_path = "app/api_v1/utils/images/image2.jpg"
 @router.message(CommandStart())
 async def command_start_handler(message: Message):
     """Checking user if he is in the database"""
+    try:
 
-    user_check = await AsyncOrm.get_user(
-        tg_id=message.from_user.id,
-    )
-    referrer_id = check_for_referral(message)
-    if not user_check:
-        user = await AsyncOrm.create_user(
+        user_check = await AsyncOrm.get_user(
             tg_id=message.from_user.id,
-            username=message.from_user.username,
         )
-        if referrer_id:
-            refferer = await AsyncOrm.get_user(
-                tg_id=referrer_id,
+        referrer_id = check_for_referral(message)
+        if not user_check:
+            user = await AsyncOrm.create_user(
+                tg_id=message.from_user.id,
+                username=message.from_user.username,
             )
-            discount = refferer.discount + 1 if refferer.discount != 50 else 50
-            await AsyncOrm.update_user(
-                tg_id=referrer_id,
-                referral=user,
-                discount=discount,
-            )
-    else:
-        if referrer_id:
-            refferer = await AsyncOrm.get_user(
-                tg_id=referrer_id,
-            )
-            discount = refferer.discount + 1 if refferer.discount != 50 else 50
-            await AsyncOrm.update_user(
-                tg_id=referrer_id,
-                referral=user_check,
-                discount=discount,
-            )
-    await message.answer_photo(
-        photo=FSInputFile(
-            path=file_path,
-        ),
-        caption=markdown.hbold(
-            "🚀  Подключение в 1 клик, без ограничений скорости\n\n"
-            "🛡  Отсутствие рекламы и полная конфиденциальность\n\n"
-            "🔥  Твой личный VPN по самой низкой цене\n\n"
-            "💰  Цена: 1̶9̶9̶руб 💥150 руб/мес",
-        ),
-        reply_markup=build_main_kb(),
-    )
-
+            if referrer_id:
+                refferer = await AsyncOrm.get_user(
+                    tg_id=referrer_id,
+                )
+                discount = refferer.discount + 1 if refferer.discount != 50 else 50
+                await AsyncOrm.update_user(
+                    tg_id=referrer_id,
+                    referral=user,
+                    discount=discount,
+                )
+        else:
+            if referrer_id:
+                refferer = await AsyncOrm.get_user(
+                    tg_id=referrer_id,
+                )
+                discount = refferer.discount + 1 if refferer.discount != 50 else 50
+                await AsyncOrm.update_user(
+                    tg_id=referrer_id,
+                    referral=user_check,
+                    discount=discount,
+                )
+        await message.answer_photo(
+            photo=FSInputFile(
+                path=file_path,
+            ),
+            caption=markdown.hbold(
+                "🚀  Подключение в 1 клик, без ограничений скорости\n\n"
+                "🛡  Отсутствие рекламы и полная конфиденциальность\n\n"
+                "🔥  Твой личный VPN по самой низкой цене\n\n"
+                "💰  Цена: 1̶9̶9̶руб 💥150 руб/мес",
+            ),
+            reply_markup=build_main_kb(),
+        )
+    except Exception as e:
+        logger.error(f"Ошибка обработки кнопки старт: {e}")
 
 @router.message(Command("partners", prefix="!/"))
 async def command_help_handler(message: Message):
@@ -86,45 +90,48 @@ async def command_help_handler(message: Message):
 
 @router.message(Command("account", prefix="!/"))
 async def show_profile_handler(message: Message):
-    user = await AsyncOrm.get_user(
-        tg_id=message.from_user.id,
-    )
+    try:
 
-    if user.subscription:
-        subscribe_info = f"Активна до {user.expiration_date}"
-    else:
-        subscribe_info = "Не активна"
-    url = markdown.hlink(
-        "Ссылка",
-        f"https://t.me/Real_vpnBot?start={user.tg_id}",
-    )
-    text = (
-        f"<b>Личный кабинет</b>\n\n"
-        f"🆔 {user.tg_id} \n"
-        f"🗓 Подписка: <i>{subscribe_info}</i>\n"
-        f"🎁 Скидка: <b>{user.discount if user.discount else 'Нет'}%</b>\n"
-        f"Ваша реферальная ссылка: <i>{url}</i>\n\n"
-        f"<i>На данной странице отображена основная информация о профиле.</i>"
-        f"<i>Для оплаты и доступа к ключу\n используйте клавиши ниже⬇️</i>"
-    )
-    if user:
-        await message.answer_photo(
-            photo=FSInputFile(
-                path=file_path,
-            ),
-            caption=text,
-            reply_markup=build_account_kb(user=user),
+        user = await AsyncOrm.get_user(
+            tg_id=message.from_user.id,
         )
 
-    else:
-        await message.answer_photo(
-            photo=FSInputFile(
-                path=file_path,
-            ),
-            caption=text,
-            reply_markup=build_account_kb(),
+        if user.subscription:
+            subscribe_info = f"Активна до {user.expiration_date}"
+        else:
+            subscribe_info = "Не активна"
+        url = markdown.hlink(
+            "Ссылка",
+            f"https://t.me/Real_vpnBot?start={user.tg_id}",
         )
+        text = (
+            f"<b>Личный кабинет</b>\n\n"
+            f"🆔 {user.tg_id} \n"
+            f"🗓 Подписка: <i>{subscribe_info}</i>\n"
+            f"🎁 Скидка: <b>{user.discount if user.discount else 'Нет'}%</b>\n"
+            f"Ваша реферальная ссылка: <i>{url}</i>\n\n"
+            f"<i>На данной странице отображена основная информация о профиле.</i>"
+            f"<i>Для оплаты и доступа к ключу\n используйте клавиши ниже⬇️</i>"
+        )
+        if user:
+            await message.answer_photo(
+                photo=FSInputFile(
+                    path=file_path,
+                ),
+                caption=text,
+                reply_markup=build_account_kb(user=user),
+            )
 
+        else:
+            await message.answer_photo(
+                photo=FSInputFile(
+                    path=file_path,
+                ),
+                caption=text,
+                reply_markup=build_account_kb(),
+            )
+    except Exception as e:
+        logger.error(f"Ошибка при переходе в аккаунт: {e}")
 
 @router.message(Command("payment", prefix="!/"))
 async def refill_user_balance(message: Message):

@@ -29,7 +29,7 @@ from app.api_v1.utils import (
 from app.api_v1.utils.logging import setup_logger
 
 router = Router(name=__name__)
-logger = setup_logger(name=__name__)
+logger = setup_logger(__name__)
 
 
 @router.callback_query(MenuCbData.filter(F.action == MenuActions.account))
