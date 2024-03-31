@@ -19,33 +19,35 @@ from app.api_v1.utils import (
 # )
 
 
-# from app.api_v1.orm import AsyncOrm, User, db_helper, create_tables
+from app.api_v1.orm import AsyncOrm
+
+# async def create_payment():
+#     payment = await payment_manager.init_sbp_payment(
+#         amount=1000,
+#         order_id=generate_order_number(),
+#         description="Оплата платной подписки на канал",
+#         receipt=get_receipt(10),
+#     )
+#     return payment
 
 
-async def create_payment():
-    payment = await payment_manager.init_sbp_payment(
-        amount=1000,
-        order_id=generate_order_number(),
-        description="Оплата платной подписки на канал",
-        receipt=get_receipt(10),
-    )
-    return payment
+# async def check_status(payment):
+#     payment_id = payment["PaymentId"]
 
-
-async def check_status(payment):
-    payment_id = payment["PaymentId"]
-
-    payment_status = await payment_manager.check_payment_status(
-        payment_id=payment_id,
-    )
-    return payment_status
+#     payment_status = await payment_manager.check_payment_status(
+#         payment_id=payment_id,
+#     )
+#     return payment_status
 
 
 async def main():
-    payment = await create_payment()
-    # status = await check_status(payment["PaymentId"])
+    await AsyncOrm.update_user(tg_id=1130398207, discount=1,)
+    user = await AsyncOrm.get_user(tg_id=1130398207)
+    discount = user.discount
 
-    print(payment)
+
+    print(discount)
+    print(type(discount))
     return
 
 
