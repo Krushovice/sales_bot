@@ -1,4 +1,3 @@
-import datetime
 from aiogram import Router, F
 from aiogram.utils import markdown
 from aiogram.types import CallbackQuery

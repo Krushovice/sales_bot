@@ -16,8 +16,6 @@ from app.api_v1.orm.crud import AsyncOrm
 
 
 from app.api_v1.utils import (
-    check_user_expiration,
-    get_subscribe_info,
     check_for_referral,
 )
 

@@ -1,7 +1,6 @@
 from typing import Union
 
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 from sqlalchemy.engine import Result
 
 from .models import User, Referral
