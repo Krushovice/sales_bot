@@ -1,5 +1,4 @@
 __all__ = (
-    "payment_helper",
     "set_expiration_date",
     "get_duration",
     "payment_manager",
@@ -9,10 +8,6 @@ __all__ = (
     "check_payment",
 )
 
-
-from .yookassa_pay_helper import (
-    payment_helper,
-)
 
 from .tinkoff_pay_helper import payment_manager
 
