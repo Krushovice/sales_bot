@@ -50,13 +50,18 @@ async def check_subscription_expiry():
         logger.error(error_msg)
 
 
-async def schredule_next_check(bot: Bot):
+async def schedule_next_check():
     while True:
         await check_subscription_expiry()
-        await send_subscription_reminder(bot)
-        await send_reminder_for_inactive(bot)
         await send_logs_email()
         await asyncio.sleep(24 * 3600)
+
+
+async def schedule_next_reminder(bot: Bot):
+    while True:
+        await send_subscription_reminder(bot)
+        await send_reminder_for_inactive(bot)
+        await asyncio.sleep(72 * 3600)
 
 
 async def send_subscription_reminder(bot: Bot) -> None:

@@ -2,7 +2,8 @@ __all__ = (
     "set_expiration_date",
     "get_duration",
     "outline_helper",
-    "schredule_next_check",
+    "schedule_next_check",
+    "schedule_next_reminder",
     "check_user_expiration",
     "LEXICON_RU",
     "setup_logger",
@@ -31,9 +32,10 @@ from .payment import (
 
 from .requests import (
     outline_helper,
-    schredule_next_check,
+    schedule_next_check,
     check_user_expiration,
     send_reminder_for_inactive,
+    schedule_next_reminder,
 )
 
 from .logging import setup_logger

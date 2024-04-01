@@ -9,14 +9,16 @@ from app.api_v1.routers import router as main_router
 from app.api_v1.orm import create_tables
 from app.api_v1.config import settings
 from app.api_v1.utils import (
-    schredule_next_check,
+    schedule_next_check,
+    schedule_next_reminder,
     setup_logger,
 )
 
 
 async def check_users(bot: Bot):
-    task = asyncio.create_task(schredule_next_check(bot))
-    asyncio.gather(task)
+    task1 = asyncio.create_task(schedule_next_check())
+    task2 = asyncio.create_task(schedule_next_reminder(bot))
+    asyncio.gather(task1, task2)
 
 
 async def main() -> None:
