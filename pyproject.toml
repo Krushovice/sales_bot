@@ -17,6 +17,7 @@ outline-vpn-api = "^6.1.0"
 alembic = "^1.13.1"
 asyncpg = "^0.29.0"
 aiosmtplib = "^3.0.1"
+aiohttp = "^3.9.3"
 
 
 [build-system]

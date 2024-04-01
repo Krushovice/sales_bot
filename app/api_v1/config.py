@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     OUTLINE_API_URL: str
     OUTLINE_SHA_CERT: str
     OUTLINE_USERS_GATEWAY: str
+    EMAIL: str
     EMAIL_PSWD: str
 
     @property

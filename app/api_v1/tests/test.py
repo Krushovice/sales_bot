@@ -1,5 +1,5 @@
 import asyncio
-
+from random import choice
 # import time
 
 # from sqlalchemy import select
@@ -41,15 +41,30 @@ from app.api_v1.orm import AsyncOrm
 
 
 async def main():
-    await AsyncOrm.update_user(tg_id=1130398207, discount=1,)
-    user = await AsyncOrm.get_user(tg_id=1130398207)
-    discount = user.discount
+
+    # payment = await payment_manager.init_payment(
+    #     amount=1000,
+    #     order_id=generate_order_number(),
+    #     description="Оплата платной подписки на канал",
+    #     receipt=get_receipt(10),
+    # )
+    # print(payment)
 
 
-    print(discount)
-    print(type(discount))
-    return
 
+    # payment_id = payment.get("PaymentId", None)
+    # if payment_id:
+    #     payment_status = await payment_manager.check_payment_status(
+    #         payment_id=payment_id,
+    #     )
+    #     print(payment_status)
+    #     return payment_status
+    # print(payment_id)
+    # return payment
+    payments = [4189294706, 4189300734]
+    # random_id = choice(payments)
+    info = await payment_manager.get_confirm_operation(payments)
+    print(info)
 
 if __name__ == "__main__":
     asyncio.run(main())

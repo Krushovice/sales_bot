@@ -1,5 +1,6 @@
-import aiohttp
 import datetime
+import aiohttp
+from random import choice
 
 from app.api_v1.config import settings
 from .payment_details import generate_token, create_token
@@ -11,36 +12,6 @@ class PaymentManager:
         self.secret_key = secret_key
         self.api_url = "https://securepay.tinkoff.ru/v2/"
 
-    # async def init_payment(
-    #     self,
-    #     amount,
-    #     order_id,
-    #     description,
-    #     receipt,
-    # ):
-
-    #     data = {
-    #         "TerminalKey": self.terminal_key,
-    #         "Amount": amount,
-    #         "OrderId": order_id,
-    #         "Description": description,
-    #         "Receipt": receipt,
-    #     }
-
-    #     token = generate_token(
-    #         data=data,
-    #         password=self.secret_key,
-    #     )
-    #     data.update({"Token": token})
-
-    #     async with aiohttp.ClientSession() as session:
-    #         async with session.post(
-    #             self.api_url + "Init",
-    #             json=data,
-    #             ssl=False,
-    #         ) as response:
-    #             result = await response.json()
-    #             return result
 
     async def init_payment(
         self,
@@ -114,13 +85,19 @@ class PaymentManager:
                 return result
 
     async def get_qr(self, payment_id):
-        token = create_token(str(payment_id))
+
         data = {
             "TerminalKey": self.terminal_key,
             "PaymentId": payment_id,
             "DataType": "PAYLOAD",
             "Token": token,
         }
+        token = generate_token(
+            data=data,
+            password=self.secret_key,
+        )
+        data.update({"Token": token})
+
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 self.api_url + "GetQr",
@@ -132,6 +109,26 @@ class PaymentManager:
                     return result["Data"]
                 return None
 
+    async def get_confirm_operation(self, payments: list):
+
+        data = {
+            "TerminalKey": self.terminal_key,
+            "CallbackUrl": settings.EMAIL,
+            "PaymentIdList": payments,
+        }
+        token = generate_token(
+            data=data,
+            password=self.secret_key,
+        )
+        data.update({"Token": token})
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                self.api_url + "getConfirmOperation",
+                json=data,
+                ssl=False,
+            ) as response:
+                result = await response.json()
+                return result
 
 payment_manager = PaymentManager(
     terminal_key=settings.tinkoff_terminal_key,

@@ -53,7 +53,9 @@ async def handle_back_button(call: CallbackQuery):
         tg_id=call.from_user.id,
     )
 
-    sub_info = await get_subscribe_info(user)
+    # sub_info = await get_subscribe_info(user)
+    subscribe = user.expiration_date if user.expiration_date else "Не активна"
+    discount = user.discount if user.discount else 0
     url = markdown.hlink(
         "Ссылка",
         f"https://t.me/Real_vpnBot?start={user.tg_id}",
@@ -62,11 +64,11 @@ async def handle_back_button(call: CallbackQuery):
         caption=(
             f"<b>Личный кабинет</b>\n\n"
             f"🆔 {user.tg_id} \n"
-            f"🗓 Подписка: <i>{sub_info['subscribe']}</i> 🗓\n"
-            f"🎁 Скидка: <b>{sub_info['discount']}%</b>\n"
+            f"🗓 Подписка: <i>Активна до {subscribe}</i>📌\n"
+            f"🎁 Скидка: <b>{discount}%</b>\n"
             f"📍Ваша реферальная ссылка: <i>{url}</i>\n\n"
             f"<i>На данной странице отображена основная информация о профиле.</i>"
-            f"<i>Для оплаты и доступа к ключу\n используйте клавиши ниже⬇️</i>"
+            f"<i>Для оплаты и доступа к ключу используйте\n клавиши ниже⬇️</i>"
         ),
         reply_markup=build_account_kb(
             exp_date=user.expiration_date,
@@ -155,7 +157,7 @@ async def handle_success_button(
         exp_date = user.expiration_date
         await call.answer()
 
-        if payment["Status"]:
+        if payment.get("Status", None):
             if check_payment(payment):
 
                 payment_duration = get_duration(payment)

@@ -75,7 +75,7 @@ def get_receipt(price):
 def create_token(payment_id):
 
     tokentr = (
-        settings.test_tinkoff_secret + payment_id + settings.test_tinkoff_terminal_key
+        settings.tinkoff_secret + payment_id + settings.tinkoff_terminal_key
     )
     tokensha256 = str(hashlib.sha256(tokentr.encode()).hexdigest())
     return tokensha256
@@ -96,7 +96,6 @@ def generate_token(data, password):
 
     return hashed_token
 
-    return hashed_token
 
 
 def check_payment_date(data: str) -> bool:

@@ -52,7 +52,7 @@ async def send_logs_email():
     # Параметры почтового сервера
     smtp_host = "smtp.yandex.ru"
     smtp_port = 587
-    smtp_user = "Brezh69@yandex.ru"
+    smtp_user = settings.EMAIL
     smtp_password = settings.EMAIL_PSWD
 
     # Получение текущей даты и времени
@@ -71,7 +71,7 @@ async def send_logs_email():
     # Формирование текста письма с прикрепленными лог-файлами
     message = MIMEMultipart()
     message["From"] = smtp_user
-    message["To"] = "Brezh69@yandex.ru"
+    message["To"] = settings.EMAIL
     message["Subject"] = f"Логи за {today}"
 
     body = "В папке с логами находятся следующие файлы:\n\n"

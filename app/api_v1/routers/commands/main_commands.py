@@ -95,11 +95,8 @@ async def show_profile_handler(message: Message):
         user = await AsyncOrm.get_user(
             tg_id=message.from_user.id,
         )
-
-        if user.subscription:
-            subscribe_info = f"Активна до {user.expiration_date}"
-        else:
-            subscribe_info = "Не активна"
+        subscribe = user.expiration_date if user.expiration_date else "Не активна"
+        discount = user.discount if user.discount else 0
         url = markdown.hlink(
             "Ссылка",
             f"https://t.me/Real_vpnBot?start={user.tg_id}",
@@ -107,8 +104,8 @@ async def show_profile_handler(message: Message):
         text = (
             f"<b>Личный кабинет</b>\n\n"
             f"🆔 {user.tg_id} \n"
-            f"🗓 Подписка: <i>{subscribe_info}</i>\n"
-            f"🎁 Скидка: <b>{user.discount if user.discount else 'Нет'}%</b>\n"
+            f"🗓 Подписка: <i>{subscribe}</i>\n"
+            f"🎁 Скидка: <b>{discount}%</b>\n"
             f"Ваша реферальная ссылка: <i>{url}</i>\n\n"
             f"<i>На данной странице отображена основная информация о профиле.</i>"
             f"<i>Для оплаты и доступа к ключу\n используйте клавиши ниже⬇️</i>"
