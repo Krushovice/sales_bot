@@ -76,7 +76,7 @@ def product_details_kb(
             ),
         ),
         builder.button(
-            text="Я оплатил✅",
+            text="Оплатил? Жми ✅",
             callback_data=PaymentCbData(
                 action=PayActions.success,
                 payment_id=payment_cb_data["PaymentId"],
