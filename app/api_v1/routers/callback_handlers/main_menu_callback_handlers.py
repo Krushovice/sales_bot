@@ -24,7 +24,6 @@ from app.api_v1.utils import (
     get_receipt,
     generate_order_number,
     LEXICON_RU,
-    get_subscribe_info,
 )
 from app.api_v1.utils.logging import setup_logger
 
@@ -39,7 +38,12 @@ async def handle_account_button(call: CallbackQuery):
         user = await AsyncOrm.get_user(
             tg_id=call.from_user.id,
         )
-        subscribe = user.expiration_date if user.expiration_date else "Не активна"
+        subscribe = user.expiration_date
+
+        if subscribe:
+            sub_info = f"Активна до {subscribe}"
+        else:
+            sub_info = "Не активна"
         discount = user.discount if user.discount else 0
         url = markdown.hlink(
             "Ссылка",
@@ -49,11 +53,11 @@ async def handle_account_button(call: CallbackQuery):
             caption=(
                 f"<b>Личный кабинет</b>\n\n"
                 f"🆔 {user.tg_id} \n"
-                f"🗓 Подписка: <i>Активна до {subscribe}</i>📌\n"
+                f"🗓 Подписка: <i>{sub_info}</i>📌\n"
                 f"🎁 Скидка: <b>{discount}%</b>\n"
                 f"📍Ваша реферальная ссылка: <i>{url}</i>\n\n"
-                f"<i>На данной странице отображена основная информация о профиле.</i>"
-                f"<i>Для оплаты и доступа к ключу используйте\n клавиши ниже⬇️</i>"
+                f"<i>На данной странице отображена основная информация о профиле.</i>\n"
+                f"<i>Для оплаты и доступа к ключу используйте клавиши ниже⬇️</i>"
             ),
             reply_markup=build_account_kb(
                 exp_date=user.expiration_date,

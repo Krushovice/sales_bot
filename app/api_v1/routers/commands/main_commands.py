@@ -77,6 +77,7 @@ async def command_start_handler(message: Message):
     except Exception as e:
         logger.error(f"Ошибка обработки кнопки старт: {e}")
 
+
 @router.message(Command("partners", prefix="!/"))
 async def command_help_handler(message: Message):
     await message.answer_photo(
@@ -95,8 +96,19 @@ async def show_profile_handler(message: Message):
         user = await AsyncOrm.get_user(
             tg_id=message.from_user.id,
         )
-        subscribe = user.expiration_date if user.expiration_date else "Не активна"
-        discount = user.discount if user.discount else 0
+        if user:
+            subscribe = user.expiration_date
+
+            if subscribe:
+                sub_info = f"Активна до {subscribe}"
+            else:
+                sub_info = "Не активна"
+
+            discount = user.discount if user.discount else 0
+        else:
+            sub_info = "Не активна"
+            discount = 0
+
         url = markdown.hlink(
             "Ссылка",
             f"https://t.me/Real_vpnBot?start={user.tg_id}",
@@ -104,11 +116,11 @@ async def show_profile_handler(message: Message):
         text = (
             f"<b>Личный кабинет</b>\n\n"
             f"🆔 {user.tg_id} \n"
-            f"🗓 Подписка: <i>{subscribe}</i>\n"
+            f"🗓 Подписка: <i>{sub_info}</i>\n"
             f"🎁 Скидка: <b>{discount}%</b>\n"
             f"Ваша реферальная ссылка: <i>{url}</i>\n\n"
-            f"<i>На данной странице отображена основная информация о профиле.</i>"
-            f"<i>Для оплаты и доступа к ключу\n используйте клавиши ниже⬇️</i>"
+            f"<i>На данной странице отображена основная информация о профиле.</i>\n"
+            f"<i>Для оплаты и доступа к ключу используйте клавиши ниже⬇️</i>"
         )
         if user:
             await message.answer_photo(
@@ -116,7 +128,7 @@ async def show_profile_handler(message: Message):
                     path=file_path,
                 ),
                 caption=text,
-                reply_markup=build_account_kb(user=user),
+                reply_markup=build_account_kb(),
             )
 
         else:
@@ -129,6 +141,7 @@ async def show_profile_handler(message: Message):
             )
     except Exception as e:
         logger.error(f"Ошибка при переходе в аккаунт: {e}")
+
 
 @router.message(Command("payment", prefix="!/"))
 async def refill_user_balance(message: Message):

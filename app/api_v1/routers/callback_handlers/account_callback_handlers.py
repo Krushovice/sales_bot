@@ -15,7 +15,6 @@ from app.api_v1.markups import (
 from app.api_v1.utils import (
     LEXICON_RU,
     setup_logger,
-    get_subscribe_info,
 )
 
 router = Router(name=__name__)
@@ -31,10 +30,15 @@ async def handle_payment_button(call: CallbackQuery):
         user = await AsyncOrm.get_user(
             tg_id=call.from_user.id,
         )
-        sub_info = await get_subscribe_info(user)
+        subscribe = user.expiration_date
+        if subscribe:
+            sub_info = f"Активна до {subscribe}"
+        else:
+            sub_info = "Не активна"
+
         await call.message.edit_caption(
             caption=(
-                f"Ваша подписка: <i>{sub_info['subscribe']}</i>🗓\n\n"
+                f"Ваша подписка: <i>{sub_info}</i>🗓\n\n"
                 f"Выберите вариант продления подписки: ⬇️"
             ),
             reply_markup=build_payment_kb(),
