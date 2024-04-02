@@ -4,16 +4,15 @@ from pydantic_settings import SettingsConfigDict, BaseSettings
 class Settings(BaseSettings):
     DB_URL: str
     BOT_TOKEN: str
-    DEBUG: bool = False
     ECHO: bool = False
     TINKOFF_TERMINAL_KEY: str
     TINKOFF_PROD_TERMINAL_KEY: str
     TINKOFF_PROD_SECRET: str
-    TINKOFF_TOKEN: str
     TINKOFF_SECRET: str
     OUTLINE_API_URL: str
     OUTLINE_SHA_CERT: str
     OUTLINE_USERS_GATEWAY: str
+    ADMIN_ID: str
     EMAIL: str
     EMAIL_PSWD: str
 

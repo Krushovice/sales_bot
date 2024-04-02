@@ -40,6 +40,16 @@ class AsyncOrm:
             return user
 
     @staticmethod
+    async def get_users() -> list[User]:
+        async with db_helper.session_factory() as session:
+            stmt = select(User).order_by(User.id)
+
+            result: Result = await session.execute(stmt)
+
+            users: User = result.scalars()
+            return users
+
+    @staticmethod
     async def get_inactive_users() -> list[User]:
         async with db_helper.session_factory() as session:
             stmt = (

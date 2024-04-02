@@ -6,6 +6,7 @@ from aiogram.enums import ParseMode
 
 
 from app.api_v1.routers import router as main_router
+from app.api_v1.admin import router as admin_router
 from app.api_v1.orm import create_tables
 from app.api_v1.config import settings
 from app.api_v1.utils import (
@@ -28,7 +29,10 @@ async def main() -> None:
         dp = Dispatcher()
         bot = Bot(token=settings.bot_token, parse_mode=ParseMode.HTML)
         # Регистриуем роутеры в диспетчере
-        dp.include_router(main_router)
+        dp.include_routers(
+            main_router,
+            admin_router,
+        )
 
         # Пропускаем накопившиеся апдейты и запускаем polling
         await bot.delete_webhook(drop_pending_updates=True)

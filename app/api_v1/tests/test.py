@@ -1,5 +1,6 @@
 import asyncio
 from random import choice
+
 # import time
 
 # from sqlalchemy import select
@@ -50,8 +51,6 @@ async def main():
     # )
     # print(payment)
 
-
-
     # payment_id = payment.get("PaymentId", None)
     # if payment_id:
     #     payment_status = await payment_manager.check_payment_status(
@@ -61,10 +60,10 @@ async def main():
     #     return payment_status
     # print(payment_id)
     # return payment
-    payments = [4189294706, 4189300734]
-    # random_id = choice(payments)
-    info = await payment_manager.get_confirm_operation(payments)
-    print(info)
+    users = await AsyncOrm.get_users()
+    for user in users:
+        print(user.tg_id)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

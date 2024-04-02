@@ -11,9 +11,11 @@ from app.api_v1.markups import (
     root_kb,
 )
 
+from app.api_v1.admin import build_admin_kb
 
 from app.api_v1.orm.crud import AsyncOrm
 
+from app.api_v1.config import settings
 
 from app.api_v1.utils import (
     check_for_referral,
@@ -92,53 +94,62 @@ async def command_help_handler(message: Message):
 @router.message(Command("account", prefix="!/"))
 async def show_profile_handler(message: Message):
     try:
+        if message.from_user.id == int(settings.ADMIN_ID):
+            await message.answer_photo(
+                photo=FSInputFile(
+                    path=file_path,
+                ),
+                caption=(f"С возвращением, {message.from_user.username}!"),
+                reply_markup=build_admin_kb(),
+            )
+        else:
 
-        user = await AsyncOrm.get_user(
-            tg_id=message.from_user.id,
-        )
-        if user:
-            subscribe = user.expiration_date
+            user = await AsyncOrm.get_user(
+                tg_id=message.from_user.id,
+            )
+            if user:
+                subscribe = user.expiration_date
 
-            if subscribe:
-                sub_info = f"Активна до {subscribe}"
+                if subscribe:
+                    sub_info = f"Активна до {subscribe}"
+                else:
+                    sub_info = "Не активна"
+
+                discount = user.discount if user.discount else 0
             else:
                 sub_info = "Не активна"
+                discount = 0
 
-            discount = user.discount if user.discount else 0
-        else:
-            sub_info = "Не активна"
-            discount = 0
-
-        url = markdown.hlink(
-            "Ссылка",
-            f"https://t.me/Real_vpnBot?start={user.tg_id}",
-        )
-        text = (
-            f"<b>Личный кабинет</b>\n\n"
-            f"🆔 {user.tg_id} \n"
-            f"🗓 Подписка: <i>{sub_info}</i>\n"
-            f"🎁 Скидка: <b>{discount}%</b>\n"
-            f"Ваша реферальная ссылка: <i>{url}</i>\n\n"
-            f"<i>На данной странице отображена основная информация о профиле.</i>\n"
-            f"<i>Для оплаты и доступа к ключу используйте клавиши ниже⬇️</i>"
-        )
-        if user:
-            await message.answer_photo(
-                photo=FSInputFile(
-                    path=file_path,
-                ),
-                caption=text,
-                reply_markup=build_account_kb(),
+            url = markdown.hlink(
+                "Ссылка",
+                f"https://t.me/Real_vpnBot?start={user.tg_id}",
             )
-
-        else:
-            await message.answer_photo(
-                photo=FSInputFile(
-                    path=file_path,
-                ),
-                caption=text,
-                reply_markup=build_account_kb(),
+            text = (
+                f"<b>Личный кабинет</b>\n\n"
+                f"🆔 {user.tg_id} \n"
+                f"🗓 Подписка: <i>{sub_info}</i>\n"
+                f"🎁 Скидка: <b>{discount}%</b>\n"
+                f"Ваша реферальная ссылка: <i>{url}</i>\n\n"
+                f"<i>На данной странице отображена основная информация о профиле.</i>\n"
+                f"<i>Для оплаты и доступа к ключу используйте клавиши ниже⬇️</i>"
             )
+            if user:
+                await message.answer_photo(
+                    photo=FSInputFile(
+                        path=file_path,
+                    ),
+                    caption=text,
+                    reply_markup=build_account_kb(),
+                )
+
+            else:
+                await message.answer_photo(
+                    photo=FSInputFile(
+                        path=file_path,
+                    ),
+                    caption=text,
+                    reply_markup=build_account_kb(),
+                )
     except Exception as e:
         logger.error(f"Ошибка при переходе в аккаунт: {e}")
 
