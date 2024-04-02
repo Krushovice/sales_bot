@@ -106,7 +106,7 @@ async def handle_root_panel_button(call: CallbackQuery):
 
 @router.callback_query(
     AdminCbData.filter(
-        F.action == AdminActions.back_to_admin_panel_kb,
+        F.action == AdminActions.back_root_admin,
     )
 )
 async def handle_back_to_admin_button(call: CallbackQuery):
