@@ -37,6 +37,7 @@ class Key(Base):
     )
     user: Mapped["User"] = relationship(
         back_populates="key",
+        lazy="selectin",
     )
 
     __table_args__ = (UniqueConstraint("user_id"),)

@@ -21,6 +21,7 @@ class Referral(Base):
     # Добавляем отношение многие к одному с моделью User
     user: Mapped["User"] = relationship(
         back_populates="referrals",
+        lazy="selectin",
     )
 
     def __str__(self):

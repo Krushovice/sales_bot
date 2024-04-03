@@ -14,24 +14,22 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[intpk]
+
     tg_id: Mapped[int] = mapped_column(BigInteger(), unique=True)
+
     username: Mapped[str] = mapped_column(
         String(30),
         unique=True,
         nullable=True,
     )
     subscription: Mapped[bool] = mapped_column(default=False)
-    cost: Mapped[Numeric] = mapped_column(
-        Numeric(precision=10, scale=2),
-        default=0,
-    )
+
     balance: Mapped[Numeric] = mapped_column(
         Numeric(precision=10, scale=2),
         default=0,
     )
     discount: Mapped[int] = mapped_column(
         default=0,
-        nullable=True,
     )
     subscribe_date: Mapped[str] = mapped_column(
         nullable=True,

@@ -105,15 +105,30 @@ class AsyncOrm:
             result: Result = await session.execute(stmt)
             user = result.scalar()
 
-            res = []
+            referrals = []
             for ref in user.referrals:
                 if ref.user.subscription:
-                    res.append(ref.tg_id)
-            return res
+                    referrals.append(ref.tg_id)
+            return referrals
+
+    @staticmethod
+    async def get_referrer(tg_id: int) -> User | None:
+        async with db_helper.session_factory() as session:
+            stmt = select(Referral).where(Referral.tg_id == tg_id)
+
+            result: Result = await session.execute(stmt)
+            referral = result.scalar()
+            if referral:
+                referrer_user = referral.user
+                return referrer_user
+            return None
 
     @staticmethod
     async def delete_user(tg_id: int):
         async with db_helper.session_factory() as session:
-            user = await session.get(User, tg_id)
+            stmt = select(User).where(User.tg_id == tg_id)
+
+            result: Result = await session.execute(stmt)
+            user = result.scalar()
             session.delete(user)
             await session.commit()

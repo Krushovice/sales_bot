@@ -170,14 +170,25 @@ async def handle_success_button(
                     duration=payment_duration,
                     rest=exp_date if exp_date else None,
                 )
-
+                today = datetime.datetime.today().strftime("%d-%m-%Y")
+                referrer_user = await AsyncOrm.get_referrer(tg_id=tg_id)
+                if referrer_user:
+                    discount = (
+                        5
+                        if len(referrer_user.referrals) == 1
+                        else referrer_user.discount + 1
+                    )
+                    await AsyncOrm.update_user(
+                        tg_id=referrer_user.tg_id,
+                        discount=discount if discount <= 50 else 50,
+                    )
                 if not user.key:
                     key = outline_helper.create_new_key(name=tg_id)
 
                     await AsyncOrm.update_user(
                         tg_id=tg_id,
                         subscription=True,
-                        subscribe_date=datetime.datetime.today().strftime("%d-%m-%Y"),
+                        subscribe_date=today,
                         expiration_date=expiration,
                         key=Key(
                             api_id=int(key.key_id),
@@ -199,12 +210,17 @@ async def handle_success_button(
                     )
 
                 else:
-                    user = await AsyncOrm.get_user(tg_id=tg_id)
+                    await AsyncOrm.update_user(
+                        tg_id=tg_id,
+                        subscription=True,
+                        subscribe_date=today,
+                        expiration_date=expiration,
+                    )
                     outline_helper.remove_key_limit(key_id=user.key.api_id)
                     await call.message.edit_caption(
                         caption="Подписка оплачена, доступ не ограничен 🛜",
                         reply_markup=build_account_kb(
-                            exp_date=user.expiration_date,
+                            exp_date=expiration,
                             is_key=True if user.key else False,
                         ),
                     )
