@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from aiogram.filters import Command, CommandStart
 from aiogram.utils import markdown
 
@@ -13,12 +14,13 @@ from app.api_v1.markups import (
 
 from app.api_v1.admin import build_admin_kb
 
-from app.api_v1.orm.crud import AsyncOrm
+from app.api_v1.orm import AsyncOrm, Key
 
 from app.api_v1.config import settings
 
 from app.api_v1.utils import (
     check_for_referral,
+    outline_helper,
 )
 
 from app.api_v1.utils.logging import setup_logger
@@ -31,39 +33,51 @@ file_path = "app/api_v1/utils/images/image2.jpg"
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message):
-    """Checking user if he is in the database"""
-    try:
 
-        user_check = await AsyncOrm.get_user(
-            tg_id=message.from_user.id,
-        )
-        referrer_id = check_for_referral(message)
-        if not user_check:
-            user = await AsyncOrm.create_user(
-                tg_id=message.from_user.id,
-                username=message.from_user.username,
-            )
+    try:
+        tg_id = message.from_user.id
+        today = datetime.now()
+        delta = timedelta(days=7)
+        expiration_date = (today + delta).strftime("%d-%m-%Y")
+        check_user = await AsyncOrm.get_user(tg_id=tg_id)
+
+        if not check_user:
+            """Check user start command for referral link"""
+            referrer_id = check_for_referral(message)
+
             if referrer_id:
+                key = outline_helper.create_new_key(name=tg_id)
+                new_user = await AsyncOrm.create_user(
+                    tg_id=tg_id,
+                    username=message.from_user.username,
+                    subscription=True,
+                    subscribe_date=today.strftime("%d-%m-%Y"),
+                    expiration_date=expiration_date,
+                )
+                await AsyncOrm.update_user(
+                    tg_id=new_user.tg_id,
+                    key=Key(
+                        api_id=int(key.key_id),
+                        name=key.name,
+                        user_id=new_user.id,
+                        value=key.access_url,
+                    ),
+                )
                 refferer = await AsyncOrm.get_user(
                     tg_id=referrer_id,
                 )
                 discount = refferer.discount + 1 if refferer.discount != 50 else 50
                 await AsyncOrm.update_user(
                     tg_id=referrer_id,
-                    referral=user,
+                    referral=new_user,
                     discount=discount,
                 )
-        else:
-            if referrer_id:
-                refferer = await AsyncOrm.get_user(
-                    tg_id=referrer_id,
+            else:
+                await AsyncOrm.create_user(
+                    tg_id=tg_id,
+                    username=message.from_user.username,
                 )
-                discount = refferer.discount + 1 if refferer.discount != 50 else 50
-                await AsyncOrm.update_user(
-                    tg_id=referrer_id,
-                    referral=user_check,
-                    discount=discount,
-                )
+
         await message.answer_photo(
             photo=FSInputFile(
                 path=file_path,

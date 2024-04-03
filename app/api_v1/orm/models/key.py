@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 class Key(Base):
     __tablename__ = "keys"
     id: Mapped[intpk]
+
     api_id: Mapped[int] = mapped_column(
         BigInteger(),
         unique=True,
