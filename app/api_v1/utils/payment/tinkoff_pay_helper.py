@@ -12,7 +12,6 @@ class PaymentManager:
         self.secret_key = secret_key
         self.api_url = "https://securepay.tinkoff.ru/v2/"
 
-
     async def init_payment(
         self,
         amount,
@@ -90,7 +89,6 @@ class PaymentManager:
             "TerminalKey": self.terminal_key,
             "PaymentId": payment_id,
             "DataType": "PAYLOAD",
-            "Token": token,
         }
         token = generate_token(
             data=data,
@@ -129,6 +127,7 @@ class PaymentManager:
             ) as response:
                 result = await response.json()
                 return result
+
 
 payment_manager = PaymentManager(
     terminal_key=settings.tinkoff_terminal_key,

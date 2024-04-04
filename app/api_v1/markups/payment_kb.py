@@ -80,6 +80,7 @@ def product_details_kb(
             callback_data=PaymentCbData(
                 action=PayActions.success,
                 payment_id=payment_cb_data["PaymentId"],
+                price=payment_cb_data["Amount"] / 100,
             ),
         )
     else:

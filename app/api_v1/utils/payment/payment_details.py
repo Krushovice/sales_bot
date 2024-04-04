@@ -15,8 +15,8 @@ def generate_order_number():
     order_id = uuid.uuid4()
     # Преобразуем UUID в строку и убираем дефисы
     order_number = str(order_id).replace("-", "")
-    # Обрезаем строку до 36 символов, если она слишком длинная
-    order_number = order_number[:36]
+    # Обрезаем строку до 30 символов, если она слишком длинная
+    order_number = order_number[:30]
     return order_number
 
 
@@ -74,9 +74,7 @@ def get_receipt(price):
 
 def create_token(payment_id):
 
-    tokentr = (
-        settings.tinkoff_secret + payment_id + settings.tinkoff_terminal_key
-    )
+    tokentr = settings.tinkoff_secret + payment_id + settings.tinkoff_terminal_key
     tokensha256 = str(hashlib.sha256(tokentr.encode()).hexdigest())
     return tokensha256
 
@@ -95,7 +93,6 @@ def generate_token(data, password):
     hashed_token = hashlib.sha256(concatenated_values.encode()).hexdigest()
 
     return hashed_token
-
 
 
 def check_payment_date(data: str) -> bool:

@@ -42,7 +42,8 @@ from app.api_v1.orm import AsyncOrm
 
 
 async def main():
-
+    user = await AsyncOrm.get_user(tg_id=1130398207)
+    print(user.payments)
     # payment = await payment_manager.init_payment(
     #     amount=1000,
     #     order_id=generate_order_number(),
@@ -60,8 +61,6 @@ async def main():
     #     return payment_status
     # print(payment_id)
     # return payment
-
-
 
 
 if __name__ == "__main__":

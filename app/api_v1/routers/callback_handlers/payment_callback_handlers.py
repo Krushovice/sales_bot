@@ -6,7 +6,7 @@ from aiogram.types import CallbackQuery, FSInputFile
 from aiogram.utils import markdown
 
 
-from app.api_v1.orm import AsyncOrm, Key, Payment
+from app.api_v1.orm import AsyncOrm, Key
 
 
 from app.api_v1.markups import (
@@ -161,7 +161,7 @@ async def handle_success_button(
         exp_date = user.expiration_date
         await call.answer()
 
-        if payment.get("Status", None):
+        if payment["ErrorCode"] == "0":
             if check_payment(payment):
 
                 payment_duration = get_duration(payment)
@@ -173,15 +173,21 @@ async def handle_success_button(
                 today = datetime.datetime.today().strftime("%d-%m-%Y")
                 referrer_user = await AsyncOrm.get_referrer(tg_id=tg_id)
                 if referrer_user:
-                    discount = (
-                        5
-                        if len(referrer_user.referrals) == 1
-                        else referrer_user.discount + 1
-                    )
-                    await AsyncOrm.update_user(
-                        tg_id=referrer_user.tg_id,
-                        discount=discount if discount <= 50 else 50,
-                    )
+                    if referrer_user.discount:
+                        discount = (
+                            5
+                            if len(referrer_user.referrals) == 1
+                            else referrer_user.discount + 1
+                        )
+                        await AsyncOrm.update_user(
+                            tg_id=referrer_user.tg_id,
+                            discount=discount if discount <= 50 else 50,
+                        )
+                    else:
+                        await AsyncOrm.update_user(
+                            tg_id=referrer_user.tg_id,
+                            discount=1,
+                        )
                 if not user.key:
                     key = outline_helper.create_new_key(name=tg_id)
 
@@ -249,7 +255,7 @@ async def handle_success_button(
                 amount=total * 100,
                 order_id=generate_order_number(),
                 description=f"Оплата пользователя № {tg_id}",
-                receipt=get_receipt(price=callback_data.price),
+                receipt=get_receipt(price=price),
             )
             await call.message.edit_caption(
                 caption="Возникла ошибка при выполнении платежа,\n"

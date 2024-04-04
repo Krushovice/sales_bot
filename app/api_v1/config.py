@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     @property
     def db_url(self) -> str:
         return f"{self.DB_URL}"
+        # return "sqlite+aiosqlite:///./db.sqlite3"
 
     @property
     def bot_token(self) -> str:
