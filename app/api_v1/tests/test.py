@@ -60,10 +60,9 @@ async def main():
     #     return payment_status
     # print(payment_id)
     # return payment
-    await AsyncOrm.delete_user(tg_id=6908916076)
 
 
-users = [1130398207, 6908916076, 874539740, 587401185, 6394499989]
+
 
 if __name__ == "__main__":
     asyncio.run(main())

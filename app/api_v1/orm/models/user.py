@@ -1,10 +1,16 @@
 from typing import Annotated, TYPE_CHECKING
 from .base import Base
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship,
+)
+
 from sqlalchemy import Numeric, String, BigInteger
 
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
+
 if TYPE_CHECKING:
     from .referral import Referral
     from .key import Key
@@ -30,6 +36,7 @@ class User(Base):
     )
     discount: Mapped[int] = mapped_column(
         default=0,
+        nullable=True,
     )
     subscribe_date: Mapped[str] = mapped_column(
         nullable=True,
@@ -44,6 +51,13 @@ class User(Base):
     )
     key: Mapped["Key"] = relationship(
         back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    payments: Mapped[list["Payment"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
         lazy="selectin",
     )
 
