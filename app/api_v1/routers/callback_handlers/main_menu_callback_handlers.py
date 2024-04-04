@@ -93,39 +93,7 @@ async def handle_pay_action_button(
             caption="💰 Варианты оплаты подписки: ⬇️",
             reply_markup=build_payment_kb(),
         )
-        # user = await AsyncOrm.get_user(
-        #     tg_id=call.from_user.id,
-        # )
 
-        # discount = user.discount if user.discount else 0
-        # total = int(150 - (150 * discount / 100))
-        # await call.answer()
-        # msg_text = markdown.text(
-        #     markdown.hbold(f"💰 Сумма: {total} руб"),
-        #     markdown.hitalic("Для оплаты перейдите по ссылке ниже ⬇️"),
-        #     sep="\n\n",
-        # )
-        # payment = await payment_manager.init_payment(
-        #     amount=total * 100,
-        #     order_id=generate_order_number(),
-        #     description=f"Оплата пользователя №{user.tg_id}",
-        #     receipt=get_receipt(price=total),
-        # )
-        # if payment:
-        #     await call.message.edit_caption(
-        #         caption=msg_text,
-        #         reply_markup=product_details_kb(
-        #             payment_cb_data=payment,
-        #             from_main_menu=True,
-        #         ),
-        #     )
-        # else:
-
-        #     await call.message.edit_caption(
-        #         caption="Возникла ошибка при выполнении платежа.\n"
-        #         "Попробуйте немного позже",
-        #         reply_markup=root_kb(),
-        #     ),
     except Exception as e:
         logger.error(f"Ошибка оплаты: {e}")
 
