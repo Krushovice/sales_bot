@@ -3,7 +3,7 @@ from typing import Union
 from sqlalchemy import select
 from sqlalchemy.engine import Result
 
-from .models import User, Referral, Key
+from .models import User, Referral, Key, Payment
 from .db_helper import db_helper
 
 """ Необходимо оптимизирвоать каждый запрос к БД
@@ -78,7 +78,12 @@ class AsyncOrm:
             return users_with_subscription
 
     @staticmethod
-    async def update_user(tg_id: int, referral: User = None, **kwargs):
+    async def update_user(
+        tg_id: int,
+        referral: User = None,
+        payment_id: int = None,
+        **kwargs,
+    ):
         async with db_helper.session_factory() as session:
             stmt = select(User).where(User.tg_id == tg_id)
 
@@ -94,6 +99,14 @@ class AsyncOrm:
                     user_id=user.id,
                 )
                 user.referrals.append(ref)
+
+            if payment_id:
+                payment = Payment(
+                    payment_id=payment_id,
+                    user_id=user.id,
+                )
+                user.payments.append(payment)
+
             session.add(user)
             await session.commit()
 

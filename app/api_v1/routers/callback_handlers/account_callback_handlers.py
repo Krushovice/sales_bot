@@ -47,7 +47,9 @@ async def handle_payment_button(call: CallbackQuery):
         logger.error(f"Ошибка прехода к вариантам оплаты: {e}")
 
 
-@router.callback_query(ProfileCbData.filter(F.action == ProfileActions.renewal))
+@router.callback_query(
+    ProfileCbData.filter(F.action == ProfileActions.renewal),
+)
 async def handle_renewal_button(call: CallbackQuery):
     await call.answer()
     await call.message.edit_caption(

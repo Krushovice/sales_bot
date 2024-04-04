@@ -63,10 +63,7 @@ async def command_start_handler(message: Message):
                         value=key.access_url,
                     ),
                 )
-                # refferer = await AsyncOrm.get_user(
-                #     tg_id=referrer_id,
-                # )
-                # discount = refferer.discount + 1 if refferer.discount != 50 else 50
+
                 await AsyncOrm.update_user(
                     tg_id=referrer_id,
                     referral=new_user,

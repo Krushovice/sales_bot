@@ -6,7 +6,7 @@ from aiogram.types import CallbackQuery, FSInputFile
 from aiogram.utils import markdown
 
 
-from app.api_v1.orm import AsyncOrm, Key
+from app.api_v1.orm import AsyncOrm, Key, Payment
 
 
 from app.api_v1.markups import (
@@ -196,7 +196,9 @@ async def handle_success_button(
                             user_id=user.id,
                             value=key.access_url,
                         ),
+                        payment=int(payment_id),
                     )
+
                     value = key.access_url
                     msg = (
                         "Подписка успешно оплачена, ваш ключ\n" f"📌<pre>{value}</pre>"
@@ -210,12 +212,14 @@ async def handle_success_button(
                     )
 
                 else:
+
                     await AsyncOrm.update_user(
                         tg_id=tg_id,
                         subscription=True,
-                        subscribe_date=today,
                         expiration_date=expiration,
+                        payment=int(payment_id),
                     )
+
                     outline_helper.remove_key_limit(key_id=user.key.api_id)
                     await call.message.edit_caption(
                         caption="Подписка оплачена, доступ не ограничен 🛜",
