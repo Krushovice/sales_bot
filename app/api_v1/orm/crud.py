@@ -3,7 +3,7 @@ from typing import Union
 from sqlalchemy import select
 from sqlalchemy.engine import Result
 
-from .models import User, Referral
+from .models import User, Referral, Key
 from .db_helper import db_helper
 
 """ Необходимо оптимизирвоать каждый запрос к БД
@@ -112,6 +112,16 @@ class AsyncOrm:
             return referrals
 
     @staticmethod
+    async def get_users_keys() -> list[Key]:
+        async with db_helper.session_factory() as session:
+            stmt = select(Key)
+
+            result: Result = await session.execute(stmt)
+            keys = result.scalars()
+
+            return keys
+
+    @staticmethod
     async def get_referrer(tg_id: int) -> User | None:
         async with db_helper.session_factory() as session:
             stmt = select(Referral).where(Referral.tg_id == tg_id)
@@ -130,5 +140,5 @@ class AsyncOrm:
 
             result: Result = await session.execute(stmt)
             user = result.scalar()
-            session.delete(user)
+            await session.delete(user)
             await session.commit()
