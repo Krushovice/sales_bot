@@ -20,22 +20,24 @@ def generate_order_number():
     return order_number
 
 
-def set_expiration_date(duration: int, rest: str | None) -> str:
+def set_expiration_date(
+    duration: int,
+    rest: str | None,
+    is_referrer: bool = False,
+) -> str:
     today = datetime.datetime.today()
-    if rest:
-        expiration = datetime.datetime.strptime(rest, "%d-%m-%Y")
-    else:
-        expiration = today + datetime.timedelta(days=31 * duration)
-        return expiration.strftime("%d-%m-%Y")
 
-    if expiration > today:
+    if rest and datetime.datetime.strptime(rest, "%d-%m-%Y") > today:
+        expiration = datetime.datetime.strptime(rest, "%d-%m-%Y")
         result = expiration - today
         rest = result.days
-        delta = datetime.timedelta(days=31 * duration + int(rest))
+        days = 31 * duration if not is_referrer else duration * 7
+        delta = datetime.timedelta(days=days + int(rest))
         expiration_date = (today + delta).strftime("%d-%m-%Y")
         return expiration_date
     else:
-        expiration = today + datetime.timedelta(days=31 * duration)
+        days = 31 * duration if not is_referrer else duration * 7
+        expiration = today + datetime.timedelta(days=days)
         return expiration.strftime("%d-%m-%Y")
 
 

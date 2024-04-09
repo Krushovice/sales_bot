@@ -18,6 +18,7 @@ __all__ = (
     "build_back_info_kb",
     "build_questions_kb",
     "back_to_payment",
+    "build_account_menu",
 )
 
 from .account_kb import (
@@ -35,6 +36,7 @@ from .main_kb import (
     MenuCbData,
     build_back_info_kb,
     build_questions_kb,
+    build_account_menu,
 )
 
 from .payment_kb import (

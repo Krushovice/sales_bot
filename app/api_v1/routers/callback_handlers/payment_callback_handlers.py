@@ -173,20 +173,22 @@ async def handle_success_button(
                 today = datetime.datetime.today().strftime("%d-%m-%Y")
                 referrer_user = await AsyncOrm.get_referrer(tg_id=tg_id)
                 if referrer_user:
-                    if referrer_user.discount:
-                        discount = (
-                            5
-                            if len(referrer_user.referrals) == 1
-                            else referrer_user.discount + 1
-                        )
+                    exp_date = referrer_user.expiration_date
+                    referrer_user_expiration = set_expiration_date(
+                        duration=payment_duration,
+                        rest=exp_date if exp_date else None,
+                        is_referrer=True,
+                    )
+                    if referrer_user.discount == 5:
                         await AsyncOrm.update_user(
                             tg_id=referrer_user.tg_id,
-                            discount=discount if discount <= 50 else 50,
+                            expiration_date=referrer_user_expiration,
                         )
                     else:
                         await AsyncOrm.update_user(
                             tg_id=referrer_user.tg_id,
-                            discount=1,
+                            discount=5,
+                            expiration_date=referrer_user_expiration,
                         )
                 if not user.key:
                     key = outline_helper.create_new_key(name=tg_id)
