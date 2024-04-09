@@ -54,10 +54,13 @@ async def handle_payment_button(call: CallbackQuery):
 )
 async def handle_renewal_button(call: CallbackQuery):
     await call.answer()
-    await call.message.edit_caption(
-        caption="💰 Варианты оплаты подписки: ⬇️",
-        reply_markup=build_payment_kb(),
-    )
+    try:
+        await call.message.edit_caption(
+            caption="💰 Варианты оплаты подписки: ⬇️",
+            reply_markup=build_payment_kb(discount=True),
+        )
+    except Exception as e:
+        logger.error(f"Ошибка перехода к оплате: {e}")
 
 
 @router.callback_query(

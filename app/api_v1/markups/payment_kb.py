@@ -31,22 +31,38 @@ class ProductCbData(CallbackData, prefix="product"):
     price: int | None = None
 
 
-def build_payment_kb() -> InlineKeyboardMarkup:
+def build_payment_kb(discount: bool = False) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
+    if discount:
+        for name, price in [
+            ("142р - 1мес🔹", 142),
+            ("256р - 2мес🔸", 256),
+            ("370р - 3мес🔻", 370),
+        ]:
 
-    for name, price in [
-        ("150р - 1мес🔹", 150),
-        ("270р - 2мес🔸", 270),
-        ("390р - 3мес🔻", 390),
-    ]:
-        builder.button(
-            text=name,
-            callback_data=ProductCbData(
-                action=ProductActions.details,
-                name=name,
-                price=price,
-            ),
-        )
+            builder.button(
+                text=name,
+                callback_data=ProductCbData(
+                    action=ProductActions.details,
+                    name=name,
+                    price=price,
+                ),
+            )
+    else:
+        for name, price in [
+            ("150р - 1мес🔹", 150),
+            ("270р - 2мес🔸", 270),
+            ("390р - 3мес🔻", 390),
+        ]:
+
+            builder.button(
+                text=name,
+                callback_data=ProductCbData(
+                    action=ProductActions.details,
+                    name=name,
+                    price=price,
+                ),
+            )
 
     builder.button(
         text="Назад🔙",

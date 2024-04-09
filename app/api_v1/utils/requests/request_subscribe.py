@@ -17,8 +17,8 @@ from . import outline_helper
 
 from app.api_v1.markups import build_renewal_kb
 
-file_path1 = "app/api_v1/utils/images/image1.jpg"
-file_path2 = "app/api_v1/utils/images/image2.jpg"
+
+file_path = "app/api_v1/utils/images/image2.jpg"
 
 logger = setup_logger(__name__)
 
@@ -72,7 +72,7 @@ async def send_subscription_reminder(bot: Bot) -> None:
                 tg_id = user.tg_id
                 await bot.send_photo(
                     photo=FSInputFile(
-                        path=file_path2,
+                        path=file_path,
                     ),
                     chat_id=tg_id,
                     caption=(
@@ -98,7 +98,7 @@ async def send_reminder_for_inactive(bot: Bot) -> None:
 
         await bot.send_photo(
             photo=FSInputFile(
-                path=file_path1,
+                path=file_path,
             ),
             chat_id=user.tg_id,
             caption=text,
