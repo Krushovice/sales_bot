@@ -50,16 +50,16 @@ async def check_subscription_expiry():
         logger.error(error_msg)
 
 
-async def schedule_next_check():
+async def schedule_next_check(bot: Bot):
     while True:
         await check_subscription_expiry()
+        await send_subscription_reminder(bot)
         await send_logs_email()
         await asyncio.sleep(24 * 3600)
 
 
 async def schedule_next_reminder(bot: Bot):
     while True:
-        await send_subscription_reminder(bot)
         await send_reminder_for_inactive(bot)
         await asyncio.sleep(72 * 3600)
 
@@ -88,13 +88,14 @@ async def send_subscription_reminder(bot: Bot) -> None:
 
 async def send_reminder_for_inactive(bot: Bot) -> None:
     users = await AsyncOrm.get_inactive_users()
+    text = (
+        "Привет 👋\n"
+        "Вижу, вы так и не воспользовались нашим VPN 😔\n"
+        "Ниже я оставлю инструкцию по подключению и промокод на бесплатные 7 дней 🎁\n"
+        "Для подключения нажмите <b>Подключить со скидкой</b>"
+    )
     for user in users:
-        text = (
-            "Привет 👋\n"
-            "Вижу, вы так и не воспользовались нашим VPN 😔\n"
-            "Ниже я оставлю инструкцию по подключению и промокод на бесплатные 7 дней 🎁\n"
-            "Для подключения нажмите <b>Подключить со скидкой</b>"
-        )
+
         await bot.send_photo(
             photo=FSInputFile(
                 path=file_path1,

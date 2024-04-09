@@ -71,7 +71,10 @@ async def user_promo_handler(message: Message) -> None:
 @router.message()
 async def any_text_handler(message: Message) -> None:
 
-    await message.edit_caption(
+    await message.answer_photo(
+        photo=FSInputFile(
+            path=file_path,
+        ),
         caption="Пожалуйста, воспользуйтесь меню для дальнейшей работы",
         reply_markup=build_main_kb(),
     ),

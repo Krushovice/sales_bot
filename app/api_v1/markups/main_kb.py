@@ -78,3 +78,13 @@ def build_back_info_kb() -> InlineKeyboardMarkup:
     )
     builder.adjust(1)
     return builder.as_markup()
+
+
+def build_account_menu() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="В личный кабинет➡️",
+        callback_data=MenuCbData(action=MenuActions.account).pack(),
+    )
+    builder.adjust(1)
+    return builder.as_markup()
