@@ -17,7 +17,7 @@ from app.api_v1.utils import (
 
 
 async def check_users(bot: Bot):
-    task1 = asyncio.create_task(schedule_next_check())
+    task1 = asyncio.create_task(schedule_next_check(bot))
     task2 = asyncio.create_task(schedule_next_reminder(bot))
     asyncio.gather(task1, task2)
 
