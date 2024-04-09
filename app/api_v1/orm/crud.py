@@ -54,7 +54,8 @@ class AsyncOrm:
         async with db_helper.session_factory() as session:
             stmt = (
                 select(User)
-                .where(User.subscription is False, User.key is None)
+                .where(User.subscription == False)
+                .where(User.key == None)
                 .order_by(
                     User.tg_id,
                 )

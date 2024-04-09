@@ -14,6 +14,7 @@ intpk = Annotated[int, mapped_column(primary_key=True)]
 if TYPE_CHECKING:
     from .referral import Referral
     from .key import Key
+    from .payment import Payment
 
 
 class User(Base):
