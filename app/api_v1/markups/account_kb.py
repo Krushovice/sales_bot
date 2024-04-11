@@ -110,7 +110,7 @@ def build_renewal_kb(
 
     else:
         builder.button(
-            text="Помощь в подключении",
+            text="Помощь в подключении 🆘",
             callback_data=MenuCbData(action=MenuActions.support).pack(),
         )
         builder.button(

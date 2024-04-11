@@ -78,7 +78,7 @@ async def handle_promo_button(call: CallbackQuery):
     await call.answer()
 
     await call.message.edit_caption(
-        caption="Введите пожалуйста промокод на бесплатный 7-дневный триал 🎁",
+        caption="Отправьте пожалуйста в чат промокод на бесплатный 7-дневный триал 🎁",
         reply_markup=root_kb(),
     )
 

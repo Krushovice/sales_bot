@@ -209,7 +209,8 @@ async def handle_success_button(
 
                     value = key.access_url
                     msg = (
-                        "Подписка успешно оплачена, ваш ключ\n" f"📌<pre>{value}</pre>"
+                        "Подписка успешно оплачена, ваш ключ\n"
+                        f"📌<code>{value}</code>"
                     )
                     await call.message.edit_caption(
                         caption=msg,
