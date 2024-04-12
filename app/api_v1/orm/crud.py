@@ -16,7 +16,7 @@ class AsyncOrm:
     @staticmethod
     async def create_user(
         tg_id: int,
-        username: Union[str | None],
+        username: str = None,
         **kwargs,
     ) -> None:
         async with db_helper.session_factory() as session:
