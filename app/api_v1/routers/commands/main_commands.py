@@ -39,13 +39,13 @@ async def command_start_handler(message: Message):
         today = datetime.now()
         delta = timedelta(days=7)
         expiration_date = (today + delta).strftime("%d-%m-%Y")
-        check_user = await AsyncOrm.get_user(tg_id=tg_id)
+        user_exists = await AsyncOrm.get_user(tg_id=tg_id)
 
-        if not check_user:
+        if not user_exists:
             """Check user start command for referral link"""
             referrer_id = check_for_referral(message)
 
-            if referrer_id:
+            if referrer_id and referrer_id != tg_id:
                 key = outline_helper.create_new_key(name=tg_id)
                 new_user = await AsyncOrm.create_user(
                     tg_id=tg_id,

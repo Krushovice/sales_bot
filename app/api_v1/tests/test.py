@@ -7,12 +7,9 @@ from random import choice
 # from sqlalchemy.orm import selectinload
 # from sqlalchemy.engine import Result
 # from sqlalchemy.ext.asyncio import AsyncSession
-from app.api_v1.utils.payment.tinkoff_pay_helper import payment_manager
+# from app.api_v1.utils.payment.tinkoff_pay_helper import payment_manager
 
-from app.api_v1.utils import (
-    generate_order_number,
-    get_receipt,
-)
+from app.api_v1.utils import set_expiration_date
 
 #     set_expiration_date,
 #     get_subscribe_info,
@@ -20,7 +17,8 @@ from app.api_v1.utils import (
 # )
 
 
-from app.api_v1.orm import AsyncOrm
+from app.api_v1.orm import AsyncOrm, Key
+
 
 # async def create_payment():
 #     payment = await payment_manager.init_sbp_payment(
@@ -41,30 +39,30 @@ from app.api_v1.orm import AsyncOrm
 #     return payment_status
 
 
-async def main():
-    user = await AsyncOrm.get_user(tg_id=1130398207)
-    print(user.payments)
-    # payment = await payment_manager.init_payment(
-    #     amount=1000,
-    #     order_id=generate_order_number(),
-    #     description="Оплата платной подписки на канал",
-    #     receipt=get_receipt(10),
-    # )
-    # print(payment)
+# async def main():
+#     user = await AsyncOrm.get_user(tg_id=1130398207)
+#     print(user.payments)
+# payment = await payment_manager.init_payment(
+#     amount=1000,
+#     order_id=generate_order_number(),
+#     description="Оплата платной подписки на канал",
+#     receipt=get_receipt(10),
+# )
+# print(payment)
 
-    # payment_id = payment.get("PaymentId", None)
-    # if payment_id:
-    #     payment_status = await payment_manager.check_payment_status(
-    #         payment_id=payment_id,
-    #     )
-    #     print(payment_status)
-    #     return payment_status
-    # print(payment_id)
-    # return payment
+# payment_id = payment.get("PaymentId", None)
+# if payment_id:
+#     payment_status = await payment_manager.check_payment_status(
+#         payment_id=payment_id,
+#     )
+#     print(payment_status)
+#     return payment_status
+# print(payment_id)
+# return payment
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+# if __name__ == "__main__":
+#     asyncio.run(main())
 # async def get_user(session: AsyncSession, tg_id: int) -> User:
 
 #     stmt = (
@@ -126,11 +124,15 @@ if __name__ == "__main__":
 # from app.api_v1.utils.tools import send_logs_email
 
 # from app.api_v1.config import settings
+from app.api_v1.utils import outline_helper
 
 
-# async def test_email_send():
-#     await send_logs_email()
+async def test():
+    await AsyncOrm.update_user(
+        tg_id=1130398207,
+        expiration_date="10-05-2024",
+    )
 
 
-# if __name__ == "__main__":
-#     asyncio.run(test_email_send())
+if __name__ == "__main__":
+    asyncio.run(test())

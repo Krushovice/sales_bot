@@ -69,7 +69,7 @@ class AsyncOrm:
         async with db_helper.session_factory() as session:
             stmt = (
                 select(User)
-                .where(User.subscription)
+                .where(User.subscription == True)
                 .order_by(
                     User.subscribe_date,
                 )

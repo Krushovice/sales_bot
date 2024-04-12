@@ -47,12 +47,13 @@ async def handle_stat_button(call: CallbackQuery):
         users = await AsyncOrm.get_users()
 
         today = datetime.datetime.now()
-        count = 0
+        count_users = len(users)
+        active_users = 0
         subs_today = 0
         count_inactive = 0
         for user in users:
             if user.subscription:
-                count += 1
+                active_users += 1
                 sub_date = datetime.datetime.strptime(
                     user.subscribe_date,
                     "%d-%m-%Y",
@@ -64,9 +65,10 @@ async def handle_stat_button(call: CallbackQuery):
 
         await call.message.edit_caption(
             caption=f"Cтатистика по пользователям на {today.strftime('%d-%m-%Y')}📊\n"
-            f"Всего пользователей: {count}\n"
+            f"Всего пользователей: {count_users}\n"
             f"Кол-во новых пользователей: {subs_today}\n"
-            f"Кол-во не активных пользователей: {count_inactive}\n",
+            f"Кол-во активных пользователей: {active_users}\n"
+            f"Кол-во не активных пользователей: {count_inactive}",
             reply_markup=back_to_admin_panel_kb(),
         )
     except Exception as e:
@@ -115,7 +117,7 @@ async def handle_back_to_admin_button(call: CallbackQuery):
         await call.message.edit_caption(
             caption="<b>Вы вошли в админ-панель</b>💻\n\n"
             f"Сервер работает {1} часов с последнего бэкапа\n"
-            f"Файл логов за последние сутки {1}",
+            f"Файл логов за последние сутки: {logs}",
             reply_markup=build_stat_kb(),
         )
     except Exception as e:

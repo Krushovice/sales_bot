@@ -39,12 +39,22 @@ async def check_user_expiration(user):
 async def check_subscription_expiry():
     try:
         users = await AsyncOrm.get_users_by_subscription()
-        current_date = datetime.datetime.now().strftime("%d-%m-%Y")
+        current_date = datetime.datetime.now()
 
         for user in users:
-            if current_date > user.expiration_date:
-                if user.key:
-                    outline_helper.set_key_limit(key_id=user.key.api_id)
+            expiration_date = user.expiration_date
+            if expiration_date is not None:
+                # Преобразуем строку expiration_date в объект datetime для сравнения
+                expiration_date = datetime.datetime.strptime(
+                    expiration_date, "%d-%m-%Y"
+                )
+
+                if current_date > expiration_date:
+                    if user.key:
+                        outline_helper.set_key_limit(key_id=user.key.api_id)
+            else:
+                # Если expiration_date равен None, пропускаем этого пользователя
+                logger.info(f"User {user.id} has no subscription expiration date set.")
 
     except Exception as e:
         error_msg = f"An error occurred in check_subscription_expiry: {e}"
@@ -69,8 +79,8 @@ async def send_subscription_reminder(bot: Bot) -> None:
     users = await AsyncOrm.get_users_by_subscription()
     for user in users:
         try:
+            tg_id = user.tg_id
             if await check_user_expiration(user):
-                tg_id = user.tg_id
                 await bot.send_photo(
                     photo=FSInputFile(
                         path=file_path,
@@ -82,8 +92,20 @@ async def send_subscription_reminder(bot: Bot) -> None:
                     ),
                     reply_markup=build_renewal_kb(),
                 )
+            else:
+                await bot.send_photo(
+                    photo=FSInputFile(
+                        path=file_path,
+                    ),
+                    chat_id=tg_id,
+                    caption=(
+                        f"Привет! Твоя подписка закончилась {user.expiration_date}😢\n"
+                        "Чтобы возобновить работу VPN, необходимо продлить подписку✅"
+                    ),
+                    reply_markup=build_renewal_kb(),
+                )
         except TelegramBadRequest as e:
-            error_msg = f"Ошибка при отправке сообщения пользователю {user.tg_id}: {e}"
+            error_msg = f"Ошибка при отправке сообщения пользователю {tg_id}: {e}"
             logger.error(error_msg)
 
 
