@@ -5,7 +5,6 @@ import datetime
 from aiogram import Bot
 from aiogram.types import FSInputFile
 from aiogram.exceptions import TelegramBadRequest
-from aiogram.utils import markdown
 
 
 from app.api_v1.orm import AsyncOrm
@@ -25,11 +24,11 @@ logger = setup_logger(__name__)
 
 
 async def check_user_expiration(user):
-    current_date = datetime.datetime.now()
+    current_date = datetime.datetime.now().date()
     expiration_date = datetime.datetime.strptime(
         user.expiration_date,
         "%d-%m-%Y",
-    )
+    ).date()
     delta = expiration_date - current_date
     if 0 < delta.days <= 3:
         return True
@@ -39,7 +38,7 @@ async def check_user_expiration(user):
 async def check_subscription_expiry():
     try:
         users = await AsyncOrm.get_users_by_subscription()
-        current_date = datetime.datetime.now()
+        current_date = datetime.datetime.now().date()
 
         for user in users:
             expiration_date = user.expiration_date
@@ -47,7 +46,7 @@ async def check_subscription_expiry():
                 # Преобразуем строку expiration_date в объект datetime для сравнения
                 expiration_date = datetime.datetime.strptime(
                     expiration_date, "%d-%m-%Y"
-                )
+                ).date()
 
                 if current_date > expiration_date:
                     if user.key:

@@ -25,10 +25,10 @@ def set_expiration_date(
     rest: str | None,
     is_referrer: bool = False,
 ) -> str:
-    today = datetime.datetime.today()
+    today = datetime.datetime.today().date()
 
-    if rest and datetime.datetime.strptime(rest, "%d-%m-%Y") > today:
-        expiration = datetime.datetime.strptime(rest, "%d-%m-%Y")
+    if rest and datetime.datetime.strptime(rest, "%d-%m-%Y").date() > today:
+        expiration = datetime.datetime.strptime(rest, "%d-%m-%Y").date()
         result = expiration - today
         rest = result.days
         days = 31 * duration if not is_referrer else duration * 7
@@ -98,7 +98,7 @@ def generate_token(data, password):
 
 
 def check_payment_date(data: str) -> bool:
-    today = datetime.datetime.today()
+    today = datetime.datetime.today().date()
     pattern = r":\s*(\d{4}-\d{2}-\d{2})"
 
     # Извлекаем дату из строки, если она присутствует
@@ -106,7 +106,7 @@ def check_payment_date(data: str) -> bool:
     if match:
         string_date = match.group(1)
         # Преобразование строки даты в объект datetime
-        pay_date = datetime.datetime.strptime(string_date, "%Y-%m-%d").datetime.date()
+        pay_date = datetime.datetime.strptime(string_date, "%Y-%m-%d").date()
         if pay_date == today:
             return True
     return False

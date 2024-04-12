@@ -13,6 +13,7 @@ from app.api_v1.admin import (
     AdminCbData,
 )
 from app.api_v1.markups import build_main_kb
+from app.api_v1.utils import show_users_statistic
 
 from app.api_v1.utils.logging import setup_logger
 
@@ -45,30 +46,13 @@ async def handle_stat_button(call: CallbackQuery):
     await call.answer()
     try:
         users = await AsyncOrm.get_users()
-
-        today = datetime.datetime.now()
-        count_users = len(users)
-        active_users = 0
-        subs_today = 0
-        count_inactive = 0
-        for user in users:
-            if user.subscription:
-                active_users += 1
-                sub_date = datetime.datetime.strptime(
-                    user.subscribe_date,
-                    "%d-%m-%Y",
-                )
-                if sub_date == today:
-                    subs_today += 1
-            if not user.key:
-                count_inactive += 1
-
+        data = show_users_statistic(users)
         await call.message.edit_caption(
-            caption=f"Cтатистика по пользователям на {today.strftime('%d-%m-%Y')}📊\n"
-            f"Всего пользователей: {count_users}\n"
-            f"Кол-во новых пользователей: {subs_today}\n"
-            f"Кол-во активных пользователей: {active_users}\n"
-            f"Кол-во не активных пользователей: {count_inactive}",
+            caption=f"Cтатистика по пользователям на {data['today']}📊\n"
+            f"Всего пользователей: {data['count_users']}\n"
+            f"Кол-во новых пользователей: {data['subs_today']}\n"
+            f"Кол-во активных пользователей: {data['active_users']}\n"
+            f"Кол-во не активных пользователей: {data['count_inactive']}",
             reply_markup=back_to_admin_panel_kb(),
         )
     except Exception as e:

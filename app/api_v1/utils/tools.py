@@ -56,7 +56,7 @@ async def send_logs_email():
     smtp_password = settings.EMAIL_PSWD
 
     # Получение текущей даты и времени
-    today = datetime.datetime.today().strftime("%Y-%m-%d")
+    today = datetime.datetime.today().strftime("%d-%m-%Y")
 
     # Путь к папке с логами
     logs_folder = os.path.abspath("logs")
@@ -99,3 +99,27 @@ async def send_logs_email():
         password=smtp_password,
     ) as smtp:
         await smtp.send_message(message)
+
+
+def show_users_statistic(users: list[User]) -> dict:
+    users_info = {
+        "count_users": 0,
+        "active_users": 0,
+        "subs_today": 0,
+        "count_inactive": 0,
+    }
+    today = datetime.datetime.now().date()
+    for user in users:
+        users_info["count_users"] += 1
+        if user.subscription:
+            users_info["active_users"] += 1
+            sub_date = datetime.datetime.strptime(
+                user.subscribe_date,
+                "%d-%m-%Y",
+            ).date()
+            if sub_date == today:
+                users_info["subs_today"] += 1
+        if not user.key:
+            users_info["count_inactive"] += 1
+        users_info["today"] = today.strftime("%d-%m-%Y")
+    return users_info
