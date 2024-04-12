@@ -119,7 +119,7 @@ def show_users_statistic(users: list[User]) -> dict:
             ).date()
             if sub_date == today:
                 users_info["subs_today"] += 1
-        if not user.key:
-            users_info["count_inactive"] += 1
+            if not user.key:
+                users_info["count_inactive"] += 1
         users_info["today"] = today.strftime("%d-%m-%Y")
     return users_info
