@@ -1,11 +1,10 @@
-import datetime
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 from aiogram.utils import markdown
 
 from app.api_v1.orm.crud import AsyncOrm
 
-from app.api_v1.admin import (
+from .admin_kb import (
     build_admin_kb,
     build_stat_kb,
     back_to_admin_panel_kb,
@@ -13,7 +12,7 @@ from app.api_v1.admin import (
     AdminCbData,
 )
 from app.api_v1.markups import build_main_kb
-from app.api_v1.utils import show_users_statistic
+from .admin_utils import show_users_statistic
 
 from app.api_v1.utils.logging import setup_logger
 
@@ -31,32 +30,19 @@ async def handle_admin_button(call: CallbackQuery):
     await call.answer()
 
     try:
+        users = await AsyncOrm.get_users()
+        data = show_users_statistic(users)
         await call.message.edit_caption(
-            caption="<b>Вы вошли в админ-панель</b>💻\n\n"
-            f"Сервер работает {1} часов с последнего бэкапа\n"
-            f"Файл логов за последние сутки {1}",
+            caption="Вы вошли в админ-панель💻\n\n"
+            f"Cтатистика по пользователям на {data['today']}📊\n"
+            f"Всего пользователей: {data['count_users']}\n"
+            f"Кол-во новых пользователей: {data['subs_today']}\n"
+            f"Кол-во активных пользователей: {data['active_users']}\n"
+            f"Кол-во не активных пользователей: {data['inactive']}",
             reply_markup=build_stat_kb(),
         )
     except Exception as e:
         logger.error(f"Ошибка при переходе в админ панель: {e}")
-
-
-@router.callback_query(AdminCbData.filter(F.action == AdminActions.statistic))
-async def handle_stat_button(call: CallbackQuery):
-    await call.answer()
-    try:
-        users = await AsyncOrm.get_users()
-        data = show_users_statistic(users)
-        await call.message.edit_caption(
-            caption=f"Cтатистика по пользователям на {data['today']}📊\n"
-            f"Всего пользователей: {data['count_users']}\n"
-            f"Кол-во новых пользователей: {data['subs_today']}\n"
-            f"Кол-во активных пользователей: {data['active_users']}\n"
-            f"Кол-во не активных пользователей: {data['count_inactive']}",
-            reply_markup=back_to_admin_panel_kb(),
-        )
-    except Exception as e:
-        logger.error(f"Ошибка при переходе к статистике: {e}")
 
 
 @router.callback_query(
@@ -98,11 +84,29 @@ async def handle_root_panel_button(call: CallbackQuery):
 async def handle_back_to_admin_button(call: CallbackQuery):
     await call.answer()
     try:
+        users = await AsyncOrm.get_users()
+        data = show_users_statistic(users)
         await call.message.edit_caption(
-            caption="<b>Вы вошли в админ-панель</b>💻\n\n"
-            f"Сервер работает {1} часов с последнего бэкапа\n"
-            f"Файл логов за последние сутки: {logs}",
+            caption="Вы вошли в админ-панель💻\n\n"
+            f"Cтатистика по пользователям на {data['today']}📊\n"
+            f"Всего пользователей: {data['count_users']}\n"
+            f"Кол-во новых пользователей: {data['subs_today']}\n"
+            f"Кол-во активных пользователей: {data['active_users']}\n"
+            f"Кол-во не активных пользователей: {data['count_inactive']}",
             reply_markup=build_stat_kb(),
         )
     except Exception as e:
         logger.error(f"Ошибка при переходе в админ панель: {e}")
+
+
+@router.callback_query(
+    AdminCbData.filter(
+        F.action == AdminActions.statistic,
+    )
+)
+async def handle_statistic_button(call: CallbackQuery):
+    await call.answer()
+    await call.message.edit_caption(
+        caption="Здесь будет больше аналитики по продажам, наверное😁",
+        reply_markup=back_to_admin_panel_kb(),
+    )

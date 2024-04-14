@@ -1,7 +1,7 @@
 import asyncio
 from random import choice
 
-# import time
+import datetime
 
 # from sqlalchemy import select
 # from sqlalchemy.orm import selectinload
@@ -128,10 +128,12 @@ from app.api_v1.utils import outline_helper
 
 
 async def test():
-    await AsyncOrm.update_user(
-        tg_id=1130398207,
-        expiration_date="10-05-2024",
+    date = set_expiration_date(
+        duration=1,
+        rest="20-04-2024",
+        is_referrer=True,
     )
+    print(date)
 
 
 if __name__ == "__main__":
