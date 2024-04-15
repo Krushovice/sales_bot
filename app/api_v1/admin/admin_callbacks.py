@@ -92,7 +92,7 @@ async def handle_back_to_admin_button(call: CallbackQuery):
             f"Всего пользователей: {data['count_users']}\n"
             f"Кол-во новых пользователей: {data['subs_today']}\n"
             f"Кол-во активных пользователей: {data['active_users']}\n"
-            f"Кол-во не активных пользователей: {data['count_inactive']}",
+            f"Кол-во не активных пользователей: {data['inactive']}",
             reply_markup=build_stat_kb(),
         )
     except Exception as e:
