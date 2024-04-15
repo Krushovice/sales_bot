@@ -23,7 +23,7 @@ file_path = "app/api_v1/utils/images/image2.jpg"
 logger = setup_logger(__name__)
 
 
-async def check_user_expiration(user):
+def check_user_expiration(user):
     current_date = datetime.datetime.now().date()
     expiration_date = datetime.datetime.strptime(
         user.expiration_date,
@@ -79,7 +79,7 @@ async def send_subscription_reminder(bot: Bot) -> None:
     for user in users:
         try:
             tg_id = user.tg_id
-            if await check_user_expiration(user):
+            if check_user_expiration(user):
                 await bot.send_photo(
                     photo=FSInputFile(
                         path=file_path,
@@ -91,18 +91,7 @@ async def send_subscription_reminder(bot: Bot) -> None:
                     ),
                     reply_markup=build_renewal_kb(),
                 )
-            else:
-                await bot.send_photo(
-                    photo=FSInputFile(
-                        path=file_path,
-                    ),
-                    chat_id=tg_id,
-                    caption=(
-                        f"Привет! Твоя подписка закончилась {user.expiration_date}😢\n"
-                        "Чтобы возобновить работу VPN, необходимо продлить подписку✅"
-                    ),
-                    reply_markup=build_renewal_kb(),
-                )
+
         except TelegramBadRequest as e:
             error_msg = f"Ошибка при отправке сообщения пользователю {tg_id}: {e}"
             logger.error(error_msg)
