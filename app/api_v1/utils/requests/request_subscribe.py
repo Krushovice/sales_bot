@@ -7,7 +7,7 @@ from aiogram.types import FSInputFile
 from aiogram.exceptions import TelegramBadRequest
 
 
-from app.api_v1.orm import AsyncOrm
+from app.api_v1.orm import AsyncOrm, User
 
 from app.api_v1.utils.tools import send_logs_email
 
@@ -23,7 +23,7 @@ file_path = "app/api_v1/utils/images/image2.jpg"
 logger = setup_logger(__name__)
 
 
-def check_user_expiration(user):
+def check_user_expiration(user: User):
     current_date = datetime.datetime.now().date()
     expiration_date = datetime.datetime.strptime(
         user.expiration_date,
@@ -60,10 +60,9 @@ async def check_subscription_expiry():
         logger.error(error_msg)
 
 
-async def schedule_next_check(bot: Bot):
+async def schedule_next_check():
     while True:
         await check_subscription_expiry()
-        await send_subscription_reminder(bot)
         await send_logs_email()
         await asyncio.sleep(24 * 3600)
 
@@ -71,6 +70,7 @@ async def schedule_next_check(bot: Bot):
 async def schedule_next_reminder(bot: Bot):
     while True:
         await send_reminder_for_inactive(bot)
+        await send_subscription_reminder(bot)
         await asyncio.sleep(72 * 3600)
 
 
@@ -86,7 +86,7 @@ async def send_subscription_reminder(bot: Bot) -> None:
                     ),
                     chat_id=tg_id,
                     caption=(
-                        "Привет! Напоминаю, что твоя подписка скоро закончится👋\n"
+                        f"Привет! Напоминаю, что твоя подписка закончится {user.expiration_date}👋\n"
                         "Не забудь пожалуйста произвести оплату, чтобы продолжить пользоваться VPN✅"
                     ),
                     reply_markup=build_renewal_kb(),
