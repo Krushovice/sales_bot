@@ -3,7 +3,7 @@ import asyncio
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from aiogram.client.default import DefaultBotProperties
+
 
 from app.api_v1.routers import router as main_router
 from app.api_v1.admin import router as admin_router
@@ -17,7 +17,7 @@ from app.api_v1.utils import (
 
 
 async def check_users(bot: Bot):
-    task1 = asyncio.create_task(schedule_next_check())
+    task1 = asyncio.create_task(schedule_next_check(bot))
     task2 = asyncio.create_task(schedule_next_reminder(bot))
     asyncio.gather(task1, task2)
 
@@ -27,10 +27,7 @@ async def main() -> None:
         logger = setup_logger(__name__)
 
         dp = Dispatcher()
-        bot = Bot(
-            token=settings.bot_token,
-            default=DefaultBotProperties(parse_mode=ParseMode.HTML),
-        )
+        bot = Bot(token=settings.bot_token, parse_mode=ParseMode.HTML)
         # Регистриуем роутеры в диспетчере
         dp.include_routers(
             main_router,
