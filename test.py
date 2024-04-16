@@ -128,12 +128,11 @@ from app.api_v1.utils import outline_helper
 
 
 async def test():
-    date = set_expiration_date(
-        duration=1,
-        rest="20-04-2024",
-        is_referrer=True,
+
+    await AsyncOrm.update_user(
+        tg_id=1233456333,
+        subscribe_date="16-04-2024",
     )
-    print(date)
 
 
 if __name__ == "__main__":
