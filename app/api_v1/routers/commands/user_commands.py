@@ -48,7 +48,7 @@ async def user_promo_handler(message: Message) -> None:
             ),
             caption=(
                 "Вот ваш пробный ключ \n"
-                f"<pre>{key.access_url}</pre>"
+                f"<code>{key.access_url}</code>"
                 "👆Нажмите чтобы скопировать"
             ),
             reply_markup=root_kb(),
