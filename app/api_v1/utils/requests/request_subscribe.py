@@ -148,13 +148,13 @@ async def send_reminder_for_inactive(bot: Bot) -> None:
         "единоразовая скидка в 5%."
     )
     for user in users:
+        tg_id = user.tg_id
         try:
-
             await bot.send_photo(
                 photo=FSInputFile(
                     path=file_path,
                 ),
-                chat_id=user.tg_id,
+                chat_id=tg_id,
                 caption=text,
                 reply_markup=build_renewal_kb(need_help=True),
             )
