@@ -160,5 +160,5 @@ async def send_reminder_for_inactive(bot: Bot) -> None:
             )
 
         except TelegramBadRequest as e:
-            error_msg = f"Ошибка при отправке сообщения пользователю {tg_id}: {e}"
+            error_msg = f"Ошибка при отправке сообщения пользователю {user.tg_id}: {e}"
             logger.error(error_msg)
