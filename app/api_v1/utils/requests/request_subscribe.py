@@ -4,7 +4,7 @@ import datetime
 
 from aiogram import Bot
 from aiogram.types import FSInputFile
-from aiogram.exceptions import TelegramBadRequest
+from aiogram.exceptions import TelegramForbiddenError, TelegramAPIError
 
 
 from app.api_v1.orm import AsyncOrm, User
@@ -24,26 +24,28 @@ logger = setup_logger(__name__)
 
 
 def check_user_expiration(user: User) -> bool:
-    current_date = datetime.datetime.now().date()
-    expiration_date = datetime.datetime.strptime(
-        user.expiration_date,
-        "%d-%m-%Y",
-    ).date()
-    delta = expiration_date - current_date
-    if 0 < delta.days <= 3:
-        return True
+    if user.expiration_date:
+        current_date = datetime.datetime.now().date()
+        expiration_date = datetime.datetime.strptime(
+            user.expiration_date,
+            "%d-%m-%Y",
+        ).date()
+        delta = expiration_date - current_date
+        if 0 < delta.days <= 3:
+            return True
     return False
 
 
 def check_user_for_sub_ended(user: User) -> bool:
-    current_date = datetime.datetime.now().date()
-    expiration_date = datetime.datetime.strptime(
-        user.expiration_date,
-        "%d-%m-%Y",
-    ).date()
-    delta = expiration_date - current_date
-    if delta.days < 0:
-        return True
+    if user.expiration_date:
+        current_date = datetime.datetime.now().date()
+        expiration_date = datetime.datetime.strptime(
+            user.expiration_date,
+            "%d-%m-%Y",
+        ).date()
+        delta = expiration_date - current_date
+        if delta.days < 0:
+            return True
     return False
 
 
@@ -69,7 +71,7 @@ async def check_subscription_expiry():
                         outline_helper.set_key_limit(key_id=user.key.api_id)
             else:
                 # Если expiration_date равен None, пропускаем этого пользователя
-                logger.info(f"User {user.id} has no subscription expiration date set.")
+                logger.error(f"User {user.id} has no subscription expiration date set.")
 
     except Exception as e:
         error_msg = f"An error occurred in check_subscription_expiry: {e}"
@@ -109,8 +111,13 @@ async def send_subscription_reminder(bot: Bot) -> None:
                     reply_markup=build_renewal_kb(),
                 )
 
-        except TelegramBadRequest as e:
+        except TelegramAPIError as e:
             error_msg = f"Ошибка при отправке сообщения пользователю {tg_id}: {e}"
+            logger.error(error_msg)
+
+        except Exception as e:
+            # Обработка других неожиданных исключений
+            error_msg = f"Необработанное исключение при отправке сообщения пользователю {tg_id}: {e}"
             logger.error(error_msg)
 
 
@@ -132,8 +139,19 @@ async def weed_out_active_users(bot: Bot) -> None:
                     reply_markup=build_renewal_kb(),
                 )
 
-        except TelegramBadRequest as e:
+        except TelegramForbiddenError as e:
+            # Обработка исключения TelegramForbiddenError (пользователь заблокировал бота)
+            error_msg = f"Пользователь {tg_id} заблокировал бота: {e}"
+            logger.warning(error_msg)
+
+        except TelegramAPIError as e:
+            # Обработка других исключений API Telegram
             error_msg = f"Ошибка при отправке сообщения пользователю {tg_id}: {e}"
+            logger.error(error_msg)
+
+        except Exception as e:
+            # Обработка других неожиданных исключений
+            error_msg = f"Необработанное исключение при отправке сообщения пользователю {tg_id}: {e}"
             logger.error(error_msg)
 
 
@@ -149,7 +167,9 @@ async def send_reminder_for_inactive(bot: Bot) -> None:
     )
     for user in users:
         tg_id = user.tg_id
+
         try:
+
             await bot.send_photo(
                 photo=FSInputFile(
                     path=file_path,
@@ -159,6 +179,17 @@ async def send_reminder_for_inactive(bot: Bot) -> None:
                 reply_markup=build_renewal_kb(need_help=True),
             )
 
-        except TelegramBadRequest as e:
-            error_msg = f"Ошибка при отправке сообщения пользователю {user.tg_id}: {e}"
+        except TelegramForbiddenError as e:
+            error_msg = f"Пользователь {tg_id} заблокировал бота: {e}"
+            logger.error(error_msg)
+            await AsyncOrm.delete_user(tg_id=tg_id)
+
+        except TelegramAPIError as e:
+            # Обработка других исключений API Telegram
+            error_msg = f"Ошибка при отправке сообщения пользователю {tg_id}: {e}"
+            logger.error(error_msg)
+
+        except Exception as e:
+            # Обработка других неожиданных исключений
+            error_msg = f"Необработанное исключение при отправке сообщения пользователю {tg_id}: {e}"
             logger.error(error_msg)
