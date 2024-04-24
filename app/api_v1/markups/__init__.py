@@ -19,6 +19,7 @@ __all__ = (
     "build_questions_kb",
     "back_to_payment",
     "build_account_menu",
+    "vpn_choice_kb",
 )
 
 from .account_kb import (
@@ -37,6 +38,7 @@ from .main_kb import (
     build_back_info_kb,
     build_questions_kb,
     build_account_menu,
+    vpn_choice_kb,
 )
 
 from .payment_kb import (

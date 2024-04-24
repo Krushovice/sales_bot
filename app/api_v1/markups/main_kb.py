@@ -17,6 +17,8 @@ class MenuActions(IntEnum):
     questions = auto()
     back_to_help = auto()
     back_root = auto()
+    outline = auto()
+    vless = auto()
 
 
 class MenuCbData(CallbackData, prefix="main"):
@@ -85,6 +87,24 @@ def build_account_menu() -> InlineKeyboardMarkup:
     builder.button(
         text="В личный кабинет➡️",
         callback_data=MenuCbData(action=MenuActions.account).pack(),
+    )
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def vpn_choice_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Outline VPN ♻️",
+        callback_data=MenuCbData(action=MenuActions.outline).pack(),
+    )
+    builder.button(
+        text="Vless Reality VPN 🔐",
+        callback_data=MenuCbData(action=MenuActions.vless).pack(),
+    )
+    builder.button(
+        text="Назад в меню 🔙",
+        callback_data=MenuCbData(action=MenuActions.back_root).pack(),
     )
     builder.adjust(1)
     return builder.as_markup()

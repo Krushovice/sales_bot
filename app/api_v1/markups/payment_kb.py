@@ -17,6 +17,7 @@ class ProductActions(IntEnum):
     back_to_choice = auto()
     back_to_root = auto()
     back_to_pay = auto()
+    back_to_vpn_choice = auto()
 
 
 class PaymentCbData(CallbackData, prefix="pay"):
@@ -31,7 +32,10 @@ class ProductCbData(CallbackData, prefix="product"):
     price: int | None = None
 
 
-def build_payment_kb(discount: bool = False) -> InlineKeyboardMarkup:
+def build_payment_kb(
+    discount: bool = False,
+    from_vpn_choice: bool = False,
+) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     if discount:
         for name, price in [
@@ -48,6 +52,7 @@ def build_payment_kb(discount: bool = False) -> InlineKeyboardMarkup:
                     price=price,
                 ),
             )
+
     else:
         for name, price in [
             ("150р - 1мес🔹", 150),
@@ -64,11 +69,20 @@ def build_payment_kb(discount: bool = False) -> InlineKeyboardMarkup:
                 ),
             )
 
-    builder.button(
-        text="Назад🔙",
-        callback_data=PaymentCbData(action=PayActions.back_to_account).pack(),
-    )
-
+    if not from_vpn_choice:
+        builder.button(
+            text="Назад🔙",
+            callback_data=PaymentCbData(
+                action=PayActions.back_to_account,
+            ).pack(),
+        )
+    else:
+        builder.button(
+            text="Назад🔙",
+            callback_data=ProductCbData(
+                action=ProductActions.back_to_vpn_choice,
+            ).pack(),
+        )
     builder.adjust(1)
 
     return builder.as_markup()

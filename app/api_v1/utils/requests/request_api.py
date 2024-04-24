@@ -42,3 +42,7 @@ outline_helper = OutlineHelper(
     api_url=settings.OUTLINE_API_URL,
     cert_sha256=settings.OUTLINE_SHA_CERT,
 )
+
+
+class VlessVpnHelper:
+    pass

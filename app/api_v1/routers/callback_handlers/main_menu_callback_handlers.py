@@ -11,12 +11,15 @@ from app.api_v1.markups import (
     ProfileCbData,
     PayActions,
     PaymentCbData,
+    ProductCbData,
+    ProductActions,
     build_account_kb,
     root_kb,
     build_payment_kb,
     build_main_kb,
     build_questions_kb,
     build_back_info_kb,
+    vpn_choice_kb,
 )
 
 from app.api_v1.utils import LEXICON_RU
@@ -87,15 +90,59 @@ async def handle_promo_button(call: CallbackQuery):
 async def handle_pay_action_button(
     call: CallbackQuery,
 ):
-    try:
-        await call.answer()
-        await call.message.edit_caption(
-            caption="💰 Варианты оплаты подписки: ⬇️",
-            reply_markup=build_payment_kb(),
-        )
 
-    except Exception as e:
-        logger.error(f"Ошибка оплаты: {e}")
+    await call.answer()
+    await call.message.edit_caption(
+        caption="Какой VPN вы выберите? 🛡",
+        reply_markup=vpn_choice_kb(),
+    )
+
+
+@router.callback_query(MenuCbData.filter(F.action == MenuActions.outline))
+async def handle_outline_button(
+    call: CallbackQuery,
+):
+    await call.answer()
+    """Here should update user and add info which vpn did he choice"""
+    await call.message.edit_caption(
+        caption=(
+            "Вы выбрали Outline Vpn ♻️\n"
+            "Давайте определимся с оплатой 💰\n"
+            "Ниже представлены варианты оплаты⬇️"
+        ),
+        reply_markup=build_payment_kb(from_vpn_choice=True),
+    )
+
+
+@router.callback_query(MenuCbData.filter(F.action == MenuActions.vless))
+async def handle_vless_button(
+    call: CallbackQuery,
+):
+    await call.answer()
+    """Here should update user and add info which vpn did he choice"""
+    await call.message.edit_caption(
+        caption=(
+            "Вы выбрали Vless Reality VPN 🔐\n"
+            "Давайте определимся с оплатой 💰\n"
+            "Ниже представлены варианты оплаты⬇️"
+        ),
+        reply_markup=build_payment_kb(from_vpn_choice=True),
+    )
+
+
+@router.callback_query(
+    ProductCbData.filter(
+        F.action == ProductActions.back_to_vpn_choice,
+    )
+)
+async def handle_back_to_vpn_choice_button(
+    call: CallbackQuery,
+):
+    await call.answer()
+    await call.message.edit_caption(
+        caption="Какой VPN вы выберите? 🛡",
+        reply_markup=vpn_choice_kb(),
+    )
 
 
 @router.callback_query(MenuCbData.filter(F.action == MenuActions.advantage))
