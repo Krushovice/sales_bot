@@ -95,11 +95,11 @@ def build_account_menu() -> InlineKeyboardMarkup:
 def vpn_choice_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(
-        text="Outline VPN ♻️",
+        text="Outline VPN(Нидерланды)♻️",
         callback_data=MenuCbData(action=MenuActions.outline).pack(),
     )
     builder.button(
-        text="Vless Reality VPN 🔐",
+        text="Vless Reality VPN() 🔐",
         callback_data=MenuCbData(action=MenuActions.vless).pack(),
     )
     builder.button(
