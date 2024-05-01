@@ -4,6 +4,7 @@ import hashlib
 import datetime
 
 from app.api_v1.utils.logging import setup_logger
+from app.api_v1.orm import AsyncOrm, User
 
 from app.api_v1.config import settings
 
@@ -114,3 +115,26 @@ def check_payment_date(data: str) -> bool:
 
 def check_payment(payment) -> bool:
     return True if payment["Status"] == "CONFIRMED" else False
+
+
+async def working_with_referral(
+    referrer_user: User,
+    payment_duration: int,
+) -> None:
+    exp_date = referrer_user.expiration_date
+    referrer_user_expiration = set_expiration_date(
+        duration=payment_duration,
+        rest=exp_date if exp_date else None,
+        is_referrer=True,
+    )
+    if referrer_user.discount == 5:
+        await AsyncOrm.update_user(
+            tg_id=referrer_user.tg_id,
+            expiration_date=referrer_user_expiration,
+        )
+    else:
+        await AsyncOrm.update_user(
+            tg_id=referrer_user.tg_id,
+            discount=5,
+            expiration_date=referrer_user_expiration,
+        )

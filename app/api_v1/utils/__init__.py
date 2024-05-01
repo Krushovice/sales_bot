@@ -12,11 +12,14 @@ __all__ = (
     "get_receipt",
     "create_token",
     "check_payment",
+    "working_with_referral",
     "get_subscribe_info",
     "check_for_referral",
     "count_active_referrals",
     "send_reminder_for_inactive",
     "send_logs_email",
+    "InitPayException",
+    "PaymentCheckException",
 )
 
 
@@ -28,6 +31,7 @@ from .payment import (
     get_receipt,
     create_token,
     check_payment,
+    working_with_referral,
 )
 
 from .requests import (
@@ -41,6 +45,8 @@ from .requests import (
 from .logging import setup_logger
 
 from .lexicon import LEXICON_RU
+
+from .custom_exceptions import InitPayException, PaymentCheckException
 
 from .tools import (
     get_subscribe_info,

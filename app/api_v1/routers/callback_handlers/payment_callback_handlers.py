@@ -27,9 +27,12 @@ from app.api_v1.utils import (
     payment_manager,
     set_expiration_date,
     get_duration,
+    working_with_referral,
     get_receipt,
     generate_order_number,
     check_payment,
+    InitPayException,
+    PaymentCheckException,
 )
 from app.api_v1.utils.logging import setup_logger
 
@@ -125,8 +128,8 @@ async def handle_product_actions__button(
                 ),
             )
 
-    except Exception as e:
-        logger.error(f"Ошибка перехода к платежу: {e}")
+    except InitPayException as e:
+        logger.error(f"Ошибка инициализации платежа у юзера {user.tg_id}: {e}")
 
 
 @router.callback_query(
@@ -151,127 +154,122 @@ async def handle_success_button(
 ):
 
     payment_id = callback_data.payment_id
-
+    await call.answer()
     try:
         tg_id = call.from_user.id
         user = await AsyncOrm.get_user(tg_id=tg_id)
-        payment = await payment_manager.check_payment_status(
-            payment_id=payment_id,
-        )
+        try:
+            payment = await payment_manager.check_payment_status(
+                payment_id=payment_id,
+            )
+        except PaymentCheckException as e:
+            logger.error(
+                f"Ошибка проверки cтатуса платежа на стороне тинькоф у пользователя {tg_id}: {e}"
+            )
         exp_date = user.expiration_date
-        await call.answer()
 
-        if payment["ErrorCode"] == "0":
-            if check_payment(payment):
-
-                payment_duration = get_duration(payment)
-
-                expiration = set_expiration_date(
-                    duration=payment_duration,
-                    rest=exp_date if exp_date else None,
-                )
-                today = datetime.datetime.today().strftime("%d-%m-%Y")
-                referrer_user = await AsyncOrm.get_referrer(tg_id=tg_id)
-                if referrer_user:
-                    exp_date = referrer_user.expiration_date
-                    referrer_user_expiration = set_expiration_date(
+        try:
+            if payment["ErrorCode"] == "0":
+                if check_payment(payment):
+                    payment_duration = get_duration(payment)
+                    expiration = set_expiration_date(
                         duration=payment_duration,
                         rest=exp_date if exp_date else None,
-                        is_referrer=True,
                     )
-                    if referrer_user.discount == 5:
-                        await AsyncOrm.update_user(
-                            tg_id=referrer_user.tg_id,
-                            expiration_date=referrer_user_expiration,
+                    today = datetime.datetime.today().strftime("%d-%m-%Y")
+                    referrer_user = await AsyncOrm.get_referrer(tg_id=tg_id)
+
+                    if referrer_user:
+                        await working_with_referral(
+                            referrer_user=referrer_user,
+                            payment_duration=payment_duration,
                         )
+                    if not user.key:
+                        key = outline_helper.create_new_key(name=tg_id)
+
+                        await AsyncOrm.update_user(
+                            tg_id=tg_id,
+                            subscription=True,
+                            subscribe_date=today,
+                            expiration_date=expiration,
+                            key=Key(
+                                api_id=int(key.key_id),
+                                name=key.name,
+                                user_id=user.id,
+                                value=key.access_url,
+                            ),
+                            payment=int(payment_id),
+                        )
+
+                        value = key.access_url
+                        msg = (
+                            "Подписка успешно оплачена, ваш ключ:\n"
+                            f"📌<code>{value}</code>\n"
+                            "Cпасибо что выбрали нас🫶🏻"
+                        )
+                        await call.message.edit_caption(
+                            caption=msg,
+                            reply_markup=build_account_kb(
+                                exp_date=user.expiration_date,
+                                is_key=True,
+                            ),
+                        )
+
                     else:
                         await AsyncOrm.update_user(
-                            tg_id=referrer_user.tg_id,
-                            discount=5,
-                            expiration_date=referrer_user_expiration,
+                            tg_id=tg_id,
+                            subscription=True,
+                            expiration_date=expiration,
+                            payment=int(payment_id),
                         )
-                if not user.key:
-                    key = outline_helper.create_new_key(name=tg_id)
 
-                    await AsyncOrm.update_user(
-                        tg_id=tg_id,
-                        subscription=True,
-                        subscribe_date=today,
-                        expiration_date=expiration,
-                        key=Key(
-                            api_id=int(key.key_id),
-                            name=key.name,
-                            user_id=user.id,
-                            value=key.access_url,
-                        ),
-                        payment=int(payment_id),
-                    )
-
-                    value = key.access_url
-                    msg = (
-                        "Подписка успешно оплачена, ваш ключ\n"
-                        f"📌<code>{value}</code>\n"
-                        "Пожалуйста, не скачивайте торрент-файлы через наш VPN.‼️ "
-                        "Сервер Outline может заблокировать наш сервис за это. "
-                        "Cпасибо за ваше понимание и за то, что выбрали нас🫶🏻"
-                    )
-                    await call.message.edit_caption(
-                        caption=msg,
-                        reply_markup=build_account_kb(
-                            exp_date=user.expiration_date,
-                            is_key=True,
-                        ),
-                    )
+                        outline_helper.remove_key_limit(key_id=user.key.api_id)
+                        await call.message.edit_caption(
+                            caption="Подписка оплачена, доступ не ограничен 🛜",
+                            reply_markup=build_account_kb(
+                                exp_date=expiration,
+                                is_key=True,
+                            ),
+                        )
 
                 else:
-
-                    await AsyncOrm.update_user(
-                        tg_id=tg_id,
-                        subscription=True,
-                        expiration_date=expiration,
-                        payment=int(payment_id),
-                    )
-
-                    outline_helper.remove_key_limit(key_id=user.key.api_id)
-                    await call.message.edit_caption(
-                        caption="Подписка оплачена, доступ не ограничен 🛜",
-                        reply_markup=build_account_kb(
-                            exp_date=expiration,
-                            is_key=True if user.key else False,
+                    await call.message.answer_photo(
+                        photo=FSInputFile(
+                            path=file_path,
+                        ),
+                        caption="Платеж вероятно всё еще обрабатывается, попробуйте\n"
+                        "немного позже ⏳",
+                        reply_markup=product_details_kb(
+                            payment_cb_data=payment,
+                            success=True,
                         ),
                     )
-
             else:
-                await call.message.answer_photo(
-                    photo=FSInputFile(
-                        path=file_path,
-                    ),
-                    caption="Платеж вероятно всё еще обрабатывается, попробуйте\n"
-                    "немного позже ⏳",
+                price = callback_data.price
+                discount = user.discount if user.discount else 0
+                total = int(price - (price * discount / 100))
+                payment = await payment_manager.init_payment(
+                    amount=total * 100,
+                    order_id=generate_order_number(),
+                    description=f"Оплата пользователя № {tg_id}",
+                    receipt=get_receipt(price=price),
+                )
+                await call.message.edit_caption(
+                    caption="Возникла ошибка при выполнении платежа,\n"
+                    "Попробуйте немного позже",
                     reply_markup=product_details_kb(
                         payment_cb_data=payment,
-                        success=True,
                     ),
                 )
-        else:
-            price = callback_data.price
-            discount = user.discount if user.discount else 0
-            total = int(price - (price * discount / 100))
-            payment = await payment_manager.init_payment(
-                amount=total * 100,
-                order_id=generate_order_number(),
-                description=f"Оплата пользователя № {tg_id}",
-                receipt=get_receipt(price=price),
-            )
-            await call.message.edit_caption(
-                caption="Возникла ошибка при выполнении платежа,\n"
-                "Попробуйте немного позже",
-                reply_markup=product_details_kb(
-                    payment_cb_data=payment,
-                ),
+                logger.error(
+                    f"Ошибка {payment['ErrorCode']}при проверке оплаты пользователя {tg_id}"
+                )
+        except PaymentCheckException as e:
+            logger.error(
+                f"Ошибка проверки платежа на стороне приложения у пользователя {tg_id}:{e}"
             )
     except Exception as e:
-        logger.error(f"Ошибка проверки платежа: {e}")
+        logger.error(f"Неизвестная ошибка:{e}")
 
 
 @router.callback_query(
