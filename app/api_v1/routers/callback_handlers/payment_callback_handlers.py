@@ -269,7 +269,7 @@ async def handle_success_button(
                 ),
             )
     except Exception as e:
-        logger.error(f"Ошибка проверки платежа: {e}")
+        logger.error(f"Ошибка проверки платежа пользователя {tg_id}: {e}")
 
 
 @router.callback_query(

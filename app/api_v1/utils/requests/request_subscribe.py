@@ -90,7 +90,7 @@ async def schedule_next_reminder(bot: Bot):
         await send_reminder_for_inactive(bot)
         await send_subscription_reminder(bot)
         await weed_out_active_users(bot)
-        await asyncio.sleep(72 * 3600)
+        await asyncio.sleep(120 * 3600)
 
 
 async def send_subscription_reminder(bot: Bot) -> None:
