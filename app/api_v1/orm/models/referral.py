@@ -1,7 +1,7 @@
 from typing import Annotated, TYPE_CHECKING
 from .base import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, BigInteger
 
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class Referral(Base):
     __tablename__ = "referrals"
     id: Mapped[intpk]
-    tg_id: Mapped[int] = mapped_column(unique=True)
+    tg_id: Mapped[int] = mapped_column(BigInteger(), unique=True)
 
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"),
