@@ -78,21 +78,6 @@ async def check_subscription_expiry():
         logger.error(error_msg)
 
 
-async def schedule_next_check():
-    while True:
-        await check_subscription_expiry()
-        await send_logs_email()
-        await asyncio.sleep(24 * 3600)
-
-
-async def schedule_next_reminder(bot: Bot):
-    while True:
-        await send_reminder_for_inactive(bot)
-        await send_subscription_reminder(bot)
-        await weed_out_active_users(bot)
-        await asyncio.sleep(120 * 3600)
-
-
 async def send_subscription_reminder(bot: Bot) -> None:
     users = await AsyncOrm.get_users_by_subscription()
     for user in users:
@@ -193,3 +178,23 @@ async def send_reminder_for_inactive(bot: Bot) -> None:
             # Обработка других неожиданных исключений
             error_msg = f"Необработанное исключение при отправке сообщения пользователю {tg_id}: {e}"
             logger.error(error_msg)
+
+
+async def schedule_next_check():
+    while True:
+        await check_subscription_expiry()
+        await send_logs_email()
+        await asyncio.sleep(24 * 3600)
+
+
+async def schedule_next_reminder(bot: Bot):
+    while True:
+        await send_reminder_for_inactive(bot)
+        await weed_out_active_users(bot)
+        await asyncio.sleep(168 * 3600)
+
+
+async def schedule_riminder_to_subs(bot: Bot):
+    while True:
+        await send_subscription_reminder(bot)
+        await asyncio.sleep(72 * 3600)
