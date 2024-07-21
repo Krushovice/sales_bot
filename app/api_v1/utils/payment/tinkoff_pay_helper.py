@@ -33,10 +33,15 @@ class PaymentManager:
         }
 
         token = generate_token(
-            data=data,
+            data={
+                "TerminalKey": self.terminal_key,
+                "Amount": amount,
+                "OrderId": order_id,
+                "Description": description,
+            },
             password=self.secret_key,
         )
-        data.update({"Token": token})
+        data["Token"] = token
 
         async with aiohttp.ClientSession() as session:
             async with session.post(

@@ -83,18 +83,20 @@ def create_token(payment_id):
 
 def generate_token(data, password):
     # Конвертация словаря в отсортированный список кортежей (ключ, значение)
+
+    data["Password"] = password
+
     sorted_data = sorted(data.items(), key=lambda x: x[0])
 
     # Конкатенация значений пар в одну строку
-    concatenated_values = "".join([str(value) for key, value in sorted_data])
+    concatenated_values = "".join([str(value) for _, value in sorted_data])
 
-    # Добавление пароля к конкатенированным значениям
-    concatenated_values += password
+
 
     # Применение хеш-функции SHA-256
-    hashed_token = hashlib.sha256(concatenated_values.encode()).hexdigest()
+    hashed_token = hashlib.sha256(concatenated_values.encode("utf-8")).hexdigest()
 
-    return hashed_token
+    return str(hashed_token)
 
 
 def check_payment_date(data: str) -> bool:
