@@ -6,6 +6,7 @@ __all__ = (
     "get_receipt",
     "create_token",
     "check_payment",
+    "generate_token",
 )
 
 
@@ -18,4 +19,5 @@ from .payment_details import (
     get_receipt,
     create_token,
     check_payment,
+    generate_token
 )

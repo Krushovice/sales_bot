@@ -126,7 +126,7 @@ async def handle_product_actions__button(
             )
 
     except Exception as e:
-        logger.error(f"Ошибка перехода к платежу: {e}")
+        logger.error(f"Ошибка перехода к платежу: {e}. {payment}")
 
 
 @router.callback_query(

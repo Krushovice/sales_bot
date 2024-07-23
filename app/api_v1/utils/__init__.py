@@ -11,6 +11,7 @@ __all__ = (
     "payment_manager",
     "get_receipt",
     "create_token",
+    "generate_token",
     "check_payment",
     "get_subscribe_info",
     "check_for_referral",
@@ -28,6 +29,7 @@ from .payment import (
     get_receipt,
     create_token,
     check_payment,
+    generate_token,
 )
 
 from .requests import (

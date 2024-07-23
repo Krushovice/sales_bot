@@ -33,12 +33,7 @@ class PaymentManager:
         }
 
         token = generate_token(
-            data={
-                "TerminalKey": self.terminal_key,
-                "Amount": amount,
-                "OrderId": order_id,
-                "Description": description,
-            },
+            data=data,
             password=self.secret_key,
         )
         data["Token"] = token
