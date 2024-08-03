@@ -180,6 +180,36 @@ async def send_reminder_for_inactive(bot: Bot) -> None:
             logger.error(error_msg)
 
 
+async def send_youtube_message(bot: Bot) -> None:
+    users = await AsyncOrm.get_inactive_users()
+    for user in users:
+        try:
+            tg_id = user.tg_id
+            await bot.send_photo(
+                photo=FSInputFile(
+                    path=file_path,
+                ),
+                chat_id=tg_id,
+                caption="Не работает или тормозит Youtube? Ты знаешь что делать✅",
+                reply_markup=build_renewal_kb(),
+            )
+
+        except TelegramForbiddenError as e:
+            # Обработка исключения TelegramForbiddenError (пользователь заблокировал бота)
+            error_msg = f"Пользователь {tg_id} заблокировал бота: {e}"
+            logger.warning(error_msg)
+
+        except TelegramAPIError as e:
+            # Обработка других исключений API Telegram
+            error_msg = f"Ошибка при отправке сообщения пользователю {tg_id}: {e}"
+            logger.error(error_msg)
+
+        except Exception as e:
+            # Обработка других неожиданных исключений
+            error_msg = f"Необработанное исключение при отправке сообщения пользователю {tg_id}: {e}"
+            logger.error(error_msg)
+
+
 async def schedule_next_check():
     while True:
         await check_subscription_expiry()
@@ -191,10 +221,13 @@ async def schedule_next_reminder(bot: Bot):
     while True:
         await send_reminder_for_inactive(bot)
         await weed_out_active_users(bot)
+
         await asyncio.sleep(168 * 3600)
 
 
 async def schedule_riminder_to_subs(bot: Bot):
     while True:
         await send_subscription_reminder(bot)
+        await asyncio.sleep(1 * 3600)
+        await send_youtube_message(bot)
         await asyncio.sleep(72 * 3600)
