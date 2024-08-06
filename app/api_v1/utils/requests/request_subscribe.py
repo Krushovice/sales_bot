@@ -219,6 +219,8 @@ async def schedule_next_check():
 
 async def schedule_next_reminder(bot: Bot):
     while True:
+	await send_youtube_message(bot)
+	await asyncio.sleep(24 * 3600)
         await send_reminder_for_inactive(bot)
         await weed_out_active_users(bot)
 
@@ -228,6 +230,4 @@ async def schedule_next_reminder(bot: Bot):
 async def schedule_riminder_to_subs(bot: Bot):
     while True:
         await send_subscription_reminder(bot)
-        await asyncio.sleep(1 * 3600)
-        await send_youtube_message(bot)
         await asyncio.sleep(72 * 3600)
