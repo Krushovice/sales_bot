@@ -81,8 +81,8 @@ async def check_subscription_expiry():
 async def send_subscription_reminder(bot: Bot) -> None:
     users = await AsyncOrm.get_users_by_subscription()
     for user in users:
+        tg_id = user.tg_id
         try:
-            tg_id = user.tg_id
             if check_user_expiration(user):
                 await bot.send_photo(
                     photo=FSInputFile(
@@ -183,8 +183,8 @@ async def send_reminder_for_inactive(bot: Bot) -> None:
 async def send_youtube_message(bot: Bot) -> None:
     users = await AsyncOrm.get_inactive_users()
     for user in users:
+        tg_id = user.tg_id
         try:
-            tg_id = user.tg_id
             await bot.send_photo(
                 photo=FSInputFile(
                     path=file_path,
@@ -223,11 +223,6 @@ async def schedule_next_reminder(bot: Bot):
         await asyncio.sleep(24 * 3600)
         await send_reminder_for_inactive(bot)
         await weed_out_active_users(bot)
-
-        await asyncio.sleep(168 * 3600)
-
-
-async def schedule_riminder_to_subs(bot: Bot):
-    while True:
+        await asyncio.sleep(6 * 3600)
         await send_subscription_reminder(bot)
         await asyncio.sleep(72 * 3600)
