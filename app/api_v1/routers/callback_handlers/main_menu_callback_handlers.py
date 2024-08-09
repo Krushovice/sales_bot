@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from aiogram import Router, F
 from aiogram.utils import markdown
 from aiogram.types import CallbackQuery
@@ -19,7 +21,7 @@ from app.api_v1.markups import (
     build_back_info_kb,
 )
 
-from app.api_v1.utils import LEXICON_RU
+from app.api_v1.utils import LEXICON_RU, check_time_delta
 from app.api_v1.utils.logging import setup_logger
 
 router = Router(name=__name__)
@@ -33,13 +35,14 @@ async def handle_account_button(call: CallbackQuery):
         user = await AsyncOrm.get_user(
             tg_id=call.from_user.id,
         )
-        subscribe = user.expiration_date
 
-        if subscribe:
-            sub_info = f"Активна до {subscribe}"
+        if check_time_delta(date=user.expiration_date):
+            sub_info = f"Активна до {user.expiration_date}"
         else:
             sub_info = "Не активна"
+
         discount = user.discount if user.discount else 0
+
         url = markdown.hlink(
             "Ссылка",
             f"https://t.me/Real_vpnBot?start={user.tg_id}",

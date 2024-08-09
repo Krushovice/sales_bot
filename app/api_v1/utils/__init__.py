@@ -1,5 +1,6 @@
 __all__ = (
     "set_expiration_date",
+    "check_time_delta",
     "get_duration",
     "outline_helper",
     "schedule_next_check",
@@ -23,6 +24,7 @@ __all__ = (
 
 from .payment import (
     set_expiration_date,
+    check_time_delta,
     get_duration,
     generate_order_number,
     payment_manager,

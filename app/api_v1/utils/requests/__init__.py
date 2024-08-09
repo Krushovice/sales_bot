@@ -5,7 +5,6 @@ __all__ = (
     "check_user_expiration",
     "send_reminder_for_inactive",
     "weed_out_active_users",
-    "schedule_riminder_to_subs",
 )
 
 from .request_api import outline_helper
@@ -15,5 +14,4 @@ from .request_subscribe import (
     send_reminder_for_inactive,
     schedule_next_reminder,
     weed_out_active_users,
-    schedule_riminder_to_subs,
 )

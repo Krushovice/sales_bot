@@ -7,7 +7,6 @@ from aiogram.client.default import DefaultBotProperties
 
 from app.api_v1.routers import router as main_router
 from app.api_v1.admin import router as admin_router
-from app.api_v1.orm import create_tables
 from app.api_v1.config import settings
 from app.api_v1.utils import (
     schedule_next_check,
@@ -23,8 +22,9 @@ async def check_users(bot: Bot):
 
 
 async def main() -> None:
+    logger = setup_logger(__name__)
+
     try:  # Конфигурируем логирование
-        logger = setup_logger(__name__)
 
         dp = Dispatcher()
         bot = Bot(
