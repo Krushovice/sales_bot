@@ -46,7 +46,9 @@ def calculate_expiration_date(
     return expiration_date
 
 
-def check_time_delta(date: str) -> bool:
+def check_time_delta(date: str | None) -> bool:
+    if not date:
+        return False
     today = datetime.datetime.today().date()
     rest_of_sub = datetime.datetime.strptime(date, "%d-%m-%Y").date()
     delta = (rest_of_sub - today).days
