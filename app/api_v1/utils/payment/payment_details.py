@@ -20,25 +20,54 @@ def generate_order_number():
     return order_number
 
 
+def calculate_expiration_date(
+        date: str | None = None,
+        duration: int | None = None,
+        flag: bool = False,
+) -> str:
+    today = datetime.datetime.today().date()
+    if flag:
+        delta = datetime.timedelta(days=7)
+        expiration_date = (today + delta).strftime("%d-%m-%Y")
+        return expiration_date
+
+    else:
+        days = 31 * duration
+    rest_of_sub = datetime.datetime.strptime(date, "%d-%m-%Y").date()
+    expiration = (rest_of_sub - today).days
+
+    if expiration > 0:
+        delta = datetime.timedelta(days=days + int(expiration))
+    else:
+        delta = datetime.timedelta(days=days)
+
+    expiration_date = (today + delta).strftime("%d-%m-%Y")
+
+    return expiration_date
+
+
+def check_time_delta(date: str) -> bool:
+    today = datetime.datetime.today().date()
+    rest_of_sub = datetime.datetime.strptime(date, "%d-%m-%Y").date()
+    delta = (rest_of_sub - today).days
+    if delta > 0:
+        return True
+    return False
+
+
 def set_expiration_date(
     duration: int,
     rest: str | None,
     is_referrer: bool = False,
 ) -> str:
-    today = datetime.datetime.today().date()
 
-    if rest and datetime.datetime.strptime(rest, "%d-%m-%Y").date() > today:
-        expiration = datetime.datetime.strptime(rest, "%d-%m-%Y").date()
-        result = expiration - today
-        rest = result.days
-        days = 31 * duration if not is_referrer else duration * 7
-        delta = datetime.timedelta(days=days + int(rest))
-        expiration_date = (today + delta).strftime("%d-%m-%Y")
-        return expiration_date
+    if rest:
+        if not is_referrer:
+            return calculate_expiration_date(rest, duration)
+        return calculate_expiration_date(flag=True)
+
     else:
-        days = 31 * duration if not is_referrer else duration * 7
-        expiration = today + datetime.timedelta(days=days)
-        return expiration.strftime("%d-%m-%Y")
+        return calculate_expiration_date(duration=duration)
 
 
 def get_duration(payment) -> int:
@@ -46,7 +75,7 @@ def get_duration(payment) -> int:
         if 7500 <= payment["Amount"] <= 15000:
             return 1
 
-        elif 13500 <= payment["Amount"] <= 27000:
+        elif 20000 <= payment["Amount"] <= 40000:
             return 2
 
         else:

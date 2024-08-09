@@ -36,8 +36,8 @@ def build_payment_kb(discount: bool = False) -> InlineKeyboardMarkup:
     if discount:
         for name, price in [
             ("142р - 1мес🔹", 142),
-            ("256р - 2мес🔸", 256),
-            ("370р - 3мес🔻", 370),
+            ("380р - 3мес🔸", 380),
+            ("760р - 6мес🔻", 760),
         ]:
 
             builder.button(
@@ -51,8 +51,8 @@ def build_payment_kb(discount: bool = False) -> InlineKeyboardMarkup:
     else:
         for name, price in [
             ("150р - 1мес🔹", 150),
-            ("270р - 2мес🔸", 270),
-            ("390р - 3мес🔻", 390),
+            ("400р - 3мес🔸", 400),
+            ("800р - 6мес🔻", 800),
         ]:
 
             builder.button(

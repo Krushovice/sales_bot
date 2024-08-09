@@ -30,6 +30,7 @@ from app.api_v1.utils import (
     get_receipt,
     generate_order_number,
     check_payment,
+    check_time_delta,
 )
 from app.api_v1.utils.logging import setup_logger
 
@@ -52,10 +53,8 @@ async def handle_back_button(call: CallbackQuery):
         tg_id=call.from_user.id,
     )
 
-    subscribe = user.expiration_date
-
-    if subscribe:
-        sub_info = f"Активна до {subscribe}"
+    if check_time_delta(date=user.expiration_date):
+        sub_info = f"Активна до {user.expiration_date}"
     else:
         sub_info = "Не активна"
 
@@ -151,9 +150,9 @@ async def handle_success_button(
 ):
 
     payment_id = callback_data.payment_id
-
+    tg_id = call.from_user.id
     try:
-        tg_id = call.from_user.id
+
         user = await AsyncOrm.get_user(tg_id=tg_id)
         payment = await payment_manager.check_payment_status(
             payment_id=payment_id,
@@ -208,11 +207,10 @@ async def handle_success_button(
                     )
 
                     value = key.access_url
-                    msg = (
-                        "Подписка успешно оплачена, ваш ключ\n"
-                        f"📌<pre>{value}</pre>\n"
-                        "Cкопируйте его ✅\n",
-                    )
+                    msg = ("Подписка успешно оплачена, ваш ключ\n"
+                           f"📌<pre>{value}</pre>\n"
+                           "Cкопируйте его ✅\n")
+
                     await call.message.edit_caption(
                         caption=msg,
                         reply_markup=build_account_kb(
