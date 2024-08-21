@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     DB_URL: str
     BOT_TOKEN: str
     ECHO: bool = False
+    DEBUG: bool = True
     TINKOFF_TERMINAL_KEY: str
     TINKOFF_PROD_TERMINAL_KEY: str
     TINKOFF_PROD_SECRET: str
@@ -24,10 +25,6 @@ class Settings(BaseSettings):
     @property
     def bot_token(self) -> str:
         return f"{self.BOT_TOKEN}"
-
-    @property
-    def get_tinkoff_token(self) -> str:
-        return f"{self.TINKOFF_TOKEN}"
 
     @property
     def test_tinkoff_secret(self) -> str:
