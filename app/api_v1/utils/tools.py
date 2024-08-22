@@ -8,9 +8,12 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from aiosmtplib import SMTP
 
-from app.api_v1.orm import User, AsyncOrm
+from app.api_v1.orm import User, AsyncOrm, Key
 
 from app.api_v1.config import settings
+
+from .payment import set_expiration_date
+from .requests import outline_helper
 
 
 async def count_active_referrals(tg_id: int) -> int:
@@ -46,6 +49,70 @@ def check_for_referral(message: Message) -> int:
         referral_id = int(target)
         return referral_id
     return False
+
+
+async def handle_referrer_user(referrer: User, duration: int) -> None:
+
+    exp_date = referrer.expiration_date
+
+    referrer_user_expiration = set_expiration_date(
+            duration=duration,
+            rest=exp_date,
+            is_referrer=True,
+        )
+    if referrer.discount == 5:
+        await AsyncOrm.update_user(
+            tg_id=referrer.tg_id,
+            expiration_date=referrer_user_expiration,
+            )
+    else:
+        await AsyncOrm.update_user(
+            tg_id=referrer.tg_id,
+            discount=5,
+            expiration_date=referrer_user_expiration,
+            )
+
+
+async def work_with_user_key(
+        tg_id: int,
+        expiration: str,
+        user: User,
+        payment_id: int,
+) -> str:
+    today = datetime.datetime.today().date()
+    if not user.key:
+        key = outline_helper.create_new_key(name=tg_id)
+
+        await AsyncOrm.update_user(
+            tg_id=tg_id,
+            subscription=True,
+            subscribe_date=today.strftime("%d-%m-%Y"),
+            expiration_date=expiration,
+            key=Key(
+                api_id=int(key.key_id),
+                name=key.name,
+                user_id=user.id,
+                value=key.access_url,
+            ),
+            payment=int(payment_id),
+        )
+
+        msg = ("Подписка успешно оплачена, ваш ключ\n"
+               f"📌<pre>{key.value}</pre>\n"
+               "Cкопируйте его ✅\n")
+    else:
+        await AsyncOrm.update_user(
+            tg_id=tg_id,
+            subscription=True,
+            subscribe_date=today.strftime("%d-%m-%Y"),
+            expiration_date=expiration,
+            payment=int(payment_id),
+        )
+
+        outline_helper.remove_key_limit(key_id=user.key.api_id)
+        msg = "Подписка оплачена, доступ не ограничен 🛜"
+
+    return msg
 
 
 async def send_logs_email():
@@ -99,3 +166,4 @@ async def send_logs_email():
         password=smtp_password,
     ) as smtp:
         await smtp.send_message(message)
+
