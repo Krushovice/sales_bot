@@ -21,9 +21,9 @@ def generate_order_number():
 
 
 def calculate_expiration_date(
-        date: str | None = None,
-        duration: int | None = None,
-        flag: bool = False,
+    date: str,
+    duration: int | None = None,
+    flag: bool = False,
 ) -> str:
     today = datetime.datetime.today().date()
     if flag:
@@ -69,7 +69,8 @@ def set_expiration_date(
         return calculate_expiration_date(flag=True)
 
     else:
-        return calculate_expiration_date(duration=duration)
+        today = datetime.datetime.today().date().strftime("%d-%m-%Y")
+        return calculate_expiration_date(date=today, duration=duration)
 
 
 def get_duration(payment) -> int:
