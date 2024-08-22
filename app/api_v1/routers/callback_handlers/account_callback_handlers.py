@@ -15,6 +15,7 @@ from app.api_v1.markups import (
 from app.api_v1.utils import (
     LEXICON_RU,
     setup_logger,
+    check_time_delta,
 )
 
 router = Router(name=__name__)
@@ -31,8 +32,8 @@ async def handle_payment_button(call: CallbackQuery):
             tg_id=call.from_user.id,
         )
         subscribe = user.expiration_date
-        if subscribe:
-            sub_info = f"Активна до {subscribe}"
+        if check_time_delta(subscribe):
+            sub_info = str(subscribe)
         else:
             sub_info = "Не активна"
 
