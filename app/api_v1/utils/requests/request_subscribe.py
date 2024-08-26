@@ -224,7 +224,7 @@ async def schedule_next_reminder(bot: Bot):
         await asyncio.sleep(168 * 3600)
 
 
-async def shcredule_reminder_to_inactive(bot: Bot):
+async def scredule_reminder_to_inactive(bot: Bot):
     while True:
         await send_youtube_message(bot)
         await asyncio.sleep(6 * 3600)
