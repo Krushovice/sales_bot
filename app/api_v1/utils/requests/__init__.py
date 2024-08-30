@@ -15,5 +15,5 @@ from .request_subscribe import (
     send_reminder_for_inactive,
     schedule_next_reminder,
     weed_out_active_users,
-    shcedule_reminder_to_inactive,
+    schedule_reminder_to_inactive,
 )

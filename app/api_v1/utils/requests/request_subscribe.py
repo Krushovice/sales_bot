@@ -209,6 +209,40 @@ async def send_youtube_message(bot: Bot) -> None:
             error_msg = f"Необработанное исключение при отправке сообщения пользователю {tg_id}: {e}"
             logger.error(error_msg)
 
+async def send_msg(bot: Bot) -> None:
+    users = await AsyncOrm.get_users()
+    for user in users:
+        tg_id = user.tg_id
+        try:
+            await bot.send_photo(
+                photo=FSInputFile(
+                    path="app/api_v1/utils/images/image3.jpg",
+                ),
+                chat_id=tg_id,
+                caption="Ребята, всем привет!\n"
+                        "Мы очень рады, что вы откликнулись на просьбу провести боевое тестирование нашего VPN-сервиса.🤗"
+                        "Некоторые из вас оплатили подписку и, насколько я могу судить, довольно успешно пользуются нашей услугой."
+                        "У многих же возникли сложности того или иного характера при подключении."
+                        "Друзья, если вас не затруднит и, если всё еще есть желание подключиться или же просто помочь в развитии проекта,"
+                        "напишите мне лично о проблеме, если такая имела место. Всем добра!🫶\n"
+                        "https://t.me/Krushovice",
+            )
+
+        except TelegramForbiddenError as e:
+            # Обработка исключения TelegramForbiddenError (пользователь заблокировал бота)
+            error_msg = f"Пользователь {tg_id} заблокировал бота: {e}"
+            logger.warning(error_msg)
+
+        except TelegramAPIError as e:
+            # Обработка других исключений API Telegram
+            error_msg = f"Ошибка при отправке сообщения пользователю {tg_id}: {e}"
+            logger.error(error_msg)
+
+        except Exception as e:
+            # Обработка других неожиданных исключений
+            error_msg = f"Необработанное исключение при отправке сообщения пользователю {tg_id}: {e}"
+            logger.error(error_msg)
+
 
 async def schedule_next_check():
     while True:
@@ -220,11 +254,12 @@ async def schedule_next_check():
 async def schedule_next_reminder(bot: Bot):
     while True:
         await weed_out_active_users(bot)
+        await send_msg(bot)
         await send_subscription_reminder(bot)
         await asyncio.sleep(168 * 3600)
 
 
-async def scredule_reminder_to_inactive(bot: Bot):
+async def schedule_reminder_to_inactive(bot: Bot):
     while True:
         await send_youtube_message(bot)
         await asyncio.sleep(6 * 3600)

@@ -11,7 +11,7 @@ from app.api_v1.config import settings
 from app.api_v1.utils import (
     schedule_next_check,
     schedule_next_reminder,
-    scredule_reminder_to_inactive,
+    schedule_reminder_to_inactive,
     setup_logger,
 )
 
