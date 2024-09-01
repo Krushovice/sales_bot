@@ -216,7 +216,7 @@ async def send_msg(bot: Bot) -> None:
         try:
             await bot.send_photo(
                 photo=FSInputFile(
-                    path="app/api_v1/utils/images/image3.jpg",
+                    path="app/api_v1/utils/images/image3.png",
                 ),
                 chat_id=tg_id,
                 caption="Ребята, всем привет!\n"
@@ -254,14 +254,12 @@ async def schedule_next_check():
 async def schedule_next_reminder(bot: Bot):
     while True:
         await weed_out_active_users(bot)
-        await send_msg(bot)
         await send_subscription_reminder(bot)
         await asyncio.sleep(168 * 3600)
 
 
 async def schedule_reminder_to_inactive(bot: Bot):
     while True:
-        await send_youtube_message(bot)
         await asyncio.sleep(6 * 3600)
         await send_reminder_for_inactive(bot)
         await asyncio.sleep(336 * 3600)

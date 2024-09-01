@@ -19,7 +19,7 @@ from app.api_v1.utils import (
 async def check_users(bot: Bot):
     task1 = asyncio.create_task(schedule_next_check())
     task2 = asyncio.create_task(schedule_next_reminder(bot))
-    task3 = asyncio.create_task(scredule_reminder_to_inactive(bot))
+    task3 = asyncio.create_task(schedule_reminder_to_inactive(bot))
     asyncio.gather(task1, task2, task3)
 
 
