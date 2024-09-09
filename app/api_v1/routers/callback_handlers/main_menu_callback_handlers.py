@@ -3,6 +3,7 @@ from datetime import datetime
 from aiogram import Router, F
 from aiogram.utils import markdown
 from aiogram.types import CallbackQuery
+from aiogram.exceptions import MessageNotModified
 
 from app.api_v1.orm.crud import AsyncOrm
 
@@ -96,6 +97,8 @@ async def handle_pay_action_button(
             caption="💰 Варианты оплаты подписки: ⬇️",
             reply_markup=build_payment_kb(),
         )
+    except MessageNotModified as e:
+        logger.error(f"Ошибка в изменении сообщения: {e}")
 
     except Exception as e:
         logger.error(f"Ошибка оплаты: {e}")
