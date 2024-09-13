@@ -11,7 +11,7 @@ from .admin_kb import (
     AdminActions,
     AdminCbData,
 )
-
+from app.api_v1.markups import build_main_kb
 from .admin_utils import show_users_statistic
 
 from app.api_v1.utils.logging import setup_logger
@@ -89,6 +89,9 @@ async def handle_back_to_admin_button(call: CallbackQuery):
 async def handle_statistic_button(call: CallbackQuery):
     await call.answer()
     await call.message.edit_caption(
-        caption="Здесь будет больше аналитики по продажам, наверное😁",
+        caption="Здесь будет больше аналитики по продажам, наверное😁"
+        "Пожалуйста, не скачивайте торрент-файлы через наш VPN‼️(<i>саму ссылку на скачивание загружать можно</i>). "
+        "Сервер Outline может заблокировать наш сервис за это. "
+        "Cпасибо за ваше понимание и за то, что выбрали нас 🫶🏻",
         reply_markup=back_to_admin_panel_kb(),
     )

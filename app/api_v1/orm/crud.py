@@ -18,7 +18,7 @@ class AsyncOrm:
         tg_id: int,
         username: str = None,
         **kwargs,
-    ) -> None:
+    ) -> User:
         async with db_helper.session_factory() as session:
             user = User(
                 tg_id=tg_id,

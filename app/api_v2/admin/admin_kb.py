@@ -1,12 +1,12 @@
 from enum import IntEnum, auto
 
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from app.api_v2.markups import MenuCbData, MenuActions
+from app.api_v2.markups import MenuCbData, MenuActions
 
 from aiogram.filters.callback_data import CallbackData
+
 from aiogram.types import InlineKeyboardMarkup
+
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
