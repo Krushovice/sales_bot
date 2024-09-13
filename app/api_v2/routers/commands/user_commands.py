@@ -47,7 +47,7 @@ async def user_promo_handler(message: Message) -> None:
                 path=file_path,
             ),
             caption=(
-                "Вот ваш пробный ключ \n"
+                "Ваш пробный ключ \n"
                 f"<code>{key.access_url}</code>"
                 "👆Нажмите чтобы скопировать\n"
             ),
