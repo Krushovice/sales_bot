@@ -18,6 +18,7 @@ __all__ = (
     "check_for_referral",
     "count_active_referrals",
     "send_reminder_for_inactive",
+    "schedule_reminder_to_inactive",
     "send_logs_email",
     "handle_referrer_user",
     "work_with_user_key",
@@ -42,6 +43,7 @@ from .requests import (
     check_user_expiration,
     send_reminder_for_inactive,
     schedule_next_reminder,
+    schedule_reminder_to_inactive,
 )
 
 from .logging import setup_logger

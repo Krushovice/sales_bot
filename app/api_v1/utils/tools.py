@@ -98,7 +98,7 @@ async def work_with_user_key(
         )
 
         msg = ("Подписка успешно оплачена, ваш ключ\n"
-               f"📌<pre>{key.value}</pre>\n"
+               f"<pre>{key.access_url}</pre>\n"
                "Cкопируйте его ✅\n")
     else:
         await AsyncOrm.update_user(
@@ -166,4 +166,3 @@ async def send_logs_email():
         password=smtp_password,
     ) as smtp:
         await smtp.send_message(message)
-

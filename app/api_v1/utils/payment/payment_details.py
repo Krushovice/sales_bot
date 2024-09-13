@@ -79,10 +79,10 @@ def get_duration(payment) -> int:
             return 1
 
         elif 20000 <= payment["Amount"] <= 40000:
-            return 2
+            return 3
 
         else:
-            return 3
+            return 6
     except Exception as e:
         logger.error(f"Something wrong with payment check: {e}")
 
