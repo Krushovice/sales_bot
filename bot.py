@@ -5,13 +5,12 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 
-from app.api_v1.routers import router as main_router
-from app.api_v1.admin import router as admin_router
+from app.api_v2.routers import router as main_router
+from app.api_v2.admin import router as admin_router
 from app.api_v1.config import settings
 from app.api_v1.utils import (
     schedule_next_check,
     schedule_next_reminder,
-    send_reminder_for_inactive,
     setup_logger,
 )
 
@@ -19,8 +18,7 @@ from app.api_v1.utils import (
 async def check_users(bot: Bot):
     task1 = asyncio.create_task(schedule_next_check())
     task2 = asyncio.create_task(schedule_next_reminder(bot))
-    task3 = asyncio.create_task(send_reminder_for_inactive(bot))
-    asyncio.gather(task1, task2, task3)
+    asyncio.gather(task1, task2)
 
 
 async def main() -> None:

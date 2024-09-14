@@ -221,7 +221,6 @@ async def schedule_next_check():
 async def schedule_next_reminder(bot: Bot):
     while True:
         await weed_out_active_users(bot)
-        await send_subscription_reminder(bot)
         await asyncio.sleep(168 * 3600)
 
 
