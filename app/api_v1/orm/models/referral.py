@@ -16,6 +16,7 @@ class Referral(Base):
     tg_id: Mapped[int] = mapped_column(BigInteger(), unique=True)
 
     user_id: Mapped[int] = mapped_column(
+        BigInteger(),
         ForeignKey("users.id", ondelete="CASCADE"),
     )
     # Добавляем отношение многие к одному с моделью User
