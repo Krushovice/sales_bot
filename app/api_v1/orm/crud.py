@@ -46,8 +46,8 @@ class AsyncOrm:
 
             result: Result = await session.execute(stmt)
 
-            users: User = result.scalars()
-            return users
+            users = result.scalars()
+            return list(users)
 
     @staticmethod
     async def get_inactive_users() -> list[User]:
@@ -62,7 +62,7 @@ class AsyncOrm:
             )
             result: Result = await session.execute(stmt)
             users = result.scalars()
-            return users
+            return list(users)
 
     @staticmethod
     async def get_users_by_subscription() -> list[User]:
@@ -76,7 +76,7 @@ class AsyncOrm:
             )
             result: Result = await session.execute(stmt)
             users_with_subscription = result.scalars()
-            return users_with_subscription
+            return list(users_with_subscription)
 
     @staticmethod
     async def update_user(
@@ -134,6 +134,22 @@ class AsyncOrm:
             keys = result.scalars()
 
             return keys
+
+    @staticmethod
+    async def create_referral(
+        tg_id: int,
+        user_id: int,
+        **kwargs,
+    ) -> Referral:
+        async with db_helper.session_factory() as session:
+            ref = Referral(
+                tg_id=tg_id,
+                user_id=user_id,
+                **kwargs,
+            )
+            session.add(ref)
+            await session.commit()
+            return ref
 
     @staticmethod
     async def get_referrer(tg_id: int) -> User | None:
