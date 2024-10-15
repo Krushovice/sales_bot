@@ -161,3 +161,4 @@ cython_debug/
 #.idea/
 
 /logs/
+count_referrals.txt
