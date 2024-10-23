@@ -141,14 +141,10 @@ async def weed_out_active_users(bot: Bot) -> None:
 
 
 async def send_reminder_for_inactive(bot: Bot) -> None:
-    users = await AsyncOrm.get_inactive_users()
+    users = await AsyncOrm.get_users()
 
     text = (
-        "Привет 👋\n"
-        "Вижу, вы так и не воспользовались нашим VPN 😔\n"
-        "Ниже я оставлю инструкцию по подключению, а это - <code>REALVPN2024CPG</code> промокод на бесплатные 7 дней 🎁 "
-        "Отправьте его мне.\nНажмите <b>Подключить со скидкой</b>, если готовы оплатить подписку, для вас действует "
-        "единоразовая скидка в 5%."
+        "Чтобы активировать новое меню, отправьте в чат команду /start. Старые сообщения стали не активными"
     )
     for user in users:
         tg_id = user.tg_id
@@ -161,7 +157,6 @@ async def send_reminder_for_inactive(bot: Bot) -> None:
                 ),
                 chat_id=tg_id,
                 caption=text,
-                reply_markup=build_renewal_kb(need_help=True),
             )
 
         except TelegramForbiddenError as e:

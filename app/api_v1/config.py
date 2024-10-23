@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     OUTLINE_SHA_CERT: str
     OUTLINE_USERS_GATEWAY: str
     ADMIN_ID: str
+    ADVERTISER_ID: str
     EMAIL: str
     EMAIL_PSWD: str
 
