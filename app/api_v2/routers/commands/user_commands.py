@@ -10,6 +10,7 @@ from app.api_v1.orm import AsyncOrm, Key
 
 from app.api_v1.utils import outline_helper
 
+from app.api_v1.config import settings
 
 router = Router(name=__name__)
 
@@ -42,7 +43,7 @@ async def user_promo_handler(message: Message) -> None:
         delta = timedelta(days=10)
         if not await AsyncOrm.get_referrer(tg_id=tg_id):
             await AsyncOrm.update_user(
-                tg_id=1130398207,
+                tg_id=int(settings.ADVERTISER_ID),
                 referral=user,
             )
         with open("count_referrals.txt", "w+") as f:
