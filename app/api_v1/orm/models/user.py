@@ -62,6 +62,8 @@ class User(Base):
         lazy="selectin",
     )
 
+    new_key:Mapped[str] = mapped_column(nullable=True)
+
     def __str__(self):
         return f"User(id={self.id!r}, username={self.username!r})"
 
