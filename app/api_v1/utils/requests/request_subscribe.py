@@ -15,7 +15,7 @@ from app.api_v1.utils.logging import setup_logger
 from . import outline_helper
 
 
-from app.api_v1.markups import build_renewal_kb
+from app.api_v2.markups import build_payment_kb
 
 
 file_path = "app/api_v1/utils/images/image2.jpg"
@@ -44,7 +44,7 @@ def check_user_for_sub_ended(user: User) -> bool:
             "%d-%m-%Y",
         ).date()
         delta = expiration_date - current_date
-        if delta.days < 0:
+        if -10 < delta.days < 0:
             return True
     return False
 
@@ -93,7 +93,7 @@ async def send_subscription_reminder(bot: Bot) -> None:
                         f"Привет! Напоминаю, что твоя подписка закончится {user.expiration_date}👋\n"
                         "Не забудь пожалуйста произвести оплату, чтобы продолжить пользоваться VPN✅"
                     ),
-                    reply_markup=build_renewal_kb(),
+                    reply_markup=build_payment_kb(),
                 )
 
         except TelegramAPIError as e:
@@ -121,7 +121,7 @@ async def weed_out_active_users(bot: Bot) -> None:
                         f"Привет! Ваша подписка закончилась {user.expiration_date}😢\n"
                         "Произведите оплату, чтобы возобновить работу VPN✅"
                     ),
-                    reply_markup=build_renewal_kb(),
+                    reply_markup=build_payment_kb(),
                 )
 
         except TelegramForbiddenError as e:
@@ -186,7 +186,7 @@ async def send_youtube_message(bot: Bot) -> None:
                 ),
                 chat_id=tg_id,
                 caption="Не работает или тормозит Youtube? Ты знаешь что делать✅",
-                reply_markup=build_renewal_kb(),
+                reply_markup=build_payment_kb(),
             )
 
         except TelegramForbiddenError as e:
@@ -208,16 +208,20 @@ async def send_youtube_message(bot: Bot) -> None:
 
 async def schedule_next_check():
     while True:
-        await check_subscription_expiry()
-        await send_logs_email()
+        try:
+            await check_subscription_expiry()
+            await send_logs_email()
+        except Exception as e:
+            logger.error(f"Ошибка в schedule_next_check: {e}")
         await asyncio.sleep(24 * 3600)
-
 
 async def schedule_next_reminder(bot: Bot):
     while True:
-        await weed_out_active_users(bot)
+        try:
+            await weed_out_active_users(bot)
+        except Exception as e:
+            logger.error(f"Ошибка в schedule_next_reminder: {e}")
         await asyncio.sleep(168 * 3600)
-
 
 async def schedule_reminder_to_inactive(bot: Bot):
     while True:
