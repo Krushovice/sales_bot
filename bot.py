@@ -15,32 +15,34 @@ from app.api_v1.utils import (
 )
 
 
-async def check_users(bot: Bot):
-    task1 = asyncio.create_task(schedule_next_check())
-    task2 = asyncio.create_task(schedule_next_reminder(bot))
-    asyncio.gather(task1, task2)
+# async def check_users(bot: Bot):
+#     task1 = asyncio.create_task(schedule_next_check())
+#     task2 = asyncio.create_task(schedule_next_reminder(bot))
+#     await asyncio.gather(task1, task2)
 
 
 async def main() -> None:
     logger = setup_logger(__name__)
 
-    try:  # Конфигурируем логирование
-
+    try:
         dp = Dispatcher()
         bot = Bot(
             token=settings.bot_token,
             default=DefaultBotProperties(parse_mode=ParseMode.HTML),
         )
-        # Регистриуем роутеры в диспетчере
+
         dp.include_routers(
             main_router,
             admin_router,
         )
 
-        # Пропускаем накопившиеся апдейты и запускаем polling
         await bot.delete_webhook(drop_pending_updates=True)
         await bot.session.close()
-        await check_users(bot)
+
+        # Запускаем задачи в фоновом режиме
+        asyncio.create_task(schedule_next_check())
+        asyncio.create_task(schedule_next_reminder(bot))
+
         await dp.start_polling(bot)
 
     except Exception as e:
