@@ -3,6 +3,8 @@ from datetime import datetime
 from aiogram import Router, F
 from aiogram.utils import markdown
 from aiogram.types import CallbackQuery
+from alembic.ddl.mssql import mssql_add_column
+
 from app.api_v1.config import settings
 from app.api_v1.orm.crud import AsyncOrm
 
@@ -116,9 +118,20 @@ async def handle_show_key_button(call: CallbackQuery):
     if user.key:
         try:
             key = user.key.value
+            new_key = user.new_key
+            if not new_key:
+                msg = ""
+            else:
+                msg = f"Новый ключ: 📌<pre>{new_key}</pre>"
 
             await call.message.edit_caption(
-                caption=(f"Ваш ключ: 📌<pre>{key}</pre>\n\nСкопируйте его ☑️"),
+                caption=(
+                    f"Ваш ключ: 📌<pre>{key}</pre>\nСкопируйте его ☑️\n"
+                    f"Данный ключ будет работать до 07.11.2024.\n\n"
+                    f"Важно!‼️ ️Если по какой-то причине у вас есть активная подписка, но нет нового ключа,"
+                    f"пожалуйста, свяжитесь со мной: kickstar69@yandex.ru"
+                    f"{msg}"
+                ),
                 reply_markup=root_kb(),
             )
 
