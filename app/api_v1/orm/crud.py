@@ -55,7 +55,6 @@ class AsyncOrm:
             stmt = (
                 select(User)
                 .where(User.subscription == False)
-                .where(User.key == None)
                 .order_by(
                     User.tg_id,
                 )
