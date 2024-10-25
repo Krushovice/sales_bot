@@ -115,25 +115,28 @@ async def handle_show_key_button(call: CallbackQuery):
     user = await AsyncOrm.get_user(
         tg_id=call.from_user.id,
     )
-    if user.key:
-        try:
-            key = user.key.value
-            new_key = user.new_key
-            if not new_key:
-                msg = ""
-            else:
-                msg = f"Новый ключ: 📌<pre>{new_key}</pre>"
+    if not user.key:
+        key = user.new_key
+    else:
+        key = user.key.value
 
-            await call.message.edit_caption(
-                caption=(
-                    f"Ваш ключ: 📌<pre>{key}</pre>\nСкопируйте его ☑️\n"
-                    f"Данный ключ будет работать до 07.11.2024.\n\n"
-                    f"Важно!‼️ ️Если по какой-то причине у вас есть активная подписка, но нет нового ключа,"
-                    f"пожалуйста, свяжитесь со мной: kickstar69@yandex.ru"
-                    f"{msg}"
-                ),
-                reply_markup=root_kb(),
-            )
+    try:
+        new_key = user.new_key
+        if not new_key:
+            msg = ""
+        else:
+            msg = f"Новый ключ: 📌<pre>{new_key}</pre>"
 
-        except Exception as e:
+        await call.message.edit_caption(
+            caption=(
+                f"Ваш ключ: 📌<pre>{key}</pre>\nСкопируйте его ☑️\n"
+                f"Данный ключ будет работать до 07.11.2024.\n\n"
+                f"Важно!‼️ ️Если по какой-то причине у вас есть активная подписка, но нет нового ключа,"
+                f"пожалуйста, свяжитесь со мной: kickstar69@yandex.ru\n\n"
+                f"{msg}"
+            ),
+            reply_markup=root_kb(),
+        )
+
+    except Exception as e:
             logger.error(f"Ошибка обработки кнопки доступа к ключу: {e}")
