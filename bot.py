@@ -14,6 +14,7 @@ from app.api_v1.utils import (
     setup_logger,
 )
 
+from app.api_v1.utils.requests.request_subscribe import send_to_users
 
 # async def check_users(bot: Bot):
 #     task1 = asyncio.create_task(schedule_next_check())
@@ -40,8 +41,9 @@ async def main() -> None:
         await bot.session.close()
 
         # Запускаем задачи в фоновом режиме
-        asyncio.create_task(schedule_next_check())
-        asyncio.create_task(schedule_next_reminder(bot))
+        # asyncio.create_task(schedule_next_check())
+        # asyncio.create_task(schedule_next_reminder(bot))
+        # await send_to_users(bot)
 
         await dp.start_polling(bot)
 
