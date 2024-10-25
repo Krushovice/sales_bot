@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     TINKOFF_SECRET: str
     OUTLINE_API_URL: str
     OUTLINE_SHA_CERT: str
+    NEW_OUTLINE_CERT: str
+    NEW_OUTLINE_API_URL: str
     OUTLINE_USERS_GATEWAY: str
     ADMIN_ID: str
     ADVERTISER_ID: str
