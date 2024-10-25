@@ -25,6 +25,10 @@ class OutlineHelper:
             return key
         return None
 
+    def get_keys(self):
+        keys = self.client.get_keys()
+        return keys
+
     def set_key_name(self, key, name):
         self.client.rename_key(key.key_id, str(name))
 
@@ -39,6 +43,6 @@ class OutlineHelper:
 
 
 outline_helper = OutlineHelper(
-    api_url=settings.OUTLINE_API_URL,
-    cert_sha256=settings.OUTLINE_SHA_CERT,
+    api_url=settings.NEW_OUTLINE_API_URL,
+    cert_sha256=settings.NEW_OUTLINE_CERT,
 )
