@@ -43,11 +43,15 @@ async def get_subscribe_info(user: User) -> dict:
     return info
 
 
-def check_for_referral(message: Message) -> int:
+async def check_for_referral(message: Message):
     if len(message.text) > 6:
         target = str(message.text)[6:]
         referral_id = int(target)
-        return referral_id
+        user = await AsyncOrm.get_user(tg_id=referral_id)
+        if user:
+            return referral_id
+        else:
+            return False
     return False
 
 
