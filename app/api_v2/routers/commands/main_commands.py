@@ -33,23 +33,26 @@ async def command_start_handler(message: Message):
 
     try:
         tg_id = message.from_user.id
-        today = datetime.now()
-        delta = timedelta(days=7)
-        expiration_date = (today + delta).strftime("%d-%m-%Y")
         user_exists = await AsyncOrm.get_user(tg_id=tg_id)
 
         if not user_exists:
             """Check user start command for referral link"""
-            referrer_id = check_for_referral(message)
+            referrer_id = await check_for_referral(message)
 
             if referrer_id and referrer_id != tg_id:
+                today = datetime.now()
+                expiration_date = today + timedelta(
+                    days=10 if referrer_id == settings.ADVERTISER_ID else 5
+                )
+
                 key = outline_helper.create_new_key(name=tg_id)
                 new_user = await AsyncOrm.create_user(
                     tg_id=tg_id,
                     username=message.from_user.username,
                     subscription=True,
                     subscribe_date=today.strftime("%d-%m-%Y"),
-                    expiration_date=expiration_date,
+                    expiration_date=expiration_date.strftime("%d-%m-%Y"),
+
                 )
                 await AsyncOrm.update_user(
                     tg_id=new_user.tg_id,
@@ -70,11 +73,13 @@ async def command_start_handler(message: Message):
                     tg_id=tg_id,
                     username=message.from_user.username,
                 )
-
-        if check_time_delta(date=user_exists.expiration_date):
-            sub_info = f"Активна до {user_exists.expiration_date} ✅"
-        else:
             sub_info = "Не активна ⛔️"
+
+        else:
+            if check_time_delta(date=user_exists.expiration_date):
+                sub_info = f"Активна до {user_exists.expiration_date} ✅"
+            else:
+                sub_info = "Не активна ⛔️"
         sub = True if user_exists.subscription else False
         is_admin = True if user_exists.tg_id == int(settings.ADMIN_ID) else False
         await message.answer_photo(
