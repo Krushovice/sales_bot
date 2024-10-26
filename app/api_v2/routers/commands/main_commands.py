@@ -30,16 +30,32 @@ file_path = "app/api_v1/utils/images/image2.jpg"
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message):
-
     try:
         tg_id = message.from_user.id
         user_exists = await AsyncOrm.get_user(tg_id=tg_id)
 
-        if not user_exists:
-            """Check user start command for referral link"""
-            referrer_id = await check_for_referral(message)
+        # проверка на реферальную ссылку
+        referrer_id = await check_for_referral(message)
+
+        if user_exists:
+
+            # Пользователь уже зарегистрирован, проверяем подписку
+            if check_time_delta(date=user_exists.expiration_date):
+                sub_info = f"Активна до {user_exists.expiration_date} ✅"
+            else:
+                sub_info = "Не активна ⛔️"
+
+            if referrer_id:
+                # Оповещение о недоступности реферальной ссылки для существующих пользователей
+                await message.answer(
+                    "Реферальная ссылка доступна только для новых пользователей.👀"
+                    " Ваша подписка: " + sub_info
+                )
+
+        else:
 
             if referrer_id and referrer_id != tg_id:
+                # Создание нового пользователя с реферальным бонусом
                 today = datetime.now()
                 expiration_date = today + timedelta(
                     days=10 if referrer_id == settings.ADVERTISER_ID else 5
@@ -52,8 +68,9 @@ async def command_start_handler(message: Message):
                     subscription=True,
                     subscribe_date=today.strftime("%d-%m-%Y"),
                     expiration_date=expiration_date.strftime("%d-%m-%Y"),
-
                 )
+
+                # Обновление сгенерированного ключа и реферала
                 await AsyncOrm.update_user(
                     tg_id=new_user.tg_id,
                     key=Key(
@@ -69,29 +86,26 @@ async def command_start_handler(message: Message):
                     referral=new_user,
                 )
             else:
+                # Создание пользователя без реферальной ссылки
                 await AsyncOrm.create_user(
                     tg_id=tg_id,
                     username=message.from_user.username,
                 )
             sub_info = "Не активна ⛔️"
 
-        else:
-            if check_time_delta(date=user_exists.expiration_date):
-                sub_info = f"Активна до {user_exists.expiration_date} ✅"
-            else:
-                sub_info = "Не активна ⛔️"
-        sub = True if user_exists.subscription else False
-        is_admin = True if user_exists.tg_id == int(settings.ADMIN_ID) else False
+        # Настройки подписки и администрирования для кнопок
+        sub = bool(user_exists.subscription if user_exists else False)
+        is_admin = tg_id == int(settings.ADMIN_ID)
+
+        # Отправка информации пользователю
         await message.answer_photo(
-            photo=FSInputFile(
-                path=file_path,
-            ),
+            photo=FSInputFile(path=file_path),
             caption=markdown.hbold(
                 "🚀  Подключение в 1 клик, без ограничений скорости\n\n"
                 "🛡  Отсутствие рекламы и полная конфиденциальность\n\n"
                 "🔥  Твой личный VPN по самой низкой цене\n\n"
-                "💰  Цена: 1̶9̶9̶руб 💥150 руб/мес\n\n",
-                f"Ваша подписка: {sub_info}\n\n",
+                "💰  Цена: 1̶9̶9̶руб 💥150 руб/мес\n\n"
+                f"Ваша подписка: {sub_info}\n\n"
             ),
             reply_markup=build_main_kb(
                 subscribe=sub,
