@@ -22,7 +22,7 @@ my_logger = setup_logger(__name__)
 file_path = "app/api_v1/utils/images/image2.jpg"
 
 
-@router.message(F.text.in_({"REALVPN2024CPG", "LEVITSKAYA"}))
+@router.message(F.text == "REALVPN2024CPG")
 async def user_promo_handler(message: Message) -> None:
     tg_id = message.from_user.id
     user = await AsyncOrm.get_user(tg_id=tg_id)
@@ -31,7 +31,7 @@ async def user_promo_handler(message: Message) -> None:
             tg_id=tg_id,
             username=message.from_user.username,
         )
-    if user.key:
+    if user:
         await message.answer_photo(
             photo=FSInputFile(
                 path=file_path,
