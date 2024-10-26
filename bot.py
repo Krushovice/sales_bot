@@ -40,10 +40,11 @@ async def main() -> None:
         await bot.delete_webhook(drop_pending_updates=True)
         await bot.session.close()
 
-        # Запускаем задачи в фоновом режиме
-        # asyncio.create_task(schedule_next_check())
-        # asyncio.create_task(schedule_next_reminder(bot))
-        # await send_to_users(bot)
+        #Запускаем задачи в фоновом режиме
+
+        asyncio.create_task(schedule_next_check())
+        asyncio.create_task(schedule_next_reminder(bot))
+        await send_to_users(bot)
 
         await dp.start_polling(bot)
 
