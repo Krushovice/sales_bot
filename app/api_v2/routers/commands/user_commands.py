@@ -31,43 +31,10 @@ async def user_promo_handler(message: Message) -> None:
             tg_id=tg_id,
             username=message.from_user.username,
         )
-    if user:
-        await message.answer_photo(
-            photo=FSInputFile(
-                path=file_path,
-            ),
-            caption="Промокод действует только для новых пользователей",
-            reply_markup=root_kb(),
-        )
 
     today = datetime.now()
-    if message.text == "REALVPN2024CPG":
-        delta = timedelta(days=7)
-    elif message.text == "LEVITSKAYA":
-        delta = timedelta(days=10)
-        try:
-            referrer = await AsyncOrm.get_referrer(tg_id=tg_id)
-        except Exception as e:
-            referrer = None
-            # Логирование ошибки
-            my_logger.error(f"Ошибка при получении реферрала для пользователя {tg_id}: {e}")
 
-        if not referrer:
-            await AsyncOrm.update_user(
-                tg_id=int(settings.ADVERTISER_ID),
-                referral=user,
-            )
-        with open("count_referrals.txt", "r+") as f:
-            count = f.read()
-            if not count:
-                f.write("1")
-            else:
-                count = int(count)
-                count += 1
-                f.seek(0)
-                f.write(str(count))
-
-    expiration_date = (today + delta).strftime("%d-%m-%Y")
+    delta = timedelta(days=7)
 
     if not user.key:
         key = outline_helper.create_new_key(name=tg_id)
