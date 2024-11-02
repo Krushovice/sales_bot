@@ -31,7 +31,7 @@ async def handle_promo_button(call: CallbackQuery):
     await call.answer()
 
     await call.message.edit_caption(
-        caption="Отправьте пожалуйста в чат ваш промокод  🎁",
+        caption="Отправьте пожалуйста в чат ваш промокод 🎁",
         reply_markup=root_kb(),
     )
 

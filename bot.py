@@ -16,10 +16,10 @@ from app.api_v1.utils import (
 
 from app.api_v1.utils.requests.request_subscribe import send_to_users
 
-# async def check_users(bot: Bot):
-#     task1 = asyncio.create_task(schedule_next_check())
-#     task2 = asyncio.create_task(schedule_next_reminder(bot))
-#     await asyncio.gather(task1, task2)
+async def check_users(bot: Bot):
+    task1 = asyncio.create_task(schedule_next_check())
+    task2 = asyncio.create_task(schedule_next_reminder(bot))
+    return task1, task2
 
 
 async def main() -> None:
@@ -42,9 +42,7 @@ async def main() -> None:
 
         #Запускаем задачи в фоновом режиме
 
-        asyncio.create_task(schedule_next_check())
-        asyncio.create_task(schedule_next_reminder(bot))
-        await send_to_users(bot)
+        await check_users(bot)
 
         await dp.start_polling(bot)
 

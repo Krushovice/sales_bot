@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import functools
 
 
 from aiogram import Bot
@@ -22,6 +23,20 @@ file_path = "app/api_v1/utils/images/image2.jpg"
 foto = "app/api_v1/utils/images/image4.jpg"
 
 logger = setup_logger(__name__)
+
+
+def async_repeat(interval):
+    """
+    Декоратор для асинхронного вызова функции с заданным интервалом.
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        async def wrapper(*args, **kwargs):
+            while True:
+                await func(*args, **kwargs)
+                await asyncio.sleep(interval)  # Ожидание заданного интервала
+        return wrapper
+    return decorator
 
 
 def check_user_expiration(user: User) -> bool:
@@ -148,7 +163,7 @@ async def send_reminder_for_inactive(bot: Bot) -> None:
         "Друзья, мы постоянно стараемся улучшить работоспособность VPN-сервиса для вашего удобства и комфорта. "
         "В связи с этим, было принято решение обновить конфигурацию сервера, чтобы сайты открывались еще быстрее "
         "и были всегда доступны для вас 🤗. В вашем личном кабинете по кнопке 'Ключ Outline' появился дополнительный ключ, "
-        "который полностью рабочий и копирует вашу подписку, его вы можете подключить к вашему приложению точно также. " 
+        "который полностью рабочий и копирует вашу подписку, его вы можете подключить к вашему приложению точно также. "
         "Старый ключ перестанет работать 07.11.2024. Для тех, кто так и не воспользовался нашим сервисом или не купил подписку, "
         "мы подготовили подарок в виде бесплатного ключа сроком на 5 дней😎, чтобы вы лично убедились что сервис не стоит на месте!"
     )
@@ -250,23 +265,21 @@ async def send_youtube_message(bot: Bot) -> None:
             logger.error(error_msg)
 
 
-
+@async_repeat(interval=24 * 3600)
 async def schedule_next_check():
-    while True:
-        try:
-            await check_subscription_expiry()
-            await send_logs_email()
-        except Exception as e:
-            logger.error(f"Ошибка в schedule_next_check: {e}")
-        await asyncio.sleep(24 * 3600)
+    try:
+        await check_subscription_expiry()
+        await send_logs_email()
+    except Exception as e:
+        logger.error(f"Ошибка в schedule_next_check: {e}")
 
+@async_repeat(interval=168 * 3600)
 async def schedule_next_reminder(bot: Bot):
-    while True:
-        try:
-            await weed_out_active_users(bot)
-        except Exception as e:
-            logger.error(f"Ошибка в schedule_next_reminder: {e}")
-        await asyncio.sleep(168 * 3600)
+    try:
+        await weed_out_active_users(bot)
+    except Exception as e:
+        logger.error(f"Ошибка отправки напоминания: {e}")
+
 
 async def schedule_reminder_to_inactive(bot: Bot):
     while True:
